@@ -1,4 +1,4 @@
-import { Bell, Search, User } from "lucide-react"
+import { Bell, ChevronDown, Info, Menu, Search, User } from "lucide-react"
 import type { FC } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
@@ -31,10 +31,13 @@ export const Navbar: FC = () => {
             <a href="#" className="transition-colors hover:text-primary">
               New
             </a>
-            <div className="flex items-center gap-1 cursor-pointer transition-colors hover:text-primary">
+            <a
+              href="#"
+              className="flex items-center gap-1 transition-colors hover:text-foreground group"
+            >
               <span>More</span>
-              <span className="text-[10px]">▼</span>
-            </div>
+              <ChevronDown className="size-3 transition-transform group-hover:translate-y-0.5" />
+            </a>
           </nav>
         </div>
 
@@ -43,8 +46,8 @@ export const Navbar: FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search markets"
-            className="w-full bg-surface border border-border rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+            placeholder={isAuthenticated ? "Search markets" : "Search polymarkets..."}
+            className="w-full bg-surface border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all placeholder:text-muted-foreground/60"
           />
         </div>
 
@@ -52,60 +55,73 @@ export const Navbar: FC = () => {
         <div className="flex items-center gap-4">
           {isAuthenticated ? (
             <>
-              <div className="hidden sm:flex items-center gap-4 text-xs font-bold mr-2">
+              <div className="hidden sm:flex items-center gap-4 text-[10px] font-bold mr-2">
                 <div className="flex flex-col items-end">
-                  <span className="text-muted-foreground uppercase tracking-wider scale-75 origin-right">
+                  <span className="text-muted-foreground uppercase tracking-widest leading-none mb-1">
                     Portfolio
                   </span>
-                  <span className="text-primary">$5,675</span>
+                  <span className="text-primary text-sm font-bold">$5,675</span>
                 </div>
                 <div className="flex flex-col items-end border-l border-border pl-4">
-                  <span className="text-muted-foreground uppercase tracking-wider scale-75 origin-right">
+                  <span className="text-muted-foreground uppercase tracking-widest leading-none mb-1">
                     Cash
                   </span>
-                  <span className="text-primary">$500</span>
+                  <span className="text-primary text-sm font-bold">$500</span>
                 </div>
               </div>
 
               <Button
                 variant="default"
-                className="bg-primary text-background font-bold hover:bg-primary/90 px-6"
+                className="bg-primary text-background font-bold hover:bg-primary/90 px-6 rounded-lg h-10"
               >
                 Deposit
               </Button>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 ml-1">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground h-10 w-10"
                 >
                   <Bell className="size-5" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground h-10 w-10 bg-surface/50 rounded-full"
                 >
                   <User className="size-5" />
                 </Button>
               </div>
             </>
           ) : (
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                className="text-sm font-bold hover:text-primary"
-                onClick={() => dispatch(login())}
-              >
-                Login
-              </Button>
-              <Button
-                variant="default"
-                className="bg-primary text-background font-bold hover:bg-primary/90 px-6"
-              >
-                Sign Up
-              </Button>
+            <div className="flex items-center gap-4">
+              <div className="hidden md:flex items-center gap-2 text-accent cursor-pointer hover:opacity-80 transition-opacity">
+                <Info className="size-4" />
+                <span className="text-sm font-medium">How it works</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  className="text-sm font-bold text-accent hover:text-accent/80 hover:bg-transparent"
+                  onClick={() => dispatch(login())}
+                >
+                  Log In
+                </Button>
+                <Button
+                  variant="default"
+                  className="bg-accent text-white font-bold hover:bg-accent/90 px-6 rounded-lg h-10"
+                >
+                  Sign Up
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-foreground h-10 w-10"
+                >
+                  <Menu className="size-6" />
+                </Button>
+              </div>
             </div>
           )}
         </div>
