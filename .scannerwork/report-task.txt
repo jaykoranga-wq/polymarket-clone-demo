@@ -2,5 +2,5 @@ projectKey=polymarket
 serverUrl=http://localhost:9000
 serverVersion=25.12.0.117093
 dashboardUrl=http://localhost:9000/dashboard?id=polymarket
-ceTaskId=5352b04b-5f5a-4480-b184-195e5cf86b2e
-ceTaskUrl=http://localhost:9000/api/ce/task?id=5352b04b-5f5a-4480-b184-195e5cf86b2e
+ceTaskId=70b907b4-e27e-4d96-a8c0-ff1f8d2f8b1c
+ceTaskUrl=http://localhost:9000/api/ce/task?id=70b907b4-e27e-4d96-a8c0-ff1f8d2f8b1c
