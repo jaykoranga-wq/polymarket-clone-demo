@@ -2,26 +2,26 @@ import { BarChart3, Calendar, History, Share2 } from "lucide-react"
 import type { FC } from "react"
 
 import { Button } from "@/components/ui/button"
-import type { Market } from "@/features/markets/types"
+import type { BinaryMarket } from "@/features/markets/types"
 
 import { PercentageBar } from "./PercentageBar"
 
 interface MarketCardProps {
-  market: Market
+  market: BinaryMarket
 }
 
-export const MarketCard: FC<MarketCardProps> = ({ market }) => {
+export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
   return (
     <div className="group flex flex-col bg-surface border border-border rounded-xl p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer">
       <div className="flex gap-4 mb-4">
-        <div className="size-12 min-w-[48px] rounded-lg overflow-hidden border border-border bg-background">
+        <div className="size-12 min-w-12 rounded-lg overflow-hidden border border-border bg-background">
           <img
             src={market.thumbnailUrl}
             alt={market.title}
             className="size-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
           />
         </div>
-        <h3 className="text-sm font-bold leading-tight line-clamp-2 min-h-[40px] group-hover:text-primary transition-colors">
+        <h3 className="text-sm font-bold leading-tight line-clamp-2 min-h-10 group-hover:text-primary transition-colors">
           {market.title}
         </h3>
       </div>
