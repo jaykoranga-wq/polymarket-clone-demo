@@ -1,5 +1,5 @@
 import type { MARKET_TYPES } from "../../constants/marketTypes"
-
+export type MarketFrequency = "Daily" | "Monthly" | "Event"
 export interface BaseMarket {
   id: string
   title: string
@@ -8,9 +8,10 @@ export interface BaseMarket {
   thumbnailUrl: string
   expiryDate: string
   volume: string
-  frequency: "Daily" | "Monthly" | "Event"
+  frequency: MarketFrequency
   isTrending?: boolean
 }
+
 export interface BinaryMarket extends BaseMarket {
   type: typeof MARKET_TYPES.BINARY
   yesProbability: number // 0 to 100

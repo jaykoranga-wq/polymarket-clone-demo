@@ -17,4 +17,4 @@ export const DESIGN_TOKENS = {
     default: "transition-all duration-200 ease-in-out",
     hover: "hover:scale-[1.02] active:scale-[0.98]",
   },
-} as const;
+} as const
