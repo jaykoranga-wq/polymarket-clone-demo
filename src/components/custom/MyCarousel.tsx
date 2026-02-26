@@ -32,8 +32,8 @@ export function MyCarousel<T>({ items, renderItem }: MyCarouselProps<T>) {
         ))}
       </CarouselContent>
 
-      <CarouselPrevious className="left-4" />
-      <CarouselNext className="right-4" />
+      <CarouselPrevious className="-left-4 bg-[#1C2330] border-border hover:bg-[#252D3A] text-white" />
+      <CarouselNext className="-right-4 bg-[#1C2330] border-border hover:bg-[#252D3A] text-white" />
     </Carousel>
   )
 }

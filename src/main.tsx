@@ -7,6 +7,8 @@ import { RouterProvider } from "react-router"
 import { AppProviders } from "@/app/providers"
 import { router } from "@/routes"
 
+import MagicProvider from "./lib/magic"
+
 const rootElement = document.getElementById("root")
 
 if (!rootElement) {
@@ -15,8 +17,10 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <AppProviders>
-      <RouterProvider router={router} />
-    </AppProviders>
+    <MagicProvider>
+      <AppProviders>
+        <RouterProvider router={router} />
+      </AppProviders>
+    </MagicProvider>
   </StrictMode>,
 )

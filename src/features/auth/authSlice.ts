@@ -1,43 +1,55 @@
-import { createSlice } from "@reduxjs/toolkit"
-
-import type { RootState } from "@/app/store"
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 interface AuthState {
   isAuthenticated: boolean
-  user: {
-    id: string
-    email: string
-    name: string
-  } | null
+  email: string | null
+  publicAddress: string | null // for wallet later
+  loading: true | false
 }
 
 const initialState: AuthState = {
   isAuthenticated: false,
-  user: null,
+  email: null,
+  publicAddress: null,
+  loading: false,
 }
 
-export const authSlice = createSlice({
+const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state) => {
-      state.isAuthenticated = true
-      state.user = {
-        id: "1",
-        email: "user@example.com",
-        name: "Demo User",
+    login(
+      state,
+      action: PayloadAction<{
+        email: string | null
+        publicAddress?: string | null
+        loading: boolean
+        isAuthenticated?: boolean
+      }>,
+    ) {
+      if (action.payload.isAuthenticated === false) {
+        state.isAuthenticated = action.payload.isAuthenticated
+      } else {
+        state.isAuthenticated = true
       }
+      state.email = action.payload.email
+      state.publicAddress = action.payload.publicAddress ?? null
+      state.loading = action.payload.loading
     },
-    logout: (state) => {
+    logout(state) {
       state.isAuthenticated = false
-      state.user = null
+      state.email = null
+      state.publicAddress = null
+      state.loading = false
+    },
+    loadingTrue(state) {
+      state.loading = true
     },
   },
 })
 
-export const { login, logout } = authSlice.actions
-
-export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated
-export const selectUser = (state: RootState) => state.auth.user
-
+export const { login, logout, loadingTrue } = authSlice.actions
+export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated
+export const selectUserData = (state: { auth: AuthState }) => state.auth
+export const selectUserLoading = (state: { auth: AuthState }) => state.auth.loading
 export default authSlice.reducer

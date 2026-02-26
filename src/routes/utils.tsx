@@ -9,3 +9,10 @@ import { LoadingFallback } from "@/components/common/LoadingFallback"
 export function withSuspense(element: ReactNode): ReactNode {
   return <Suspense fallback={<LoadingFallback />}>{element}</Suspense>
 }
+
+//metamask-sessions
+const KEY = "metamask_logged_out"
+
+export const setMetaMaskLoggedOut = () => localStorage.setItem(KEY, "true")
+export const clearMetaMaskLoggedOut = () => localStorage.removeItem(KEY)
+export const wasMetaMaskLoggedOut = () => localStorage.getItem(KEY) === "true"
