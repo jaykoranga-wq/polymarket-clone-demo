@@ -36,4 +36,5 @@ export interface MarketsState {
   loading: boolean
   error: string | null
   selectedCategory: string
+  selectedMarket: Market | null
 }
