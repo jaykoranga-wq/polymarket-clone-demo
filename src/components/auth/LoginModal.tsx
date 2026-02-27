@@ -30,10 +30,11 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
     try {
       await magic.auth.loginWithEmailOTP({ email })
       const userInfo = await magic.user.getInfo()
+      console.log("user from email :", userInfo)
       dispatch(
         login({
           email: userInfo.email ?? null,
-          publicAddress: userInfo.publicAddress ?? null,
+          publicAddress: userInfo.wallets.ethereum?.publicAddress ?? null,
           loading: false,
         }),
       )
@@ -54,7 +55,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
     try {
       await magic.oauth2.loginWithRedirect({
         provider: "google",
-        redirectURI: window.location.href,
+        redirectURI: `${import.meta.env.VITE_REDIRECT_URL}`,
         //   customParameters: {
         //   prompt: "select_account", // 👈 forces Google account picker every time
         // },
