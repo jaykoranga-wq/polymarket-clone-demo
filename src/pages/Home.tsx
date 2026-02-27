@@ -36,7 +36,7 @@ const Home: FC = () => {
           dispatch(
             login({
               email: result.magic.userMetadata.email ?? null,
-              publicAddress: result.magic.userMetadata.publicAddress ?? null,
+              publicAddress: result.magic.userMetadata.wallets.ethereum?.publicAddress ?? null,
               loading: false,
             }),
           )
@@ -60,10 +60,11 @@ const Home: FC = () => {
         const isLoggedIn = await magic?.user.isLoggedIn()
         if (isLoggedIn) {
           const userInfo = await magic?.user.getInfo()
+
           dispatch(
             login({
               email: userInfo?.email ?? null,
-              publicAddress: userInfo?.publicAddress ?? null,
+              publicAddress: userInfo?.wallets.ethereum?.publicAddress ?? null,
               loading: false,
             }),
           )

@@ -128,7 +128,7 @@ export const Navbar: FC = () => {
                     variant="ghost"
                     size="sm"
                     onClick={handleLogout}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground cursor-pointer"
                   >
                     Logout
                   </Button>
@@ -144,14 +144,14 @@ export const Navbar: FC = () => {
                 <div className="flex items-center gap-3">
                   <Button
                     variant="default"
-                    className="bg-accent text-white font-bold hover:bg-accent/90 px-6 rounded-lg h-10"
+                    className="bg-accent text-white font-bold hover:bg-accent/90 px-6 rounded-lg h-10 cursor-pointer"
                     onClick={() => setIsLoginOpen(true)}
                   >
                     Log In
                   </Button>
                   <Button
                     variant="default"
-                    className="bg-accent text-white font-bold hover:bg-accent/90 px-6 rounded-lg h-10"
+                    className="bg-accent text-white font-bold hover:bg-accent/90 px-6 rounded-lg h-10 cursor-pointer"
                     onClick={() => setIsLoginOpen(true)}
                   >
                     Sign Up
@@ -159,7 +159,7 @@ export const Navbar: FC = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-muted-foreground hover:text-foreground h-10 w-10"
+                    className="text-muted-foreground hover:text-foreground h-10 w-10 cursor-pointer"
                   >
                     <Menu className="size-6" />
                   </Button>
