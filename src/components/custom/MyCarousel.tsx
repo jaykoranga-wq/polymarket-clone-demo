@@ -14,9 +14,10 @@ interface MyCarouselProps<T> {
 }
 
 export function MyCarousel<T>({ items, renderItem }: MyCarouselProps<T>) {
+  const delay = 500
   return (
     <Carousel
-      plugins={[Autoplay({ delay: 5000 })]}
+      plugins={[Autoplay({ delay: delay })]}
       opts={{
         align: "start",
         loop: true,

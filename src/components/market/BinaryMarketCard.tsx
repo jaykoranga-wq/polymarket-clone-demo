@@ -1,5 +1,6 @@
 import { BarChart3, Calendar, History, Share2 } from "lucide-react"
 import type { FC } from "react"
+import { useNavigate } from "react-router"
 
 import { Button } from "@/components/ui/button"
 import type { BinaryMarket } from "@/features/markets/types"
@@ -11,8 +12,15 @@ interface MarketCardProps {
 }
 
 export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
+  const navigate = useNavigate()
+  function handleNavigation() {
+    navigate("/event")
+  }
   return (
-    <div className="group flex flex-col bg-surface border border-border rounded-xl p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer">
+    <div
+      className="group flex flex-col bg-surface border border-border rounded-xl p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer"
+      onClick={() => handleNavigation()}
+    >
       <div className="flex gap-4 mb-4">
         <div className="size-12 min-w-12 rounded-lg overflow-hidden border border-border bg-background">
           <img

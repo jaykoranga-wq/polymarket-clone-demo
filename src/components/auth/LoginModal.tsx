@@ -12,10 +12,15 @@ interface LoginModalProps {
   open: boolean
   onClose: () => void
 }
-
+//enums for states
+enum States {
+  Email = "email",
+  Google = "google",
+  MetaMask = "metamask",
+}
 export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   const [email, setEmail] = useState("")
-  const [loading, setLoading] = useState<"email" | "google" | "metamask" | null>(null)
+  const [loading, setLoading] = useState<States | null>(null)
   const { magic } = useMagic()
   const dispatch = useDispatch()
 
@@ -25,7 +30,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   const handleEmailLogin = async () => {
     if (!email || !magic) return
 
-    setLoading("email")
+    setLoading(States.Email)
     dispatch(loadingTrue())
     try {
       await magic.auth.loginWithEmailOTP({ email })
@@ -42,6 +47,9 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
       onClose()
     } catch (err) {
       console.error("Email login failed:", err)
+      toast.error(`${States.Email} failed`, {
+        description: `error:${err}`,
+      })
     } finally {
       setLoading(null)
     }
@@ -50,11 +58,11 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   // ── Google OAuth via Magic ───────────────────────────────────────
   const handleGoogleLogin = async () => {
     if (!magic) return
-    setLoading("google")
+    setLoading(States.Google)
     dispatch(loadingTrue())
     try {
       await magic.oauth2.loginWithRedirect({
-        provider: "google",
+        provider: States.Google,
         redirectURI: `${import.meta.env.VITE_REDIRECT_URL}`,
         //   customParameters: {
         //   prompt: "select_account", // 👈 forces Google account picker every time
@@ -63,6 +71,9 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
       // Magic redirects back — handle result in a useEffect (see note below)
     } catch (err) {
       console.error("Google login failed:", err)
+      toast.error(`${States.Google} failed`, {
+        description: `error:${err}`,
+      })
       setLoading(null)
     }
   }
@@ -80,7 +91,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
       })
       return
     }
-    setLoading("metamask")
+    setLoading(States.MetaMask)
     dispatch(loadingTrue())
     try {
       const accounts: string[] = await window.ethereum.request({
@@ -100,6 +111,9 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
       onClose()
     } catch (err) {
       console.error("MetaMask login failed:", err)
+      toast.error(`${States.MetaMask} failed`, {
+        description: `error:${err}`,
+      })
     } finally {
       setLoading(null)
     }
