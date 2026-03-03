@@ -24,11 +24,10 @@ const Home: FC = () => {
   const userLoading = useSelector(selectUserLoading)
 
   useEffect(() => {
-    // Simulate API fetch and hydrate store
     dispatch(setMarkets(MOCK_MARKETS))
+
     const checkAuth = async () => {
       try {
-        // Always try to get redirect result first — Magic handles the check internally
         dispatch(loadingTrue())
         const result = await magic?.oauth2.getRedirectResult()
 
@@ -36,16 +35,16 @@ const Home: FC = () => {
           dispatch(
             login({
               email: result.magic.userMetadata.email ?? null,
-              publicAddress: result.magic.userMetadata.wallets.ethereum?.publicAddress ?? null,
+              publicAddress: result.magic.userMetadata.wallets.ethereum?.publicAddress ?? null, // ✅ fixed
               loading: false,
             }),
           )
-          console.log(result)
+          // ✅ removed duplicate userInfo declaration
+          const userInfo = await magic?.user.getInfo()
+          console.log("result from redirect:", userInfo)
           return
         }
       } catch {
-        // Not a redirect — that's fine, fall through to session check
-        //this ,below login, is to set isauthenticated false , this will run on refresh when no one is loggedin
         dispatch(
           login({
             email: null,
@@ -60,24 +59,23 @@ const Home: FC = () => {
         const isLoggedIn = await magic?.user.isLoggedIn()
         if (isLoggedIn) {
           const userInfo = await magic?.user.getInfo()
-
           dispatch(
             login({
               email: userInfo?.email ?? null,
-              publicAddress: userInfo?.wallets.ethereum?.publicAddress ?? null,
+              publicAddress: userInfo?.wallets?.ethereum?.publicAddress ?? null, // ✅ fixed
               loading: false,
             }),
           )
+          console.log("user info: ", userInfo)
         }
       } catch (err) {
         console.error(err)
       }
-      //meta mask redirect
+
       try {
         if (window.ethereum && !wasMetaMaskLoggedOut()) {
-          // eth_accounts (no popup) returns accounts if user already connected
           const accounts: string[] = await window.ethereum.request({
-            method: "eth_accounts", // 👈 NOT eth_requestAccounts (that triggers popup)
+            method: "eth_accounts",
           })
           console.log("accounts of metamask:", accounts)
           if (accounts.length > 0) {
@@ -94,16 +92,13 @@ const Home: FC = () => {
         console.error(err)
       }
     }
-    // ── Check existing Magic session ───────────────────────
 
     if (magic) checkAuth()
   }, [dispatch, magic])
 
   const mainHeroMarket = MOCK_MARKETS[0]
-  //for testing
-  const carouselItems = MOCK_MARKETS.filter((_, index) => {
-    return index < 5
-  })
+  const carouselItems = MOCK_MARKETS.filter((_, index) => index < 5)
+
   function renderHeroBanner(item: Market, index: number): React.ReactNode {
     return (
       <HeroBanner
@@ -115,18 +110,16 @@ const Home: FC = () => {
       />
     )
   }
+
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30  md:mx-20">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 md:mx-20">
       <Toaster richColors position="top-center" />
       {userLoading && <AuthLoader />}
       <Navbar />
       <CategoryTabs />
-
       <main className="container mx-auto px-4 pb-20">
         {mainHeroMarket && <MyCarousel items={carouselItems} renderItem={renderHeroBanner} />}
-
         <MarketGrid title="All Ending Soon Markets" markets={filteredMarkets} />
-
         <MarketGrid title="Earn Rewards for Supporting Market Activity" markets={trendingMarkets} />
       </main>
     </div>

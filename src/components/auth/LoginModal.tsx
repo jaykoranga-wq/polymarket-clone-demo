@@ -39,7 +39,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
       dispatch(
         login({
           email: userInfo.email ?? null,
-          publicAddress: userInfo.wallets.ethereum?.publicAddress ?? null,
+          publicAddress: userInfo.wallets?.ethereum?.publicAddress ?? null,
           loading: false,
         }),
       )
@@ -68,6 +68,8 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
         //   prompt: "select_account", // 👈 forces Google account picker every time
         // },
       })
+      const userInfo = await magic?.user.getInfo()
+      console.log("data for google auth:", userInfo)
       // Magic redirects back — handle result in a useEffect (see note below)
     } catch (err) {
       console.error("Google login failed:", err)

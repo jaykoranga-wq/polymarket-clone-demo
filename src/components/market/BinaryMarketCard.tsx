@@ -2,7 +2,9 @@ import { BarChart3, Calendar, History, Share2 } from "lucide-react"
 import type { FC } from "react"
 import { useNavigate } from "react-router"
 
+import { useAppDispatch } from "@/app/hooks"
 import { Button } from "@/components/ui/button"
+import { setSelectedMarket } from "@/features/markets/marketSlice"
 import type { BinaryMarket } from "@/features/markets/types"
 
 import { PercentageBar } from "./PercentageBar"
@@ -11,15 +13,17 @@ interface MarketCardProps {
   market: BinaryMarket
 }
 
-export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
+export const BinaryMarketCard: FC<MarketCardProps> = ({ market }: MarketCardProps) => {
   const navigate = useNavigate()
-  function handleNavigation() {
-    navigate("/event")
+  const dispatch = useAppDispatch()
+  function handleNavigation(market: BinaryMarket) {
+    dispatch(setSelectedMarket(market))
+    navigate(`/event/${market.id}`)
   }
   return (
     <div
       className="group flex flex-col bg-surface border border-border rounded-xl p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer"
-      onClick={() => handleNavigation()}
+      onClick={() => handleNavigation(market)}
     >
       <div className="flex gap-4 mb-4">
         <div className="size-12 min-w-12 rounded-lg overflow-hidden border border-border bg-background">
