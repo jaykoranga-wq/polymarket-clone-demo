@@ -1,0 +1,352 @@
+/* Uses the same CSS variables defined in EventPage's .ep root */
+
+.tp {
+  background: var(--s1);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  overflow: hidden;
+  font-family: var(--font);
+  width: 100%;
+}
+
+/* ── Top bar: Buy/Sell + Limit dropdown ── */
+.tp-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 0;
+}
+
+.tp-action-tabs {
+  display: flex;
+}
+
+.tp-action-tab {
+  padding: 8px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  position: relative;
+  transition: color 0.15s;
+}
+.tp-action-tab::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--blue);
+  transform: scaleX(0);
+  transition: transform 0.15s;
+  border-radius: 2px;
+}
+.tp-action-tab.active {
+  color: var(--text);
+}
+.tp-action-tab.active::after {
+  transform: scaleX(1);
+}
+
+.tp-order-type {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--mono);
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.tp-order-type:hover {
+  color: var(--text);
+}
+.tp-order-type svg {
+  width: 11px;
+  height: 11px;
+}
+
+.tp-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 0 16px;
+}
+
+/* ── Body ── */
+.tp-body {
+  padding: 0 16px 16px;
+}
+
+/* ── Outcome toggle (YES/NO or Up/Down) ── */
+.tp-outcome {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tp-outcome-btn {
+  padding: 11px 0;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all 0.18s;
+  background: var(--s2);
+}
+
+.tp-outcome-btn.yes {
+  color: var(--yes);
+}
+.tp-outcome-btn.yes.active {
+  background: var(--yes);
+  color: #fff;
+  border-color: var(--yes);
+  box-shadow: 0 4px 18px rgba(34, 197, 94, 0.25);
+}
+.tp-outcome-btn.no {
+  color: var(--muted);
+}
+.tp-outcome-btn.no.active {
+  background: var(--s3);
+  color: var(--text);
+  border-color: var(--border2);
+}
+
+/* ── Field label ── */
+.tp-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+/* ── Limit price stepper ── */
+.tp-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 8px;
+}
+.tp-stepper-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.12s;
+  font-family: var(--mono);
+  line-height: 1;
+}
+.tp-stepper-btn:hover {
+  background: var(--s3);
+}
+
+.tp-stepper-val {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  text-align: center;
+}
+
+/* ── Shares ── */
+.tp-shares-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.tp-shares-val {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tp-pct-group {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.tp-pct-btn {
+  padding: 5px 12px;
+  border-radius: 99px;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.tp-pct-btn:hover {
+  color: var(--text);
+}
+.tp-pct-btn.active {
+  background: var(--s3);
+  color: var(--text);
+  border-color: var(--text);
+}
+
+/* ── Expiration toggle ── */
+.tp-expiry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text);
+}
+.tp-switch {
+  width: 38px;
+  height: 22px;
+  border-radius: 99px;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.tp-switch.on {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+.tp-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+.tp-switch.on .tp-switch-knob {
+  transform: translateX(16px);
+}
+
+/* ── You'll receive ── */
+.tp-receive {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+.tp-receive-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text);
+}
+.tp-receive-info {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: var(--muted);
+  cursor: help;
+  font-style: normal;
+}
+.tp-receive-value {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--yes);
+}
+
+/* ── Trade button ── */
+.tp-trade-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  background: var(--blue);
+  color: #fff;
+  transition: all 0.15s;
+  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.25);
+  letter-spacing: 0.02em;
+}
+.tp-trade-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+.tp-trade-btn:active {
+  transform: translateY(0);
+}
+.tp-trade-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Terms ── */
+.tp-terms {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+.tp-terms a {
+  color: var(--blue);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── Interval tabs (crypto only) ── */
+.tp-intervals {
+  display: flex;
+  gap: 2px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+.tp-interval-tab {
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-family: var(--mono);
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.tp-interval-tab:hover {
+  color: var(--text);
+}
+.tp-interval-tab.active {
+  background: var(--s2);
+  color: var(--text);
+  border: 1px solid var(--border2);
+}

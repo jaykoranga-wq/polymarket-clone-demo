@@ -1,6 +1,49 @@
 import type { Market } from "./types"
 
-export const MOCK_MARKETS: Market[] = [
+// ─────────────────────────────────────────────────────────────────────────────
+// This file simulates what your backend API will actually return.
+// When the backend is ready, delete this file and replace the import in your
+// components with the real RTK Query hook (e.g. useGetMarketsQuery).
+//
+// Backend endpoint this will eventually replace:
+//   GET /api/markets          → returns ApiMarketsResponse
+//   GET /api/markets/:id      → returns a single Market
+//   GET /api/categories       → returns ApiCategoriesResponse
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── API Response Shape ───────────────────────────────────────────────────────
+// This is exactly what your backend should return.
+// Show this to your backend dev so they match this contract.
+
+export interface ApiMarketsResponse {
+  success: boolean
+  data: Market[]
+  meta: {
+    total: number
+    page: number
+    pageSize: number
+  }
+}
+
+export interface ApiCategoriesResponse {
+  success: boolean
+  data: string[]
+}
+
+export interface ApiSingleMarketResponse {
+  success: boolean
+  data: Market
+}
+
+// ─── Simulated Network Delay ──────────────────────────────────────────────────
+// Mimics a real API call with loading state.
+// Remove this entire function when switching to real backend.
+
+const simulateDelay = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms))
+
+// ─── Raw Mock Data (matches backend DB shape) ─────────────────────────────────
+
+const RAW_MARKETS: Market[] = [
   {
     id: "1",
     title: "2024 Presidential Election Winner",
@@ -16,6 +59,14 @@ export const MOCK_MARKETS: Market[] = [
     frequency: "Event",
     isTrending: true,
     type: "binary_market",
+    priceHistory: [
+      { timestamp: "Oct 1", yesPrice: 0.45 },
+      { timestamp: "Oct 8", yesPrice: 0.47 },
+      { timestamp: "Oct 15", yesPrice: 0.44 },
+      { timestamp: "Oct 22", yesPrice: 0.5 },
+      { timestamp: "Oct 29", yesPrice: 0.53 },
+      { timestamp: "Nov 1", yesPrice: 0.52 },
+    ],
   },
   {
     id: "2",
@@ -29,6 +80,14 @@ export const MOCK_MARKETS: Market[] = [
     volume: "$308M",
     frequency: "Monthly",
     type: "binary_market",
+    priceHistory: [
+      { timestamp: "Oct 1", yesPrice: 0.45 },
+      { timestamp: "Oct 8", yesPrice: 0.47 },
+      { timestamp: "Oct 15", yesPrice: 0.44 },
+      { timestamp: "Oct 22", yesPrice: 0.5 },
+      { timestamp: "Oct 29", yesPrice: 0.53 },
+      { timestamp: "Nov 1", yesPrice: 0.52 },
+    ],
   },
   {
     id: "3",
@@ -42,6 +101,14 @@ export const MOCK_MARKETS: Market[] = [
     volume: "$18M",
     frequency: "Daily",
     type: "binary_market",
+    priceHistory: [
+      { timestamp: "Oct 1", yesPrice: 0.45 },
+      { timestamp: "Oct 8", yesPrice: 0.47 },
+      { timestamp: "Oct 15", yesPrice: 0.44 },
+      { timestamp: "Oct 22", yesPrice: 0.5 },
+      { timestamp: "Oct 29", yesPrice: 0.53 },
+      { timestamp: "Nov 1", yesPrice: 0.52 },
+    ],
   },
   {
     id: "4",
@@ -55,6 +122,14 @@ export const MOCK_MARKETS: Market[] = [
     volume: "$4.1M",
     frequency: "Monthly",
     type: "binary_market",
+    priceHistory: [
+      { timestamp: "Oct 1", yesPrice: 0.45 },
+      { timestamp: "Oct 8", yesPrice: 0.47 },
+      { timestamp: "Oct 15", yesPrice: 0.44 },
+      { timestamp: "Oct 22", yesPrice: 0.5 },
+      { timestamp: "Oct 29", yesPrice: 0.53 },
+      { timestamp: "Nov 1", yesPrice: 0.52 },
+    ],
   },
   {
     id: "5",
@@ -68,6 +143,14 @@ export const MOCK_MARKETS: Market[] = [
     volume: "$308M",
     frequency: "Monthly",
     type: "binary_market",
+    priceHistory: [
+      { timestamp: "Oct 1", yesPrice: 0.45 },
+      { timestamp: "Oct 8", yesPrice: 0.47 },
+      { timestamp: "Oct 15", yesPrice: 0.44 },
+      { timestamp: "Oct 22", yesPrice: 0.5 },
+      { timestamp: "Oct 29", yesPrice: 0.53 },
+      { timestamp: "Nov 1", yesPrice: 0.52 },
+    ],
   },
   {
     id: "6",
@@ -81,6 +164,14 @@ export const MOCK_MARKETS: Market[] = [
     volume: "$4.1M",
     frequency: "Event",
     type: "binary_market",
+    priceHistory: [
+      { timestamp: "Oct 1", yesPrice: 0.45 },
+      { timestamp: "Oct 8", yesPrice: 0.47 },
+      { timestamp: "Oct 15", yesPrice: 0.44 },
+      { timestamp: "Oct 22", yesPrice: 0.5 },
+      { timestamp: "Oct 29", yesPrice: 0.53 },
+      { timestamp: "Nov 1", yesPrice: 0.52 },
+    ],
   },
   {
     id: "7",
@@ -93,26 +184,22 @@ export const MOCK_MARKETS: Market[] = [
     frequency: "Monthly",
     type: "multi_option_binary_market",
     options: [
-      {
-        date: "march 07",
-        yesProbability: 7,
-        noProbability: 93,
-      },
-      {
-        date: "march 08",
-        yesProbability: 10,
-        noProbability: 90,
-      },
-      {
-        date: "march 09",
-        yesProbability: 2,
-        noProbability: 98,
-      },
+      { date: "march 07", yesProbability: 7, noProbability: 93 },
+      { date: "march 08", yesProbability: 10, noProbability: 90 },
+      { date: "march 09", yesProbability: 2, noProbability: 98 },
+    ],
+    priceHistory: [
+      { timestamp: "Oct 1", yesPrice: 0.45 },
+      { timestamp: "Oct 8", yesPrice: 0.47 },
+      { timestamp: "Oct 15", yesPrice: 0.44 },
+      { timestamp: "Oct 22", yesPrice: 0.5 },
+      { timestamp: "Oct 29", yesPrice: 0.53 },
+      { timestamp: "Nov 1", yesPrice: 0.52 },
     ],
   },
 ]
 
-export const CATEGORIES = [
+const RAW_CATEGORIES: string[] = [
   "All Markets",
   "Trump",
   "Olympics",
@@ -131,3 +218,47 @@ export const CATEGORIES = [
   "Earnings",
   "China",
 ]
+
+// ─── Mock API Functions ───────────────────────────────────────────────────────
+// These functions mimic async API calls.
+// When backend is ready, delete these and use RTK Query hooks instead.
+
+/** GET /api/markets */
+export const fetchMarkets = async (): Promise<ApiMarketsResponse> => {
+  await simulateDelay()
+  return {
+    success: true,
+    data: RAW_MARKETS,
+    meta: {
+      total: RAW_MARKETS.length,
+      page: 1,
+      pageSize: 20,
+    },
+  }
+}
+
+/** GET /api/markets/:id */
+export const fetchMarketById = async (id: string): Promise<ApiSingleMarketResponse> => {
+  await simulateDelay()
+  const market = RAW_MARKETS.find((m) => m.id === id)
+  if (!market) throw new Error(`Market with id "${id}" not found`)
+  return {
+    success: true,
+    data: market,
+  }
+}
+
+/** GET /api/categories */
+export const fetchCategories = async (): Promise<ApiCategoriesResponse> => {
+  await simulateDelay()
+  return {
+    success: true,
+    data: RAW_CATEGORIES,
+  }
+}
+
+// ─── Static exports (for components that don't need async yet) ────────────────
+// You can keep using these directly in components until RTK Query is wired up.
+
+export const MOCK_MARKETS: Market[] = RAW_MARKETS
+export const CATEGORIES: string[] = RAW_CATEGORIES
