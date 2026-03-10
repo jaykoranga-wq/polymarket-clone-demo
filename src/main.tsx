@@ -7,7 +7,7 @@ import { RouterProvider } from "react-router"
 import { AppProviders } from "@/app/providers"
 import { router } from "@/routes"
 
-import MagicProvider from "./lib/magic"
+import MagicProvider from "./features/auth/lib/magic"
 
 const rootElement = document.getElementById("root")
 

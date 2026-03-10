@@ -1,68 +1,183 @@
 import "./styles/eventPage.css"
 
-import { useEffect, useState } from "react"
+import {
+  AreaSeries,
+  ColorType,
+  createChart,
+  type IChartApi,
+  type ISeriesApi,
+} from "lightweight-charts"
+import { useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux"
 import { useNavigate, useParams } from "react-router"
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts"
 import { Toaster } from "sonner"
 
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
+import { LoginModal } from "@/components/auth/LoginModal"
 import { IcoBack } from "@/components/custom/IcoBack"
 import { IcoBookmark } from "@/components/custom/IcoBookmark"
 import { IcoClock } from "@/components/custom/IcoClock"
 import { IcoLink } from "@/components/custom/IconLink"
 import { IcoRepeat } from "@/components/custom/IcoRepeat"
 import { IcoVol } from "@/components/custom/IcoVol"
-import { CategoryTabs } from "@/components/layout/CategoryTabs"
-import { Navbar } from "@/components/layout/Navbar"
 import { AuthLoader } from "@/components/ui/AuthLoader"
-import { MARKET_TYPES } from "@/constants/marketTypes"
 import { selectUserLoading } from "@/features/auth/authSlice"
+import { useMagic } from "@/features/auth/lib/magic"
+import { shorten } from "@/features/markets/lib/utils"
 import { setSelectedMarket } from "@/features/markets/marketSlice"
-import { MOCK_MARKETS } from "@/features/markets/mockData"
-import type { BinaryMarket } from "@/features/markets/types"
-import { shorten } from "@/lib/utils"
+import { MARKET_TYPES } from "@/features/markets/marketTypes"
+import type { BinaryMarket, PricePoint } from "@/features/markets/types"
+import { MOCK_MARKETS } from "@/mocks/mockData"
 
 import TradePanel from "../components/event/tradePanel/TradePanel"
 
 const RULES_MAX = 200
 
+// ─── PriceChart — lightweight-charts ─────────────────────────────────────────
+
+interface PriceChartProps {
+  priceHistory: PricePoint[]
+}
+
+const PriceChart = ({ priceHistory }: PriceChartProps) => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const chartRef = useRef<IChartApi | null>(null)
+  const yesRef = useRef<ISeriesApi<"Area"> | null>(null)
+  const noRef = useRef<ISeriesApi<"Area"> | null>(null)
+
+  useEffect(() => {
+    if (!containerRef.current || priceHistory.length === 0) return
+
+    // ── Create chart instance ─────────────────────────────────────────────────
+    const chart = createChart(containerRef.current, {
+      width: containerRef.current.clientWidth,
+      height: 220,
+      layout: {
+        background: { type: ColorType.Solid, color: "transparent" },
+        textColor: "#5a6478",
+        fontFamily: "'DM Mono', monospace",
+        fontSize: 10,
+      },
+      grid: {
+        vertLines: { color: "rgba(255,255,255,0.04)" },
+        horzLines: { color: "rgba(255,255,255,0.04)" },
+      },
+      crosshair: {
+        vertLine: {
+          color: "rgba(255,255,255,0.15)",
+          labelBackgroundColor: "#1a1e26",
+        },
+        horzLine: {
+          color: "rgba(255,255,255,0.15)",
+          labelBackgroundColor: "#1a1e26",
+        },
+      },
+      timeScale: {
+        borderColor: "rgba(255,255,255,0.06)",
+        timeVisible: false, // hide raw unix timestamps — looks cleaner
+        fixLeftEdge: true,
+        fixRightEdge: true,
+      },
+      rightPriceScale: {
+        borderColor: "rgba(255,255,255,0.06)",
+        scaleMargins: { top: 0.1, bottom: 0.1 },
+      },
+      handleScroll: false, // disable scroll on the chart so page scrolls normally
+      handleScale: false,
+    })
+
+    chartRef.current = chart
+
+    // ── YES series — green area ───────────────────────────────────────────────
+    const yesSeries = chart.addSeries(AreaSeries, {
+      lineColor: "#22c55e",
+      topColor: "rgba(34,197,94,0.2)",
+      bottomColor: "rgba(34,197,94,0)",
+      lineWidth: 2,
+      priceFormat: {
+        type: "custom",
+        formatter: (v: number) => `${(v * 100).toFixed(0)}¢`,
+      },
+    })
+    yesRef.current = yesSeries
+
+    // ── NO series — red area ──────────────────────────────────────────────────
+    const noSeries = chart.addSeries(AreaSeries, {
+      lineColor: "#ef4444",
+      topColor: "rgba(239,68,68,0.12)",
+      bottomColor: "rgba(239,68,68,0)",
+      lineWidth: 2,
+      priceFormat: {
+        type: "custom",
+        formatter: (v: number) => `${(v * 100).toFixed(0)}¢`,
+      },
+    })
+    noRef.current = noSeries
+
+    // ── Feed data ─────────────────────────────────────────────────────────────
+    // lightweight-charts needs { time, value }
+    // time must be a unix timestamp (number) or "YYYY-MM-DD" string
+    // your mock uses "Oct 1" style strings — we use sequential unix timestamps
+    // starting from a fixed base, one day apart — visually correct
+    const BASE_TIME = 1696118400 // Oct 1 2023 in unix seconds
+
+    const yesData = priceHistory.map((p, i) => ({
+      time: (BASE_TIME + i * 86400) as unknown as string,
+      value: p.yesPrice, // keep 0–1 range, formatter shows as cents
+    }))
+
+    // const noData = priceHistory.map((p, i) => ({
+    //   time:  (BASE_TIME + i * 86400) as unknown as string,
+    //   value: 1 - p.yesPrice,
+    // }))
+
+    yesSeries.setData(yesData)
+    // noSeries.setData(noData)
+    chart.timeScale().fitContent()
+
+    // ── Resize observer — chart fills container on window resize ──────────────
+    const observer = new ResizeObserver(() => {
+      if (containerRef.current) {
+        chart.applyOptions({ width: containerRef.current.clientWidth })
+      }
+    })
+    observer.observe(containerRef.current)
+
+    // ── Cleanup — ALWAYS remove chart on unmount ──────────────────────────────
+    return () => {
+      observer.disconnect()
+      chart.remove()
+      chartRef.current = null
+      yesRef.current = null
+      noRef.current = null
+    }
+  }, [priceHistory])
+
+  return <div ref={containerRef} style={{ width: "100%", minHeight: 220 }} />
+}
+
 // ─── EventPage ────────────────────────────────────────────────────────────────
 
 const EventPage = () => {
   const navigate = useNavigate()
-  //replae this with an API call
   const list = [...MOCK_MARKETS]
   const { id } = useParams()
   const dispatch = useAppDispatch()
   const market = useAppSelector((state) => state.markets.selectedMarket)
   const userLoading = useSelector(selectUserLoading)
+  const { magic } = useMagic()
 
   const [chartTab, setChartTab] = useState("ALL")
   const [rulesOpen, setRulesOpen] = useState(false)
-  //  console.log("id:", id)
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
 
   useEffect(() => {
     if (!id) return
-
-    // if selectedMarket is already correct, skip
     if (market?.id === id) return
-
     const foundMarket = list.find((m) => m.id === id)
-    if (foundMarket) {
-      dispatch(setSelectedMarket(foundMarket))
-    }
+    if (foundMarket) dispatch(setSelectedMarket(foundMarket))
   }, [id, list])
 
-  // ── Guard ──
   if (!market) {
     return (
       <div className="ep">
@@ -71,13 +186,11 @@ const EventPage = () => {
     )
   }
 
-  // ── Binary-only data ──
   const isBinary = market.type === MARKET_TYPES.BINARY
   const bm = isBinary ? (market as BinaryMarket) : null
   const yesP = bm?.yesProbability ?? 50
   const noP = bm?.noProbability ?? 50
 
-  // ── Order book depth ──
   const maxShares = market.orderBook
     ? Math.max(
         ...market.orderBook.yes.map((r) => r.shares),
@@ -86,21 +199,18 @@ const EventPage = () => {
       )
     : 1
 
-  // ── Rules preview ──
   const rules = market.rules ?? ""
   const rulesPreview =
     rules.length > RULES_MAX && !rulesOpen ? rules.slice(0, RULES_MAX) + "…" : rules
 
   return (
     <>
-      <div className="min-h-screen bg-background text-foreground selection:bg-primary/30  md:mx-20">
+      <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 md:mx-20">
+        <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <Toaster richColors position="top-center" />
         {userLoading && <AuthLoader />}
-        <Navbar />
-        <CategoryTabs />
 
         <div className="ep">
-          {/* ── Back button ── */}
           <button className="ep-back" onClick={() => navigate(-1)}>
             <IcoBack /> Back to markets
           </button>
@@ -126,7 +236,6 @@ const EventPage = () => {
                   </div>
                 </div>
 
-                {/* Stats chips */}
                 <div className="ep-stats">
                   <div className="ep-chip">
                     <IcoVol />
@@ -161,7 +270,7 @@ const EventPage = () => {
                   </div>
                 </div>
 
-                {/* Legend */}
+                {/* YES / NO legend */}
                 <div className="ep-chart-legend">
                   <div className="ep-legend-item">
                     <div className="ep-legend-dot yes" /> YES
@@ -171,60 +280,11 @@ const EventPage = () => {
                   </div>
                 </div>
 
-                {/* Chart or empty */}
+                {/* ── Chart — lightweight-charts replaces Recharts here ── */}
                 {!market.priceHistory || market.priceHistory.length === 0 ? (
                   <div className="ep-chart-empty">No price history yet</div>
                 ) : (
-                  <ResponsiveContainer width="100%" height={220}>
-                    <AreaChart
-                      data={market.priceHistory}
-                      margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
-                    >
-                      <defs>
-                        <linearGradient id="ep-yes" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#22c55e" stopOpacity={0.2} />
-                          <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="ep-no" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#ef4444" stopOpacity={0.15} />
-                          <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                      <XAxis
-                        dataKey="timestamp"
-                        tick={{ fontSize: 10, fill: "#5a6478", fontFamily: "'DM Mono',monospace" }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <YAxis
-                        domain={[0, 1]}
-                        tickFormatter={(v) => `${(v * 100).toFixed(0)}¢`}
-                        tick={{ fontSize: 10, fill: "#5a6478", fontFamily: "'DM Mono',monospace" }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <Tooltip />
-                      <Area
-                        type="monotone"
-                        dataKey="yesPrice"
-                        stroke="#22c55e"
-                        strokeWidth={2}
-                        fill="url(#ep-yes)"
-                        dot={false}
-                        activeDot={{ r: 4, fill: "#22c55e", stroke: "#0d0f12", strokeWidth: 2 }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey={(d) => 1 - d.yesPrice}
-                        stroke="#ef4444"
-                        strokeWidth={2}
-                        fill="url(#ep-no)"
-                        dot={false}
-                        activeDot={{ r: 4, fill: "#ef4444", stroke: "#0d0f12", strokeWidth: 2 }}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  <PriceChart priceHistory={market.priceHistory} />
                 )}
               </div>
 
@@ -244,7 +304,6 @@ const EventPage = () => {
                   <div className="ep-ob-empty">No orders yet</div>
                 ) : (
                   <div className="ep-ob-grid">
-                    {/* YES side */}
                     <div>
                       <div className="ep-ob-col-label yes">▲ YES</div>
                       <div className="ep-ob-col-head">
@@ -262,7 +321,6 @@ const EventPage = () => {
                         </div>
                       ))}
                     </div>
-                    {/* NO side */}
                     <div>
                       <div className="ep-ob-col-label no">▼ NO</div>
                       <div className="ep-ob-col-head">
@@ -332,10 +390,17 @@ const EventPage = () => {
             {/* ══════════════ RIGHT COLUMN ══════════════ */}
             <div className="ep-right">
               <div className="ep-sticky">
-                <TradePanel yesProbability={yesP} noProbability={noP} isCrypto={!isBinary} />
+                <TradePanel
+                  yesProbability={yesP}
+                  noProbability={noP}
+                  isCrypto={!isBinary}
+                  onLoginRequired={() => {
+                    setIsLoginOpen(true)
+                  }}
+                  onDepositRequired={() => magic?.wallet?.showUI()}
+                />
               </div>
             </div>
-            {/* ══════════════ END RIGHT ══════════════ */}
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { ChevronRight } from "lucide-react"
 import type { FC } from "react"
 
-import { MARKET_TYPES } from "@/constants/marketTypes"
+import { MARKET_TYPES } from "@/features/markets/marketTypes"
 import type { Market } from "@/features/markets/types"
 
 import { BinaryMarketCard } from "./BinaryMarketCard"

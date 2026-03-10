@@ -1,4 +1,4 @@
-import type { MARKET_TYPES } from "../../constants/marketTypes"
+import type { MARKET_TYPES } from "./marketTypes"
 
 export type MarketFrequency = "Daily" | "Monthly" | "Event"
 

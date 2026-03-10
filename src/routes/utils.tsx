@@ -1,6 +1,6 @@
 import { type ReactNode, Suspense } from "react"
 
-import { LoadingFallback } from "@/components/common/LoadingFallback"
+import { LoadingFallback } from "@/components/ui/LoadingFallback"
 
 /**
  * Wraps a component with React Suspense and a loading fallback.
