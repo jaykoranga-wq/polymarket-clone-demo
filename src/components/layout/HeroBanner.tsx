@@ -17,9 +17,9 @@ export const HeroBanner: FC<HeroBannerProps> = ({
   favoriteProbability,
 }) => {
   return (
-    <section className="relative w-full h-[220x] md:h-[250px] flex items-center overflow-hidden rounded-2xl bg-[#0B0F14] border border-border mt-6">
+    <section className="relative w-full h-[220x] md:h-62.5 flex items-center overflow-hidden rounded-2xl bg-background border border-border mt-6">
       {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-transparent z-10" />
+      <div className="absolute inset-0 bg-linear-to-r from-background via-background/90 to-transparent z-10" />
       <div
         className="absolute inset-0 opacity-40 mix-blend-screen"
         style={{
@@ -36,7 +36,7 @@ export const HeroBanner: FC<HeroBannerProps> = ({
             alt="Hero Visual"
             className="h-full w-full object-cover grayscale opacity-50"
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-[#0B0F14]/20 via-[#0B0F14]/80 to-[#0B0F14]" />
+          <div className="absolute inset-0 bg-linear-to-l from-background/20 via-background/80 to-background" />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <span className="text-4xl font-black text-white/5 tracking-[0.2em] select-none">

@@ -1,17 +1,17 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
-interface AuthState {
-  isAuthenticated: boolean
-  email: string | null
-  publicAddress: string | null // for wallet later
-  loading: true | false
-}
+import type { AuthState } from "./authTypes/authStateTypes"
+import type { LoginMethod } from "./authTypes/loginMethodsTypes"
 
 const initialState: AuthState = {
   isAuthenticated: false,
   email: null,
   publicAddress: null,
   loading: false,
+  cashAmount: 0,
+  portfolioAmount: 0,
+  loginMethod: null,
+  token: null,
 }
 
 const authSlice = createSlice({
@@ -25,6 +25,8 @@ const authSlice = createSlice({
         publicAddress?: string | null
         loading: boolean
         isAuthenticated?: boolean
+        loginMethod: LoginMethod
+        token: string | null
       }>,
     ) {
       if (action.payload.isAuthenticated === false) {
@@ -35,21 +37,39 @@ const authSlice = createSlice({
       state.email = action.payload.email
       state.publicAddress = action.payload.publicAddress ?? null
       state.loading = action.payload.loading
+      state.loginMethod = action.payload.loginMethod ?? null
+      state.token = action.payload.token
     },
+
     logout(state) {
       state.isAuthenticated = false
       state.email = null
       state.publicAddress = null
       state.loading = false
+      state.loginMethod = null
+      state.token = null
     },
+
     loadingTrue(state) {
       state.loading = true
+    },
+
+    loadingFalse(state) {
+      state.loading = false
+    },
+    setTempToken(state, action: PayloadAction<{ token: string | null }>) {
+      state.token = action.payload.token
     },
   },
 })
 
-export const { login, logout, loadingTrue } = authSlice.actions
+export const { login, logout, loadingTrue, loadingFalse, setTempToken } = authSlice.actions
+
 export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated
 export const selectUserData = (state: { auth: AuthState }) => state.auth
 export const selectUserLoading = (state: { auth: AuthState }) => state.auth.loading
+export const selectCashAmount = (state: { auth: AuthState }) => state.auth.cashAmount
+export const selectPortfolioAmount = (state: { auth: AuthState }) => state.auth.portfolioAmount
+export const selectLoginMethod = (state: { auth: AuthState }) => state.auth.loginMethod
+
 export default authSlice.reducer

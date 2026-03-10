@@ -1,23 +1,28 @@
 import { clsx } from "clsx"
 import type { FC } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import { useNavigate } from "react-router"
 
 import { selectSelectedCategory } from "@/features/markets/marketSelectors"
 import { setSelectedCategory } from "@/features/markets/marketSlice"
-import { CATEGORIES } from "@/features/markets/mockData"
+import { CATEGORIES } from "@/mocks/mockData"
 
 export const CategoryTabs: FC = () => {
   const dispatch = useDispatch()
   const selectedCategory = useSelector(selectSelectedCategory)
+  const navigate = useNavigate()
 
   return (
-    <div className="w-full border-b border-border bg-background sticky top-16 z-40">
+    <div className=" border-b border-border bg-background sticky top-16 z-40 md:mx-20">
       <div className="container mx-auto px-4 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-6 min-w-max h-12">
           {CATEGORIES.map((category) => (
             <button
               key={category}
-              onClick={() => dispatch(setSelectedCategory(category))}
+              onClick={() => {
+                dispatch(setSelectedCategory(category))
+                navigate("/")
+              }}
               className={clsx(
                 "relative h-full flex items-center text-sm font-semibold transition-all duration-200 whitespace-nowrap",
                 selectedCategory === category

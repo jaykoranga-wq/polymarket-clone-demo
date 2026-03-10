@@ -20,8 +20,8 @@ const MagicProvider = ({ children }: { children: ReactNode }) => {
     if (import.meta.env.VITE_MAGIC_API_KEY) {
       const magicInstance = new MagicBase(import.meta.env.VITE_MAGIC_API_KEY, {
         network: {
-          rpcUrl: "https://rpc2.sepolia.org/",
-          chainId: 11155111,
+          rpcUrl: "https://rpc-amoy.polygon.technology",
+          chainId: 80002, // Polygon Amoy testnet
         },
         extensions: [new OAuthExtension()], // 👈 ADD THIS
       })

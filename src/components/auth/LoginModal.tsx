@@ -1,125 +1,42 @@
 import { useState } from "react"
 import { useDispatch } from "react-redux"
-import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { loadingTrue, login } from "@/features/auth/authSlice"
-import { clearMetaMaskLoggedOut } from "@/routes/utils"
-
-import { useMagic } from "../../lib/magic"
+import {
+  useLoginMutation,
+  useLoginWalletMutation,
+  useVerifyWalletMutation,
+} from "@/features/api/auth/authApi"
+import { useMagic } from "@/features/auth/lib/magic"
+import {
+  handleEmailLogin,
+  handleGoogleLogin,
+  handleMetaMaskLogin,
+} from "@/features/auth/loginHandlers"
 
 interface LoginModalProps {
   open: boolean
   onClose: () => void
 }
-//enums for states
-enum States {
-  Email = "email",
-  Google = "google",
-  MetaMask = "metamask",
-}
+
+const States = {
+  Email: "email",
+  Google: "google",
+  MetaMask: "metamask",
+} as const
+
+type States = (typeof States)[keyof typeof States]
+
 export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState<States | null>(null)
   const { magic } = useMagic()
   const dispatch = useDispatch()
+  const [loginToBackend] = useLoginMutation()
+  const [loginWallet] = useLoginWalletMutation()
+  const [verifyWallet] = useVerifyWalletMutation()
 
   if (!open) return null
-
-  // ── Email OTP via Magic ──────────────────────────────────────────
-  const handleEmailLogin = async () => {
-    if (!email || !magic) return
-
-    setLoading(States.Email)
-    dispatch(loadingTrue())
-    try {
-      await magic.auth.loginWithEmailOTP({ email })
-      const userInfo = await magic.user.getInfo()
-      console.log("user from email :", userInfo)
-      dispatch(
-        login({
-          email: userInfo.email ?? null,
-          publicAddress: userInfo.wallets?.ethereum?.publicAddress ?? null,
-          loading: false,
-        }),
-      )
-      console.log("user:", userInfo)
-      onClose()
-    } catch (err) {
-      console.error("Email login failed:", err)
-      toast.error(`${States.Email} failed`, {
-        description: `error:${err}`,
-      })
-    } finally {
-      setLoading(null)
-    }
-  }
-
-  // ── Google OAuth via Magic ───────────────────────────────────────
-  const handleGoogleLogin = async () => {
-    if (!magic) return
-    setLoading(States.Google)
-    dispatch(loadingTrue())
-    try {
-      await magic.oauth2.loginWithRedirect({
-        provider: States.Google,
-        redirectURI: `${import.meta.env.VITE_REDIRECT_URL}`,
-        //   customParameters: {
-        //   prompt: "select_account", // 👈 forces Google account picker every time
-        // },
-      })
-      const userInfo = await magic?.user.getInfo()
-      console.log("data for google auth:", userInfo)
-      // Magic redirects back — handle result in a useEffect (see note below)
-    } catch (err) {
-      console.error("Google login failed:", err)
-      toast.error(`${States.Google} failed`, {
-        description: `error:${err}`,
-      })
-      setLoading(null)
-    }
-  }
-
-  // ── MetaMask (window.ethereum) ───────────────────────────────────
-  const handleMetaMask = async () => {
-    if (!window.ethereum) {
-      toast.error("MetaMask not installed!", {
-        description:
-          "Please install the MetaMask browser extension to continue or setup your extension",
-        action: {
-          label: "Install",
-          onClick: () => window.open("https://metamask.io/download/", "_blank"),
-        },
-      })
-      return
-    }
-    setLoading(States.MetaMask)
-    dispatch(loadingTrue())
-    try {
-      const accounts: string[] = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      })
-      console.log("accounts of metamask:", accounts)
-      clearMetaMaskLoggedOut()
-      dispatch(
-        login({
-          email: null,
-          publicAddress: accounts[0] ?? null,
-          loading: false,
-        }),
-      )
-      console.log("metamask log in details:", accounts)
-
-      onClose()
-    } catch (err) {
-      console.error("MetaMask login failed:", err)
-      toast.error(`${States.MetaMask} failed`, {
-        description: `error:${err}`,
-      })
-    } finally {
-      setLoading(null)
-    }
-  }
 
   return (
     <div
@@ -142,7 +59,14 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
         {/* Google Login */}
         <Button
           className="w-full mb-5 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2"
-          onClick={handleGoogleLogin}
+          onClick={() => {
+            setLoading(States.Google)
+            handleGoogleLogin({
+              magic,
+              dispatch,
+              onError: () => setLoading(null),
+            })
+          }}
           disabled={!!loading}
         >
           {loading === "google" ? (
@@ -186,11 +110,39 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleEmailLogin()}
-            className="flex-1 bg-[#0B0F14] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            onKeyDown={(e) =>
+              e.key === "Enter" &&
+              handleEmailLogin({
+                email,
+                magic,
+                dispatch,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                loginToBackend: loginToBackend as any,
+                onSuccess: () => {
+                  setLoading(null)
+                  onClose()
+                },
+                onError: () => setLoading(null),
+              })
+            }
+            className="flex-1 bg-background border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
           <Button
-            onClick={handleEmailLogin}
+            onClick={() => {
+              setLoading(States.Email)
+              handleEmailLogin({
+                email,
+                magic,
+                dispatch,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                loginToBackend: loginToBackend as any,
+                onSuccess: () => {
+                  setLoading(null)
+                  onClose()
+                },
+                onError: () => setLoading(null),
+              })
+            }}
             disabled={!email || !!loading}
             className="bg-blue-500 hover:bg-blue-600 rounded-xl px-4"
           >
@@ -205,9 +157,23 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
-        {/* MetaMask button */}
+        {/* MetaMask */}
         <Button
-          onClick={handleMetaMask}
+          onClick={() => {
+            setLoading(States.MetaMask)
+            handleMetaMaskLogin({
+              dispatch,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              loginWallet: loginWallet as any,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              verifyWallet: verifyWallet as any,
+              onSuccess: () => {
+                setLoading(null)
+                onClose()
+              },
+              onError: () => setLoading(null),
+            })
+          }}
           disabled={!!loading}
           className="w-full bg-[#1C2330] hover:bg-[#252D3A] border border-white/10 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-3"
         >

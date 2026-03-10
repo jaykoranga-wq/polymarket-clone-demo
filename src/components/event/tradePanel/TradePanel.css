@@ -1,4 +1,5 @@
-/* Uses the same CSS variables defined in EventPage's .ep root */
+/* ── TradePanel styles ──────────────────────────────────────────────────────── */
+/* Inherits CSS variables from .ep (EventPage) */
 
 .tp {
   background: var(--s1);
@@ -9,7 +10,7 @@
   width: 100%;
 }
 
-/* ── Top bar: Buy/Sell + Limit dropdown ── */
+/* ── Top bar: Buy/Sell tabs + order type dropdown ── */
 .tp-top {
   display: flex;
   align-items: center;
@@ -33,6 +34,8 @@
   position: relative;
   transition: color 0.15s;
 }
+
+/* underline indicator */
 .tp-action-tab::after {
   content: "";
   position: absolute;
@@ -45,6 +48,7 @@
   transition: transform 0.15s;
   border-radius: 2px;
 }
+
 .tp-action-tab.active {
   color: var(--text);
 }
@@ -52,13 +56,23 @@
   transform: scaleX(1);
 }
 
+/* Sell tab gets red when active */
+.tp-action-tab.sell.active {
+  color: var(--no);
+}
+.tp-action-tab.sell.active::after {
+  background: var(--no);
+}
+
+/* Market / Limit dropdown */
 .tp-order-type {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
-  color: var(--muted);
-  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: var(--font);
   padding: 5px 9px;
   border-radius: 7px;
   background: var(--s2);
@@ -67,13 +81,54 @@
   transition: all 0.12s;
 }
 .tp-order-type:hover {
-  color: var(--text);
+  background: var(--s3);
 }
 .tp-order-type svg {
-  width: 11px;
-  height: 11px;
+  width: 13px;
+  height: 13px;
 }
 
+/* ── Dropdown menu ── */
+.tp-dropdown-wrap {
+  position: relative;
+}
+
+.tp-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 10;
+  min-width: 110px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.tp-dropdown-item {
+  width: 100%;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.12s;
+  font-family: var(--font);
+}
+.tp-dropdown-item:hover {
+  background: var(--s3);
+  color: var(--text);
+}
+.tp-dropdown-item.active {
+  color: var(--text);
+  background: var(--s3);
+}
+
+/* ── Divider ── */
 .tp-divider {
   height: 1px;
   background: var(--border);
@@ -85,7 +140,7 @@
   padding: 0 16px 16px;
 }
 
-/* ── Outcome toggle (YES/NO or Up/Down) ── */
+/* ── YES / NO outcome toggle ── */
 .tp-outcome {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -94,11 +149,11 @@
 }
 
 .tp-outcome-btn {
-  padding: 11px 0;
+  padding: 13px 0;
   border-radius: 8px;
   border: 1px solid var(--border2);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   font-family: var(--font);
   cursor: pointer;
   transition: all 0.18s;
@@ -106,7 +161,7 @@
 }
 
 .tp-outcome-btn.yes {
-  color: var(--yes);
+  color: grey;
 }
 .tp-outcome-btn.yes.active {
   background: var(--yes);
@@ -115,38 +170,96 @@
   box-shadow: 0 4px 18px rgba(34, 197, 94, 0.25);
 }
 .tp-outcome-btn.no {
-  color: var(--muted);
+  color: grey;
 }
 .tp-outcome-btn.no.active {
-  background: var(--s3);
-  color: var(--text);
-  border-color: var(--border2);
+  background: var(--no);
+  color: #fff;
+  border-color: var(--no);
+  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.25);
 }
 
-/* ── Field label ── */
-.tp-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 10px;
-}
-
-/* ── Limit price stepper ── */
-.tp-stepper {
+/* ── Inline field row (label left, value/control right) ── */
+.tp-field-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
-  gap: 8px;
+  margin-bottom: 14px;
 }
-.tp-stepper-btn {
-  width: 32px;
-  height: 32px;
+
+.tp-field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ── Amount display (Market Buy) ── */
+.tp-amount-display {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--dim); /* grey when 0 */
+}
+.tp-amount-display.has-value {
+  color: var(--text);
+}
+
+/* ── Quick amount buttons (Market Buy: +$1, +$5 etc) ── */
+.tp-quick-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.tp-quick-btn {
+  padding: 6px 12px;
   border-radius: 7px;
   background: var(--s2);
   border: 1px solid var(--border2);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--mono);
   color: var(--text);
-  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.tp-quick-btn:hover {
+  background: var(--s3);
+}
+.tp-quick-btn.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+/* ── Shares display (Market Sell) ── */
+.tp-shares-display {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--dim);
+}
+.tp-shares-display.has-value {
+  color: var(--text);
+}
+
+/* ── Inline limit price stepper (Limit mode) ── */
+.tp-stepper-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tp-stepper-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,32 +275,82 @@
 
 .tp-stepper-val {
   font-family: var(--mono);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text);
-  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+  min-width: 32px;
   text-align: center;
 }
 
-/* ── Shares ── */
-.tp-shares-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+/* ── Hide number input spinners globally for this component ── */
+.tp input[type="number"]::-webkit-inner-spin-button,
+.tp input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
-.tp-shares-val {
-  font-family: var(--mono);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text);
+.tp input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
+/* ── Shares input box (Limit mode) ── */
+.tp-shares-input-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.tp-shares-input {
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  width: 140px;
+  outline: none;
+  transition: border-color 0.12s;
+}
+.tp-shares-input:focus {
+  border-color: var(--blue);
+}
+
+/* ── Share adjust buttons (Limit Buy: -100, -10, +10 etc) ── */
+.tp-adjust-group {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.tp-adjust-btn {
+  padding: 5px 10px;
+  border-radius: 7px;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--mono);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.tp-adjust-btn:hover {
+  color: var(--text);
+  background: var(--s3);
+}
+
+/* ── Pct shortcut buttons (Sell: 25%, 50%, Max) ── */
 .tp-pct-group {
   display: flex;
   gap: 6px;
   margin-bottom: 18px;
+  justify-content: flex-end;
 }
+
 .tp-pct-btn {
   padding: 5px 12px;
   border-radius: 99px;
@@ -208,15 +371,16 @@
   border-color: var(--text);
 }
 
-/* ── Expiration toggle ── */
+/* ── Set Expiration ── */
 .tp-expiry {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   font-size: 13px;
-  color: var(--text);
+  color: var(--muted);
 }
+
 .tp-switch {
   width: 38px;
   height: 22px;
@@ -232,6 +396,7 @@
   background: var(--blue);
   border-color: var(--blue);
 }
+
 .tp-switch-knob {
   position: absolute;
   top: 2px;
@@ -246,21 +411,29 @@
   transform: translateX(16px);
 }
 
-/* ── You'll receive ── */
-.tp-receive {
+/* ── Summary rows (Total / To win / You'll receive) ── */
+.tp-summary-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   font-size: 13px;
 }
-.tp-receive-label {
+
+.tp-summary-label {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--text);
+  color: var(--muted);
 }
-.tp-receive-info {
+
+/* dotted underline on "Total" */
+.tp-summary-label.dotted {
+  border-bottom: 1px dotted var(--muted);
+  padding-bottom: 1px;
+}
+
+.tp-summary-info {
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -274,11 +447,19 @@
   cursor: help;
   font-style: normal;
 }
-.tp-receive-value {
+
+.tp-summary-value {
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
+  color: var(--blue);
+}
+
+.tp-summary-value.green {
   color: var(--yes);
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 /* ── Trade button ── */
@@ -296,6 +477,7 @@
   transition: all 0.15s;
   box-shadow: 0 4px 18px rgba(59, 130, 246, 0.25);
   letter-spacing: 0.02em;
+  margin-bottom: 10px;
 }
 .tp-trade-btn:hover {
   background: #2563eb;
@@ -304,10 +486,15 @@
 .tp-trade-btn:active {
   transform: translateY(0);
 }
-.tp-trade-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
+
+/* Sell mode — red trade button */
+.tp-trade-btn.sell {
+  background: var(--blue);
+  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.25);
+}
+.tp-trade-btn.sell:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
 }
 
 /* ── Terms ── */
@@ -315,38 +502,10 @@
   text-align: center;
   font-size: 11px;
   color: var(--muted);
-  margin-top: 10px;
   line-height: 1.5;
 }
 .tp-terms a {
   color: var(--blue);
   text-decoration: underline;
   cursor: pointer;
-}
-
-/* ── Interval tabs (crypto only) ── */
-.tp-intervals {
-  display: flex;
-  gap: 2px;
-  padding: 12px 16px;
-  border-top: 1px solid var(--border);
-}
-.tp-interval-tab {
-  padding: 5px 10px;
-  border-radius: 7px;
-  font-size: 12px;
-  font-family: var(--mono);
-  background: none;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.12s;
-}
-.tp-interval-tab:hover {
-  color: var(--text);
-}
-.tp-interval-tab.active {
-  background: var(--s2);
-  color: var(--text);
-  border: 1px solid var(--border2);
 }
