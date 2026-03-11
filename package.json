@@ -24,7 +24,6 @@
     ]
   },
   "dependencies": {
-    "@magic-ext/oauth": "^24.0.0",
     "@magic-ext/oauth2": "^15.3.2",
     "@radix-ui/react-slot": "^1.2.4",
     "@reduxjs/toolkit": "^2.11.2",

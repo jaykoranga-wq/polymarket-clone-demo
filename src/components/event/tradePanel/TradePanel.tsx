@@ -1,4 +1,4 @@
-import "./tradePanel.css"
+import "./TradePanel.css"
 
 import { useEffect, useRef, useState } from "react"
 
