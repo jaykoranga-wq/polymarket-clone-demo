@@ -82,7 +82,7 @@ const DUMMY_ORDER_BOOK = {
 
 const DUMMY_RULES = `This market resolves YES if the outcome is confirmed by a majority of credible sources including Reuters, AP, or BBC before the expiry date. Resolution will be determined by the market admin within 48 hours of the event conclusion. In the case of ambiguity or conflicting reports, the market may be extended or resolved as N/A.`
 
-// ─── Markets ──────────────────────────────────────────────────────────────────
+// ─── Markets ──────────────────────────────────────────────────────────────────//
 
 export const RAW_MARKETS: Market[] = [
   {
