@@ -34,7 +34,7 @@ export interface BaseMarket {
 
   // optional detail fields — not present on card, loaded on event page
   rules?: string
-  createdAt?: string
+  createdAt: string
   resolver?: string
   priceHistory?: PricePoint[]
   orderBook?: OrderBook

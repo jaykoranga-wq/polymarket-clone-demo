@@ -19,6 +19,7 @@ const marketApi = api.injectEndpoints({
           noProbability: 50,
           frequency: "Event",
           type: "binary_market",
+          createdAt: m.createdAt,
         })),
       providesTags: ["Markets"],
     }),

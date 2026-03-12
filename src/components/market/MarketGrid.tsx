@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react"
 import type { FC } from "react"
+import { useNavigate } from "react-router"
 
 import { MARKET_TYPES } from "@/features/markets/marketTypes"
 import type { Market } from "@/features/markets/types"
@@ -10,16 +11,22 @@ import { MultiOptionBinaryMarketCard } from "./MultiOptionBinaryMarketCard"
 interface MarketGridProps {
   title: string
   markets: Market[]
+  groupKey: string
 }
 
-export const MarketGrid: FC<MarketGridProps> = ({ title, markets }) => {
+export const MarketGrid: FC<MarketGridProps> = ({ title, markets, groupKey }) => {
+  const navigate = useNavigate()
+
   if (markets.length === 0) return null
 
   return (
     <section className="py-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">{title}</h2>
-        <button className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+        <button
+          className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+          onClick={() => navigate(`/markets/${groupKey}`)}
+        >
           View All <ChevronRight className="size-3" />
         </button>
       </div>
