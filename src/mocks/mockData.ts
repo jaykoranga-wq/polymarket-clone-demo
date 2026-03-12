@@ -12,8 +12,6 @@ import type { Market } from "../features/markets/types"
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ─── API Response Shape ───────────────────────────────────────────────────────
-// This is exactly what your backend should return.
-// Show this to your backend dev so they match this contract.
 
 export interface ApiMarketsResponse {
   success: boolean
@@ -36,31 +34,27 @@ export interface ApiSingleMarketResponse {
 }
 
 // ─── Simulated Network Delay ──────────────────────────────────────────────────
-// Mimics a real API call with loading state.
-// Remove this entire function when switching to real backend.
 
 const simulateDelay = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// ─── Raw Mock Data (matches backend DB shape) ─────────────────────────────────
+// ─── Shared dummy data ────────────────────────────────────────────────────────
 
 const DUMMY_PRICE_HISTORY = [
-  { timestamp: "Oct 1", yesPrice: 0.45 },
-  { timestamp: "Oct 2", yesPrice: 0.4 },
-  { timestamp: "Oct 2", yesPrice: 0.32 },
-  { timestamp: "Oct 3", yesPrice: 0.54 },
-  { timestamp: "Oct 5", yesPrice: 0.6 },
-  { timestamp: "Oct 6", yesPrice: 0.12 },
-  { timestamp: "Oct 7", yesPrice: 0.15 },
-  { timestamp: "Oct 8", yesPrice: 0.2 },
-  { timestamp: "Oct 9", yesPrice: 0.45 },
-  { timestamp: "Oct 10", yesPrice: 0.55 },
-  { timestamp: "Oct 11", yesPrice: 0.42 },
-  { timestamp: "Oct 12", yesPrice: 0.41 },
-  { timestamp: "Oct 13", yesPrice: 0.42 },
-  { timestamp: "Oct 14", yesPrice: 0.45 },
-  { timestamp: "Oct 25", yesPrice: 0.5 },
-  { timestamp: "Oct 29", yesPrice: 0.53 },
-  { timestamp: "Nov 1", yesPrice: 0.52 },
+  { timestamp: "2024-10-01T00:00:00.000Z", yesPrice: 0.45 },
+  { timestamp: "2024-10-02T00:00:00.000Z", yesPrice: 0.4 },
+  { timestamp: "2024-10-03T00:00:00.000Z", yesPrice: 0.32 },
+  { timestamp: "2024-10-04T00:00:00.000Z", yesPrice: 0.54 },
+  { timestamp: "2024-10-05T00:00:00.000Z", yesPrice: 0.6 },
+  { timestamp: "2024-10-06T00:00:00.000Z", yesPrice: 0.12 },
+  { timestamp: "2024-10-07T00:00:00.000Z", yesPrice: 0.15 },
+  { timestamp: "2024-10-08T00:00:00.000Z", yesPrice: 0.2 },
+  { timestamp: "2024-10-09T00:00:00.000Z", yesPrice: 0.45 },
+  { timestamp: "2024-10-10T00:00:00.000Z", yesPrice: 0.55 },
+  { timestamp: "2024-10-11T00:00:00.000Z", yesPrice: 0.42 },
+  { timestamp: "2024-10-12T00:00:00.000Z", yesPrice: 0.41 },
+  { timestamp: "2024-10-25T00:00:00.000Z", yesPrice: 0.5 },
+  { timestamp: "2024-10-29T00:00:00.000Z", yesPrice: 0.53 },
+  { timestamp: "2024-11-01T00:00:00.000Z", yesPrice: 0.52 },
 ]
 
 const DUMMY_ORDER_BOOK = {
@@ -82,44 +76,50 @@ const DUMMY_ORDER_BOOK = {
 
 const DUMMY_RULES = `This market resolves YES if the outcome is confirmed by a majority of credible sources including Reuters, AP, or BBC before the expiry date. Resolution will be determined by the market admin within 48 hours of the event conclusion. In the case of ambiguity or conflicting reports, the market may be extended or resolved as N/A.`
 
-// ─── Markets ──────────────────────────────────────────────────────────────────//
+const RESOLVER = "0xabc123def456abc123def456abc123def456abc1"
+
+// ─── Markets ──────────────────────────────────────────────────────────────────
+// createdAt is ISO 8601 — this is exactly what your backend DB will return
+// Format: "YYYY-MM-DDTHH:mm:ss.sssZ"
+// NEVER use display formats like "Feb 10, 2024" — those are for UI only
 
 export const RAW_MARKETS: Market[] = [
+  // ── Existing markets (createdAt updated to ISO) ────────────────────────────
   {
     id: "1",
     title: "2024 Presidential Election Winner",
-    category: "Trump",
+    category: "Politics",
     description:
       "Predict the outcome of the upcoming US Presidential Election. Over $142M in total trading volume.",
     thumbnailUrl:
-      "https://images.unsplash.com/photo-1569285645462-a3f9c6332d56?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    expiryDate: "November 5th, 2024",
+      "https://images.unsplash.com/photo-1569285645462-a3f9c6332d56?q=80&w=1170&auto=format&fit=crop",
+    expiryDate: "2024-11-05T00:00:00.000Z",
     yesProbability: 52,
     noProbability: 48,
     volume: "$142M",
     frequency: "Event",
     isTrending: true,
     type: "binary_market",
-    createdAt: "Sep 1, 2024",
-    resolver: "0xabc123def456abc123def456abc123def456abc1",
+    createdAt: "2024-09-01T08:00:00.000Z", // ← ISO format
+    resolver: RESOLVER,
     priceHistory: DUMMY_PRICE_HISTORY,
     orderBook: DUMMY_ORDER_BOOK,
     rules: DUMMY_RULES,
   },
   {
     id: "2",
-    title: "US strikes Iran by...?",
-    category: "Texas",
+    title: "US strikes Iran by end of March?",
+    category: "Geopolitics",
     thumbnailUrl:
-      "https://images.unsplash.com/photo-1668076476189-7664ff0e7a91?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    expiryDate: "February 20",
+      "https://images.unsplash.com/photo-1668076476189-7664ff0e7a91?q=80&w=1172&auto=format&fit=crop",
+    expiryDate: "2024-03-31T00:00:00.000Z",
     yesProbability: 7,
     noProbability: 93,
     volume: "$308M",
     frequency: "Monthly",
     type: "binary_market",
-    createdAt: "Jan 10, 2024",
-    resolver: "0xabc123def456abc123def456abc123def456abc1",
+    createdAt: "2024-01-10T10:30:00.000Z",
+    resolver: RESOLVER,
     priceHistory: DUMMY_PRICE_HISTORY,
     orderBook: DUMMY_ORDER_BOOK,
     rules: DUMMY_RULES,
@@ -127,17 +127,17 @@ export const RAW_MARKETS: Market[] = [
   {
     id: "3",
     title: "How long will the DHS shutdown last?",
-    category: "Fed",
+    category: "Politics",
     thumbnailUrl:
       "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=400&auto=format&fit=crop",
-    expiryDate: "February 20",
+    expiryDate: "2024-02-20T00:00:00.000Z",
     yesProbability: 7,
     noProbability: 93,
     volume: "$18M",
     frequency: "Daily",
     type: "binary_market",
-    createdAt: "Jan 15, 2024",
-    resolver: "0xabc123def456abc123def456abc123def456abc1",
+    createdAt: "2024-01-15T14:00:00.000Z",
+    resolver: RESOLVER,
     priceHistory: DUMMY_PRICE_HISTORY,
     orderBook: DUMMY_ORDER_BOOK,
     rules: DUMMY_RULES,
@@ -145,17 +145,17 @@ export const RAW_MARKETS: Market[] = [
   {
     id: "4",
     title: "Khamenei out as Supreme Leader of Iran by March 31?",
-    category: "Epstein",
+    category: "Geopolitics",
     thumbnailUrl:
       "https://media.istockphoto.com/id/124638317/photo/ruhollah-musavi-khomeini.jpg?s=2048x2048&w=is&k=20&c=uKLf5xGfia4OcraqtZ7dYyzKLNchRzsH0yTLiXWM16A=",
-    expiryDate: "March 31",
+    expiryDate: "2024-03-31T00:00:00.000Z",
     yesProbability: 40,
     noProbability: 60,
     volume: "$4.1M",
     frequency: "Monthly",
     type: "binary_market",
-    createdAt: "Feb 1, 2024",
-    resolver: "0xabc123def456abc123def456abc123def456abc1",
+    createdAt: "2024-02-01T09:15:00.000Z",
+    resolver: RESOLVER,
     priceHistory: DUMMY_PRICE_HISTORY,
     orderBook: DUMMY_ORDER_BOOK,
     rules: DUMMY_RULES,
@@ -166,14 +166,14 @@ export const RAW_MARKETS: Market[] = [
     category: "AI",
     thumbnailUrl:
       "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=400&auto=format&fit=crop",
-    expiryDate: "February 28",
+    expiryDate: "2024-02-28T00:00:00.000Z",
     yesProbability: 7,
     noProbability: 93,
     volume: "$308M",
     frequency: "Monthly",
     type: "binary_market",
-    createdAt: "Jan 20, 2024",
-    resolver: "0xabc123def456abc123def456abc123def456abc1",
+    createdAt: "2024-01-20T11:00:00.000Z",
+    resolver: RESOLVER,
     priceHistory: DUMMY_PRICE_HISTORY,
     orderBook: DUMMY_ORDER_BOOK,
     rules: DUMMY_RULES,
@@ -184,64 +184,209 @@ export const RAW_MARKETS: Market[] = [
     category: "Crypto",
     thumbnailUrl:
       "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?q=80&w=400&auto=format&fit=crop",
-    expiryDate: "5:30 AM",
+    expiryDate: "2024-02-10T05:30:00.000Z",
     yesProbability: 40,
     noProbability: 60,
     volume: "$4.1M",
     frequency: "Event",
     type: "binary_market",
-    createdAt: "Feb 10, 2024",
-    resolver: "0xabc123def456abc123def456abc123def456abc1",
+    createdAt: "2024-02-10T00:00:00.000Z",
+    resolver: RESOLVER,
     priceHistory: DUMMY_PRICE_HISTORY,
     orderBook: DUMMY_ORDER_BOOK,
     rules: DUMMY_RULES,
   },
-  // {
-  //   id: "7",
-  //   title: "US strikes Iran by...?",
-  //   category: "Texas",
-  //   thumbnailUrl:
-  //     "https://images.unsplash.com/photo-1532187863486-abf51ad9f69d?q=80&w=400&auto=format&fit=crop",
-  //   expiryDate: "February 20",
-  //   volume: "$308M",
-  //   frequency: "Monthly",
-  //   type: "multi_option_binary_market",
-  //   createdAt: "Jan 5, 2024",
-  //   resolver: "0xabc123def456abc123def456abc123def456abc1",
-  //   options: [
-  //     { date: "march 07", yesProbability: 7,  noProbability: 93 },
-  //     { date: "march 08", yesProbability: 10, noProbability: 90 },
-  //     { date: "march 09", yesProbability: 2,  noProbability: 98 },
-  //   ],
-  //   priceHistory: DUMMY_PRICE_HISTORY,
-  //   orderBook: DUMMY_ORDER_BOOK,
-  //   rules: DUMMY_RULES,
-  // },
+
+  // ── New markets ────────────────────────────────────────────────────────────
+  {
+    id: "7",
+    title: "Will ETH reach $5000 before June 2026?",
+    category: "Crypto",
+    description:
+      "Ethereum price prediction market. Resolves YES if ETH/USD hits $5000 on any major exchange.",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=400&auto=format&fit=crop",
+    expiryDate: "2026-06-01T00:00:00.000Z",
+    yesProbability: 38,
+    noProbability: 62,
+    volume: "$22M",
+    frequency: "Event",
+    isTrending: true,
+    type: "binary_market",
+    createdAt: "2026-03-11T07:00:00.000Z", // ← recent — will appear in "new markets"
+    resolver: RESOLVER,
+    priceHistory: DUMMY_PRICE_HISTORY,
+    orderBook: DUMMY_ORDER_BOOK,
+    rules: DUMMY_RULES,
+  },
+  {
+    id: "8",
+    title: "Will Fed cut rates in May 2026?",
+    category: "Economics",
+    description:
+      "Resolves YES if the Federal Reserve announces a rate cut at the May 2026 FOMC meeting.",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=400&auto=format&fit=crop",
+    expiryDate: "2026-05-15T00:00:00.000Z",
+    yesProbability: 61,
+    noProbability: 39,
+    volume: "$55M",
+    frequency: "Monthly",
+    isTrending: false,
+    type: "binary_market",
+    createdAt: "2026-03-10T12:00:00.000Z", // ← recent
+    resolver: RESOLVER,
+    priceHistory: DUMMY_PRICE_HISTORY,
+    orderBook: DUMMY_ORDER_BOOK,
+    rules: DUMMY_RULES,
+  },
+  {
+    id: "9",
+    title: "Will Apple release AR glasses in 2026?",
+    category: "Tech",
+    description: "Resolves YES if Apple officially launches a consumer AR glasses product in 2026.",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1491933382434-500287f9b54b?q=80&w=400&auto=format&fit=crop",
+    expiryDate: "2026-12-31T00:00:00.000Z",
+    yesProbability: 24,
+    noProbability: 76,
+    volume: "$9.4M",
+    frequency: "Event",
+    isTrending: false,
+    type: "binary_market",
+    createdAt: "2026-02-15T09:30:00.000Z",
+    resolver: RESOLVER,
+    priceHistory: DUMMY_PRICE_HISTORY,
+    orderBook: DUMMY_ORDER_BOOK,
+    rules: DUMMY_RULES,
+  },
+  {
+    id: "10",
+    title: "Will Messi retire before end of 2026?",
+    category: "Sports",
+    description:
+      "Resolves YES if Lionel Messi officially announces retirement from professional football.",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=400&auto=format&fit=crop",
+    expiryDate: "2026-12-31T00:00:00.000Z",
+    yesProbability: 33,
+    noProbability: 67,
+    volume: "$7.8M",
+    frequency: "Event",
+    isTrending: true,
+    type: "binary_market",
+    createdAt: "2026-01-05T15:00:00.000Z",
+    resolver: RESOLVER,
+    priceHistory: DUMMY_PRICE_HISTORY,
+    orderBook: DUMMY_ORDER_BOOK,
+    rules: DUMMY_RULES,
+  },
+  {
+    id: "11",
+    title: "Will OpenAI release GPT-5 before July 2026?",
+    category: "AI",
+    description:
+      "Resolves YES if OpenAI publicly releases a model officially named GPT-5 before July 1 2026.",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?q=80&w=400&auto=format&fit=crop",
+    expiryDate: "2026-07-01T00:00:00.000Z",
+    yesProbability: 55,
+    noProbability: 45,
+    volume: "$31M",
+    frequency: "Event",
+    isTrending: true,
+    type: "binary_market",
+    createdAt: "2026-03-12T06:00:00.000Z", // ← today — definitely "new"
+    resolver: RESOLVER,
+    priceHistory: DUMMY_PRICE_HISTORY,
+    orderBook: DUMMY_ORDER_BOOK,
+    rules: DUMMY_RULES,
+  },
+  {
+    id: "12",
+    title: "Will Bitcoin hit $150k in 2026?",
+    category: "Crypto",
+    description:
+      "Resolves YES if BTC/USD price reaches $150,000 on any major exchange before Dec 31 2026.",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1609554496796-c345a5335ceb?q=80&w=400&auto=format&fit=crop",
+    expiryDate: "2026-12-31T00:00:00.000Z",
+    yesProbability: 44,
+    noProbability: 56,
+    volume: "$98M",
+    frequency: "Event",
+    isTrending: true,
+    type: "binary_market",
+    createdAt: "2026-01-20T10:00:00.000Z",
+    resolver: RESOLVER,
+    priceHistory: DUMMY_PRICE_HISTORY,
+    orderBook: DUMMY_ORDER_BOOK,
+    rules: DUMMY_RULES,
+  },
+  {
+    id: "13",
+    title: "Will India win the 2026 Cricket World Cup?",
+    category: "Sports",
+    description: "Resolves YES if the Indian cricket team wins the ICC Cricket World Cup 2026.",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=400&auto=format&fit=crop",
+    expiryDate: "2026-11-15T00:00:00.000Z",
+    yesProbability: 29,
+    noProbability: 71,
+    volume: "$12M",
+    frequency: "Event",
+    isTrending: false,
+    type: "binary_market",
+    createdAt: "2026-03-11T20:00:00.000Z", // ← yesterday — new market
+    resolver: RESOLVER,
+    priceHistory: DUMMY_PRICE_HISTORY,
+    orderBook: DUMMY_ORDER_BOOK,
+    rules: DUMMY_RULES,
+  },
+  {
+    id: "14",
+    title: "Will the US enter a recession in 2026?",
+    category: "Economics",
+    description:
+      "Resolves YES if the NBER officially declares a US recession beginning in calendar year 2026.",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=400&auto=format&fit=crop",
+    expiryDate: "2027-01-31T00:00:00.000Z",
+    yesProbability: 42,
+    noProbability: 58,
+    volume: "$76M",
+    frequency: "Event",
+    isTrending: false,
+    type: "binary_market",
+    createdAt: "2026-02-28T08:00:00.000Z",
+    resolver: RESOLVER,
+    priceHistory: DUMMY_PRICE_HISTORY,
+    orderBook: DUMMY_ORDER_BOOK,
+    rules: DUMMY_RULES,
+  },
 ]
 
 const RAW_CATEGORIES: string[] = [
   "All Markets",
+  "Politics",
+  "Crypto",
+  "AI",
+  "Sports",
+  "Economics",
+  "Geopolitics",
+  "Tech",
   "Trump",
   "Olympics",
   "Oscars",
-  "Texas",
-  "Tweet",
-  "Markets",
-  "Epstein",
-  "AI",
-  "SOTU",
   "Fed",
   "Gold",
   "Silver",
   "Space",
-  "XIPOs",
   "Earnings",
   "China",
 ]
 
 // ─── Mock API Functions ───────────────────────────────────────────────────────
-// These functions mimic async API calls.
-// When backend is ready, delete these and use RTK Query hooks instead.
 
 /** GET /api/markets */
 export const fetchMarkets = async (): Promise<ApiMarketsResponse> => {
@@ -277,8 +422,7 @@ export const fetchCategories = async (): Promise<ApiCategoriesResponse> => {
   }
 }
 
-// ─── Static exports (for components that don't need async yet) ────────────────
-// You can keep using these directly in components until RTK Query is wired up.
+// ─── Static exports ───────────────────────────────────────────────────────────
 
 export const MOCK_MARKETS: Market[] = RAW_MARKETS
 export const CATEGORIES: string[] = RAW_CATEGORIES

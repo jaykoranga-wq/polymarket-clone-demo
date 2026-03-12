@@ -1,4 +1,4 @@
-import "./styles/eventPage.css"
+import "./eventPage.css"
 
 import {
   AreaSeries,
@@ -20,6 +20,7 @@ import { IcoClock } from "@/components/custom/IcoClock"
 import { IcoLink } from "@/components/custom/IconLink"
 import { IcoRepeat } from "@/components/custom/IcoRepeat"
 import { IcoVol } from "@/components/custom/IcoVol"
+import { CommentSection } from "@/components/market/comment/CommentSection"
 import { AuthLoader } from "@/components/ui/AuthLoader"
 import { selectUserLoading } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
@@ -29,7 +30,7 @@ import { MARKET_TYPES } from "@/features/markets/marketTypes"
 import type { BinaryMarket, PricePoint } from "@/features/markets/types"
 import { MOCK_MARKETS } from "@/mocks/mockData"
 
-import TradePanel from "../components/event/tradePanel/TradePanel"
+import TradePanel from "../../components/event/tradePanel/TradePanel"
 
 const RULES_MAX = 200
 
@@ -210,7 +211,7 @@ const EventPage = () => {
         <Toaster richColors position="top-center" />
         {userLoading && <AuthLoader />}
 
-        <div className="ep">
+        <div className="ep w-full">
           <button className="ep-back" onClick={() => navigate(-1)}>
             <IcoBack /> Back to markets
           </button>
@@ -384,6 +385,9 @@ const EventPage = () => {
                   )}
                 </div>
               </div>
+
+              {/* ── Comments ── */}
+              <CommentSection marketId={market.id} />
             </div>
             {/* ══════════════ END LEFT ══════════════ */}
 

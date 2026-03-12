@@ -2,10 +2,13 @@ import { useEffect } from "react"
 import { useDispatch } from "react-redux"
 import { Outlet } from "react-router"
 
+import { Footer } from "@/components/layout/Footer"
 import { Navbar } from "@/components/layout/Navbar"
 import { useLoginMutation } from "@/features/api/auth/authApi"
 import { checkAuth } from "@/features/auth/authChecks"
 import { useMagic } from "@/features/auth/lib/magic"
+import { setMarkets } from "@/features/markets/marketSlice"
+import { MOCK_MARKETS } from "@/mocks/mockData"
 
 export function PublicLayout() {
   const dispatch = useDispatch()
@@ -19,6 +22,7 @@ export function PublicLayout() {
     if (magic) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       void checkAuth(magic, dispatch, loginToBackend as any)
+      dispatch(setMarkets(MOCK_MARKETS))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [magic])
@@ -28,6 +32,7 @@ export function PublicLayout() {
       <main>
         <Navbar />
         <Outlet />
+        <Footer />
       </main>
     </div>
   )

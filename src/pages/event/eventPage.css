@@ -29,9 +29,7 @@
 /* ─── Layout ─────────────────────────────────────────────────────────────────── */
 .ep-layout {
   display: grid;
-  grid-template-columns: 1fr 320px;
-  max-width: 1100px;
-  margin: 0 auto;
+  grid-template-columns: 1fr 340px;
   align-items: start;
 }
 

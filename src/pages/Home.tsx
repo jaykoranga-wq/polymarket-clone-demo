@@ -8,20 +8,26 @@ import { MarketGrid } from "@/components/market/MarketGrid"
 import { AuthLoader } from "@/components/ui/AuthLoader"
 import { useGetMarketsQuery } from "@/features/api/markets/marketApi"
 import { selectUserLoading } from "@/features/auth/authSlice"
-import { selectFilteredMarkets, selectTrendingMarkets } from "@/features/markets/marketSelectors"
+import { selectAllMarkets, selectNewMarkets } from "@/features/markets/marketSelectors"
 import { setMarkets } from "@/features/markets/marketSlice"
 import type { Market } from "@/features/markets/types"
 import { MOCK_MARKETS } from "@/mocks/mockData"
 
 const Home: FC = () => {
   const dispatch = useDispatch()
-  const trendingMarkets = useSelector(selectTrendingMarkets)
-  const filteredMarkets = useSelector(selectFilteredMarkets)
+  // const trendingMarkets = useSelector(selectTrendingMarkets)
+  // const filteredMarkets = useSelector(selectFilteredMarkets)
+  const allMarkets = useSelector(selectAllMarkets)
+  const newMarkets = useSelector(selectNewMarkets)
+  console.log("new market value", newMarkets)
   const userLoading = useSelector(selectUserLoading)
   const { data: markets, isLoading: isMarketLoading } = useGetMarketsQuery()
 
   useEffect(() => {
-    if (markets) dispatch(setMarkets(markets))
+    if (markets) {
+      // api call
+    }
+    dispatch(setMarkets(MOCK_MARKETS))
   }, [dispatch, markets, isMarketLoading])
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -47,8 +53,17 @@ const Home: FC = () => {
 
       <main className="container mx-auto px-4 pb-20">
         {mainHeroMarket && <MyCarousel items={carouselItems} renderItem={renderHeroBanner} />}
-        <MarketGrid title="All Ending Soon Markets" markets={filteredMarkets} />
-        <MarketGrid title="Earn Rewards for Supporting Market Activity" markets={trendingMarkets} />
+        <MarketGrid title="NEW MARKETS" markets={newMarkets.slice(0, 4)} groupKey={`new_market`} />
+        <MarketGrid
+          title="All Ending Soon Markets"
+          markets={allMarkets.slice(0, 4)}
+          groupKey={`ending_soon`}
+        />
+        <MarketGrid
+          title="Earn Rewards for Supporting Market Activity"
+          markets={allMarkets.slice(0, 4)}
+          groupKey={`earn_rewards`}
+        />
       </main>
     </div>
   )
