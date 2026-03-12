@@ -1,5 +1,5 @@
 import { clsx } from "clsx"
-import { type FC, useState } from "react"
+import { type FC, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router"
 
@@ -12,19 +12,19 @@ export const CategoryTabs: FC = () => {
   const dispatch = useDispatch()
   const selectedCategory = useSelector(selectSelectedCategory)
   const navigate = useNavigate()
-  const [allCategory, setAllCategory] = useState<string[] | undefined>([])
   const { data } = useGetCategoriesQuery()
-  if (data) {
-    setAllCategory([...CATEGORIES, ...data])
-  } else {
-    setAllCategory(CATEGORIES)
-  }
+
+  // ✅ useMemo — no useState, no useEffect, no cascading render error
+  const allCategory = useMemo(() => {
+    if (data && data.length > 0) return [...CATEGORIES, ...data]
+    return CATEGORIES
+  }, [data])
 
   return (
-    <div className=" border-b border-border bg-background sticky top-16 z-40 md:mx-20">
+    <div className="border-b border-border bg-background sticky top-16 z-40 md:mx-20">
       <div className="container mx-auto px-4 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-6 min-w-max h-12">
-          {allCategory?.map((category) => (
+          {allCategory.map((category) => (
             <button
               key={category}
               onClick={() => {
