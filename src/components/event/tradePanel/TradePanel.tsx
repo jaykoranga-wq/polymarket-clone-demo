@@ -3,27 +3,28 @@ import "./TradePanel.css"
 import { useEffect, useRef, useState } from "react"
 
 import { useAppSelector } from "@/app/hooks"
+import type { TradePanelOrder } from "@/hooks/trade/TradeTypes"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface TradePanelProps {
+export interface TradePanelProps {
   yesProbability: number // 0–100 (cents)
   noProbability: number
   isCrypto?: boolean // "Up/Down" labels instead of "Yes/No"
-  onTrade?: (o: TradeOrder) => void
+  onTrade?: (o: TradePanelOrder) => void
   onLoginRequired?: () => void // ← called when not authenticated
   onDepositRequired?: () => void // ← called when no balance
 }
 
-export interface TradeOrder {
-  action: "Buy" | "Sell"
-  orderType: "Market" | "Limit"
-  outcome: "Yes" | "No" | "Up" | "Down"
-  amount?: number // Market Buy  — dollar amount
-  shares?: number // all other modes
-  limitCents?: number // Limit only
-  expirationEnabled: boolean
-}
+// export interface TradePanelOrder {
+//   action: "Buy" | "Sell"
+//   orderType: "Market" | "Limit"
+//   outcome: "Yes" | "No" | "Up" | "Down"
+//   amount?: number // Market Buy  — dollar amount
+//   shares?: number // all other modes
+//   limitCents?: number // Limit only
+//   expirationEnabled: boolean
+// }
 
 type Action = "Buy" | "Sell"
 type OrderType = "Market" | "Limit"
@@ -169,10 +170,11 @@ const TradePanel = ({
 
   const handleTrade = () => {
     if (tradeDisabled) return
+    console.log("trade button working")
     onTrade?.({
       action,
       orderType,
-      outcome: outcome as TradeOrder["outcome"],
+      outcome: outcome as TradePanelOrder["outcome"],
       amount: action === "Buy" && orderType === "Market" ? amount : undefined,
       shares: action === "Sell" && orderType === "Market" ? sellShares : shares,
       limitCents: orderType === "Limit" ? limitCents : undefined,

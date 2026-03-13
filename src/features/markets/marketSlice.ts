@@ -6,7 +6,7 @@ const initialState: MarketsState = {
   list: [],
   loading: false,
   error: null,
-  selectedCategory: "All Markets",
+  selectedCategory: "",
   selectedMarket: null,
 }
 

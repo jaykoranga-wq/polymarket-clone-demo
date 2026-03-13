@@ -29,7 +29,7 @@ export const CategoryTabs: FC = () => {
               key={category}
               onClick={() => {
                 dispatch(setSelectedCategory(category))
-                navigate("/")
+                navigate(`/markets/${category}`)
               }}
               className={clsx(
                 "relative h-full flex items-center text-sm font-semibold transition-all duration-200 whitespace-nowrap",

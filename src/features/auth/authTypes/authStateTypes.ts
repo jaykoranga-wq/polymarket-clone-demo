@@ -9,4 +9,5 @@ export interface AuthState {
   cashAmount?: number
   loginMethod: LoginMethod
   token: string | null
+  cashLoading: boolean
 }

@@ -5,15 +5,19 @@ import { Outlet } from "react-router"
 import { Footer } from "@/components/layout/Footer"
 import { Navbar } from "@/components/layout/Navbar"
 import { useLoginMutation } from "@/features/api/auth/authApi"
+import { useGetMarketsQuery } from "@/features/api/markets/marketApi"
 import { checkAuth } from "@/features/auth/authChecks"
 import { useMagic } from "@/features/auth/lib/magic"
 import { setMarkets } from "@/features/markets/marketSlice"
+import { useWalletBalance } from "@/hooks/useWalletBalance"
 import { MOCK_MARKETS } from "@/mocks/mockData"
 
 export function PublicLayout() {
   const dispatch = useDispatch()
   const { magic } = useMagic()
+  useWalletBalance()
   const [loginToBackend] = useLoginMutation()
+  const { data: markets } = useGetMarketsQuery()
 
   // Runs once when magic initialises (any page, any refresh).
   // Restores auth state: Google redirect → Magic session → MetaMask → unauthenticated.
@@ -22,10 +26,14 @@ export function PublicLayout() {
     if (magic) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       void checkAuth(magic, dispatch, loginToBackend as any)
-      dispatch(setMarkets(MOCK_MARKETS))
     }
+    // if(markets){
+    //   console.log("markets from APi in index:",markets)
+    //   dispatch(setMarkets([...markets]))
+    // }
+    dispatch(setMarkets(MOCK_MARKETS))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [magic])
+  }, [magic, dispatch, markets])
 
   return (
     <div className="min-h-screen bg-background">

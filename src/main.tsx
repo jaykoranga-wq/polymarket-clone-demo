@@ -1,6 +1,5 @@
 import "./styles/globals.css"
 
-import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { RouterProvider } from "react-router"
 
@@ -16,11 +15,9 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
-  <StrictMode>
-    <MagicProvider>
-      <AppProviders>
-        <RouterProvider router={router} />
-      </AppProviders>
-    </MagicProvider>
-  </StrictMode>,
+  <MagicProvider>
+    <AppProviders>
+      <RouterProvider router={router} />
+    </AppProviders>
+  </MagicProvider>,
 )
