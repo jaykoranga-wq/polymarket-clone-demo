@@ -38,6 +38,10 @@ export interface BaseMarket {
   resolver?: string
   priceHistory?: PricePoint[]
   orderBook?: OrderBook
+  conditionId?: string
+  yesTokenId?: string
+  noTokenId?: string
+  collateralToken?: string
 }
 
 // ─── Binary Market ────────────────────────────────────────────────────────────

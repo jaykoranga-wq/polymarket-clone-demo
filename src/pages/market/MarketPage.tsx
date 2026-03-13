@@ -1,17 +1,19 @@
 // src/pages/MarketsPage.tsx
 import "./marketPage.css"
 
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { useSelector } from "react-redux"
 import { useParams } from "react-router"
 
+import { useAppDispatch } from "@/app/hooks"
 import { BinaryMarketCard } from "@/components/market/BinaryMarketCard"
 import { MultiOptionBinaryMarketCard } from "@/components/market/MultiOptionBinaryMarketCard"
 import {
-  selectFilteredMarkets,
+  selectAllMarkets, // ← raw unfiltered list
   selectNewMarkets,
   selectTrendingMarkets,
 } from "@/features/markets/marketSelectors"
+import { setSelectedCategory } from "@/features/markets/marketSlice"
 import { MARKET_TYPES } from "@/features/markets/marketTypes"
 import type { Market } from "@/features/markets/types"
 
@@ -22,28 +24,46 @@ const GROUP_TITLES: Record<string, string> = {
   earn_rewards: "📈 Earn Rewards Markets",
 }
 
+// these are your fixed group keys — anything else is treated as a category
+const KNOWN_GROUPS = new Set(["trending", "ending_soon", "new_market", "earn_rewards"])
+
 const MarketsPage = () => {
+  const dispatch = useAppDispatch()
   const { group } = useParams<{ group: string }>()
+  console.log(group)
 
   const trending = useSelector(selectTrendingMarkets)
   const newMarkets = useSelector(selectNewMarkets)
-  const allMarkets = useSelector(selectFilteredMarkets)
+  const allMarkets = useSelector(selectAllMarkets) // ← raw, no category filter
+  useEffect(() => {
+    return () => {
+      dispatch(setSelectedCategory(""))
+    }
+  }, [])
 
-  // ✅ keys exactly match route param values e.g. /markets/trending
-  const marketMap: Record<string, Market[]> = {
-    trending,
-    new_market: newMarkets,
-    ending_soon: allMarkets.filter((m) => m.isTrending), // swap with real selector when ready
-    earn_rewards: allMarkets,
-  }
-
-  // ✅ no useState + useEffect needed — useMemo re-runs when selectors update
   const markets = useMemo(() => {
     if (!group) return allMarkets
-    return marketMap[group] ?? allMarkets
+
+    // ✅ known group key → use selector result
+    if (KNOWN_GROUPS.has(group)) {
+      const groupMap: Record<string, Market[]> = {
+        trending,
+        new_market: newMarkets,
+        ending_soon: allMarkets,
+        earn_rewards: allMarkets,
+      }
+      return groupMap[group] ?? allMarkets
+    }
+
+    // ✅ not a known group → treat as category, filter from URL param directly
+    // this survives refresh because group comes from URL, not Redux
+    if (group === "All Markets") return allMarkets
+    return allMarkets.filter((m) => {
+      if (m.category.toLowerCase() === group.toLowerCase()) return true
+    })
   }, [group, trending, newMarkets, allMarkets])
 
-  const title = group ? (GROUP_TITLES[group] ?? "All Markets") : "All Markets"
+  const title = group ? (GROUP_TITLES[group] ?? `${group} `) : "All Markets"
 
   return (
     <div className="mp-wrap">

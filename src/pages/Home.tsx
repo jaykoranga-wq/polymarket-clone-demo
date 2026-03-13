@@ -1,34 +1,31 @@
-import { type FC, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
+import { type FC } from "react"
+import { useSelector } from "react-redux"
 import { Toaster } from "sonner"
 
 import { MyCarousel } from "@/components/custom/MyCarousel"
 import { HeroBanner } from "@/components/layout/HeroBanner"
 import { MarketGrid } from "@/components/market/MarketGrid"
 import { AuthLoader } from "@/components/ui/AuthLoader"
-import { useGetMarketsQuery } from "@/features/api/markets/marketApi"
 import { selectUserLoading } from "@/features/auth/authSlice"
 import { selectAllMarkets, selectNewMarkets } from "@/features/markets/marketSelectors"
-import { setMarkets } from "@/features/markets/marketSlice"
 import type { Market } from "@/features/markets/types"
 import { MOCK_MARKETS } from "@/mocks/mockData"
 
 const Home: FC = () => {
-  const dispatch = useDispatch()
   // const trendingMarkets = useSelector(selectTrendingMarkets)
   // const filteredMarkets = useSelector(selectFilteredMarkets)
   const allMarkets = useSelector(selectAllMarkets)
   const newMarkets = useSelector(selectNewMarkets)
   console.log("new market value", newMarkets)
   const userLoading = useSelector(selectUserLoading)
-  const { data: markets, isLoading: isMarketLoading } = useGetMarketsQuery()
 
-  useEffect(() => {
-    if (markets) {
-      // api call
-    }
-    dispatch(setMarkets(MOCK_MARKETS))
-  }, [dispatch, markets, isMarketLoading])
+  // useEffect(() => {
+  //   if (markets) {
+  //     console.log("markets from API :",markets)
+  //     dispatch(setMarkets([...markets,...MOCK_MARKETS]))
+  //   }
+  //   else dispatch(setMarkets(MOCK_MARKETS))
+  // }, [dispatch, markets, isMarketLoading,])
 
   // ─────────────────────────────────────────────────────────────────────────
   const mainHeroMarket = MOCK_MARKETS[0]

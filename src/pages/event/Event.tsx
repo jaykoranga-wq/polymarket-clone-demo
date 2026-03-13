@@ -20,6 +20,7 @@ import { IcoClock } from "@/components/custom/IcoClock"
 import { IcoLink } from "@/components/custom/IconLink"
 import { IcoRepeat } from "@/components/custom/IcoRepeat"
 import { IcoVol } from "@/components/custom/IcoVol"
+import TradePanel from "@/components/event/tradePanel/TradePanel"
 import { CommentSection } from "@/components/market/comment/CommentSection"
 import { AuthLoader } from "@/components/ui/AuthLoader"
 import { selectUserLoading } from "@/features/auth/authSlice"
@@ -28,9 +29,9 @@ import { shorten } from "@/features/markets/lib/utils"
 import { setSelectedMarket } from "@/features/markets/marketSlice"
 import { MARKET_TYPES } from "@/features/markets/marketTypes"
 import type { BinaryMarket, PricePoint } from "@/features/markets/types"
+import type { TradeOrder, TradePanelOrder } from "@/hooks/trade/TradeTypes"
+import { useTrade } from "@/hooks/trade/useTrade"
 import { MOCK_MARKETS } from "@/mocks/mockData"
-
-import TradePanel from "../../components/event/tradePanel/TradePanel"
 
 const RULES_MAX = 200
 
@@ -171,7 +172,29 @@ const EventPage = () => {
   const [chartTab, setChartTab] = useState("ALL")
   const [rulesOpen, setRulesOpen] = useState(false)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const { executeTrade, tradeError } = useTrade()
 
+  const handleTrade = (params: TradePanelOrder) => {
+    if (
+      !market?.id ||
+      !market?.yesTokenId ||
+      !market?.noTokenId ||
+      !market?.collateralToken ||
+      !market?.conditionId
+    ) {
+      console.error("Market blockchain data missing — cannot trade")
+      return
+    }
+
+    executeTrade({
+      ...params,
+      marketId: market.id, // ✅ TypeScript now knows these are strings
+      yesTokenId: market.yesTokenId,
+      noTokenId: market.noTokenId,
+      collateralToken: market.collateralToken,
+      conditionId: market.conditionId,
+    } satisfies TradeOrder)
+  }
   useEffect(() => {
     if (!id) return
     if (market?.id === id) return
@@ -206,6 +229,7 @@ const EventPage = () => {
 
   return (
     <>
+      {tradeError && <p className="text-red-500">{tradeError}</p>}
       <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 md:mx-20">
         <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <Toaster richColors position="top-center" />
@@ -402,6 +426,7 @@ const EventPage = () => {
                     setIsLoginOpen(true)
                   }}
                   onDepositRequired={() => magic?.wallet?.showUI()}
+                  onTrade={handleTrade}
                 />
               </div>
             </div>

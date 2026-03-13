@@ -12,6 +12,7 @@ const initialState: AuthState = {
   portfolioAmount: 0,
   loginMethod: null,
   token: null,
+  cashLoading: false,
 }
 
 const authSlice = createSlice({
@@ -60,10 +61,29 @@ const authSlice = createSlice({
     setTempToken(state, action: PayloadAction<{ token: string | null }>) {
       state.token = action.payload.token
     },
+    setCashAmount(state, action: PayloadAction<{ cashAmount: number }>) {
+      state.cashAmount = action.payload.cashAmount
+    },
+    setCashLoading: (state, action: PayloadAction<boolean>) => {
+      state.cashLoading = action.payload
+    },
+    clearWalletBalance: (state) => {
+      state.cashAmount = 0
+      state.cashLoading = false
+    },
   },
 })
 
-export const { login, logout, loadingTrue, loadingFalse, setTempToken } = authSlice.actions
+export const {
+  login,
+  logout,
+  loadingTrue,
+  loadingFalse,
+  setTempToken,
+  setCashAmount,
+  setCashLoading,
+  clearWalletBalance,
+} = authSlice.actions
 
 export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated
 export const selectUserData = (state: { auth: AuthState }) => state.auth

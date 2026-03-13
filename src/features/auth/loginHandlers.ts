@@ -17,6 +17,8 @@ import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import type { Magic } from "@/features/auth/lib/magic"
 import { clearMetaMaskLoggedOut } from "@/routes/utils"
 
+import { switchToAmoy } from "./switchChain"
+
 // ---------------------------------------------------------------------------
 // Shared dependency types (minimal — only what we actually use)
 // ---------------------------------------------------------------------------
@@ -143,6 +145,8 @@ export async function handleMetaMaskLogin({
 
   dispatch(loadingTrue())
   try {
+    // switching the chain to amoy
+    await switchToAmoy()
     // Step 1: get wallet address
     const accounts = (await window.ethereum.request({
       method: "eth_requestAccounts",
