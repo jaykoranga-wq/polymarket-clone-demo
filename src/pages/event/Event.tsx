@@ -9,17 +9,19 @@ import {
 } from "lightweight-charts"
 import { useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux"
-import { useNavigate, useParams } from "react-router"
+import { useParams } from "react-router"
 import { Toaster } from "sonner"
 
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import { LoginModal } from "@/components/auth/LoginModal"
-import { IcoBack } from "@/components/custom/IcoBack"
-import { IcoBookmark } from "@/components/custom/IcoBookmark"
-import { IcoClock } from "@/components/custom/IcoClock"
-import { IcoLink } from "@/components/custom/IconLink"
-import { IcoRepeat } from "@/components/custom/IcoRepeat"
-import { IcoVol } from "@/components/custom/IcoVol"
+// ✅ FIX 1: replaced IcoBookmark/IcoLink with smaller versions from new file
+import {
+  IcoBookmarkSm,
+  IcoClockSm,
+  IcoRepeatSm,
+  IcoShareSm,
+  IcoVolSm,
+} from "@/components/custom/EventPageIcons"
 import TradePanel from "@/components/event/tradePanel/TradePanel"
 import { CommentSection } from "@/components/market/comment/CommentSection"
 import { AuthLoader } from "@/components/ui/AuthLoader"
@@ -31,26 +33,23 @@ import { MARKET_TYPES } from "@/features/markets/marketTypes"
 import type { BinaryMarket, PricePoint } from "@/features/markets/types"
 import type { TradeOrder, TradePanelOrder } from "@/hooks/trade/TradeTypes"
 import { useTrade } from "@/hooks/trade/useTrade"
+// ✅ FIX 2: separate date formatter
+import { formatMarketDate } from "@/libs/formatDate"
 import { MOCK_MARKETS } from "@/mocks/mockData"
 
 const RULES_MAX = 200
+type TabKey = "rules" | "activity" | "orderbook" | "comments"
 
-// ─── PriceChart — lightweight-charts ─────────────────────────────────────────
+// ─── PriceChart ───────────────────────────────────────────────────────────────
 
-interface PriceChartProps {
-  priceHistory: PricePoint[]
-}
-
-const PriceChart = ({ priceHistory }: PriceChartProps) => {
+const PriceChart = ({ priceHistory }: { priceHistory: PricePoint[] }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const yesRef = useRef<ISeriesApi<"Area"> | null>(null)
-  const noRef = useRef<ISeriesApi<"Area"> | null>(null)
 
   useEffect(() => {
     if (!containerRef.current || priceHistory.length === 0) return
 
-    // ── Create chart instance ─────────────────────────────────────────────────
     const chart = createChart(containerRef.current, {
       width: containerRef.current.clientWidth,
       height: 220,
@@ -65,18 +64,12 @@ const PriceChart = ({ priceHistory }: PriceChartProps) => {
         horzLines: { color: "rgba(255,255,255,0.04)" },
       },
       crosshair: {
-        vertLine: {
-          color: "rgba(255,255,255,0.15)",
-          labelBackgroundColor: "#1a1e26",
-        },
-        horzLine: {
-          color: "rgba(255,255,255,0.15)",
-          labelBackgroundColor: "#1a1e26",
-        },
+        vertLine: { color: "rgba(255,255,255,0.15)", labelBackgroundColor: "#1a1e26" },
+        horzLine: { color: "rgba(255,255,255,0.15)", labelBackgroundColor: "#1a1e26" },
       },
       timeScale: {
         borderColor: "rgba(255,255,255,0.06)",
-        timeVisible: false, // hide raw unix timestamps — looks cleaner
+        timeVisible: false,
         fixLeftEdge: true,
         fixRightEdge: true,
       },
@@ -84,17 +77,16 @@ const PriceChart = ({ priceHistory }: PriceChartProps) => {
         borderColor: "rgba(255,255,255,0.06)",
         scaleMargins: { top: 0.1, bottom: 0.1 },
       },
-      handleScroll: false, // disable scroll on the chart so page scrolls normally
+      handleScroll: false,
       handleScale: false,
     })
 
     chartRef.current = chart
 
-    // ── YES series — green area ───────────────────────────────────────────────
     const yesSeries = chart.addSeries(AreaSeries, {
-      lineColor: "#22c55e",
-      topColor: "rgba(34,197,94,0.2)",
-      bottomColor: "rgba(34,197,94,0)",
+      lineColor: "#00c853",
+      topColor: "rgba(0,200,83,0.22)",
+      bottomColor: "rgba(0,200,83,0)",
       lineWidth: 2,
       priceFormat: {
         type: "custom",
@@ -103,55 +95,25 @@ const PriceChart = ({ priceHistory }: PriceChartProps) => {
     })
     yesRef.current = yesSeries
 
-    // ── NO series — red area ──────────────────────────────────────────────────
-    const noSeries = chart.addSeries(AreaSeries, {
-      lineColor: "#ef4444",
-      topColor: "rgba(239,68,68,0.12)",
-      bottomColor: "rgba(239,68,68,0)",
-      lineWidth: 2,
-      priceFormat: {
-        type: "custom",
-        formatter: (v: number) => `${(v * 100).toFixed(0)}¢`,
-      },
-    })
-    noRef.current = noSeries
-
-    // ── Feed data ─────────────────────────────────────────────────────────────
-    // lightweight-charts needs { time, value }
-    // time must be a unix timestamp (number) or "YYYY-MM-DD" string
-    // your mock uses "Oct 1" style strings — we use sequential unix timestamps
-    // starting from a fixed base, one day apart — visually correct
-    const BASE_TIME = 1696118400 // Oct 1 2023 in unix seconds
-
-    const yesData = priceHistory.map((p, i) => ({
-      time: (BASE_TIME + i * 86400) as unknown as string,
-      value: p.yesPrice, // keep 0–1 range, formatter shows as cents
-    }))
-
-    // const noData = priceHistory.map((p, i) => ({
-    //   time:  (BASE_TIME + i * 86400) as unknown as string,
-    //   value: 1 - p.yesPrice,
-    // }))
-
-    yesSeries.setData(yesData)
-    // noSeries.setData(noData)
+    const BASE_TIME = 1696118400
+    yesSeries.setData(
+      priceHistory.map((p, i) => ({
+        time: (BASE_TIME + i * 86400) as unknown as string,
+        value: p.yesPrice,
+      })),
+    )
     chart.timeScale().fitContent()
 
-    // ── Resize observer — chart fills container on window resize ──────────────
     const observer = new ResizeObserver(() => {
-      if (containerRef.current) {
-        chart.applyOptions({ width: containerRef.current.clientWidth })
-      }
+      if (containerRef.current) chart.applyOptions({ width: containerRef.current.clientWidth })
     })
     observer.observe(containerRef.current)
 
-    // ── Cleanup — ALWAYS remove chart on unmount ──────────────────────────────
     return () => {
       observer.disconnect()
       chart.remove()
       chartRef.current = null
       yesRef.current = null
-      noRef.current = null
     }
   }, [priceHistory])
 
@@ -161,17 +123,18 @@ const PriceChart = ({ priceHistory }: PriceChartProps) => {
 // ─── EventPage ────────────────────────────────────────────────────────────────
 
 const EventPage = () => {
-  const navigate = useNavigate()
-  const list = [...MOCK_MARKETS]
+  // const navigate    = useNavigate()
   const { id } = useParams()
   const dispatch = useAppDispatch()
-  const market = useAppSelector((state) => state.markets.selectedMarket)
+  const market = useAppSelector((s) => s.markets.selectedMarket)
   const userLoading = useSelector(selectUserLoading)
   const { magic } = useMagic()
 
   const [chartTab, setChartTab] = useState("ALL")
+  const [activeTab, setActiveTab] = useState<TabKey>("rules")
   const [rulesOpen, setRulesOpen] = useState(false)
   const [isLoginOpen, setIsLoginOpen] = useState(false)
+
   const { executeTrade, tradeError } = useTrade()
 
   const handleTrade = (params: TradePanelOrder) => {
@@ -185,22 +148,21 @@ const EventPage = () => {
       console.error("Market blockchain data missing — cannot trade")
       return
     }
-
     executeTrade({
       ...params,
-      marketId: market.id, // ✅ TypeScript now knows these are strings
+      marketId: market.id,
       yesTokenId: market.yesTokenId,
       noTokenId: market.noTokenId,
       collateralToken: market.collateralToken,
       conditionId: market.conditionId,
     } satisfies TradeOrder)
   }
+
   useEffect(() => {
-    if (!id) return
-    if (market?.id === id) return
-    const foundMarket = list.find((m) => m.id === id)
-    if (foundMarket) dispatch(setSelectedMarket(foundMarket))
-  }, [id, list])
+    if (!id || market?.id === id) return
+    const found = [...MOCK_MARKETS].find((m) => m.id === id)
+    if (found) dispatch(setSelectedMarket(found))
+  }, [id])
 
   if (!market) {
     return (
@@ -214,7 +176,6 @@ const EventPage = () => {
   const bm = isBinary ? (market as BinaryMarket) : null
   const yesP = bm?.yesProbability ?? 50
   const noP = bm?.noProbability ?? 50
-
   const maxShares = market.orderBook
     ? Math.max(
         ...market.orderBook.yes.map((r) => r.shares),
@@ -227,208 +188,245 @@ const EventPage = () => {
   const rulesPreview =
     rules.length > RULES_MAX && !rulesOpen ? rules.slice(0, RULES_MAX) + "…" : rules
 
+  const TABS: { key: TabKey; label: string }[] = [
+    { key: "rules", label: "Market Rules" },
+    { key: "activity", label: "Activity" },
+    { key: "orderbook", label: "Order Book" },
+    { key: "comments", label: "Comments" },
+  ]
+
   return (
     <>
-      {tradeError && <p className="text-red-500">{tradeError}</p>}
-      <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 md:mx-20">
+      {tradeError && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-900/80 border border-red-500/40 text-red-300 text-sm px-4 py-2 rounded-xl z-50">
+          {tradeError}
+        </div>
+      )}
+
+      <div className="ep md:px-20 px-4 md:mx-20">
         <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <Toaster richColors position="top-center" />
         {userLoading && <AuthLoader />}
 
-        <div className="ep w-full">
-          <button className="ep-back" onClick={() => navigate(-1)}>
-            <IcoBack /> Back to markets
-          </button>
+        {/* ── Breadcrumb ── */}
+        <div className="ep-breadcrumb">
+          <span>{market.category}</span>
+          <span className="ep-breadcrumb-sep">›</span>
+          <span className="ep-breadcrumb-curr">
+            {market.title.length > 50 ? market.title.slice(0, 50) + "…" : market.title}
+          </span>
+        </div>
 
-          <div className="ep-layout">
-            {/* ══════════════ LEFT COLUMN ══════════════ */}
-            <div className="ep-left">
-              {/* ── Header ── */}
-              <div className="ep-header">
-                <div className="ep-header-top">
-                  <img className="ep-thumb" src={market.thumbnailUrl} alt={market.title} />
-                  <div className="ep-title-wrap">
-                    <div className="ep-category">{market.category}</div>
-                    <h1 className="ep-title">{market.title}</h1>
-                  </div>
-                  <div className="ep-header-icons">
-                    <button className="ep-icon-btn">
-                      <IcoLink />
-                    </button>
-                    <button className="ep-icon-btn">
-                      <IcoBookmark />
-                    </button>
-                  </div>
-                </div>
+        {/* ── Title + icons on same row ── */}
+        <div className="ep-title-row">
+          <h1 className="ep-page-title">{market.title}</h1>
+          {/* ✅ FIX 1: sm class → 32px buttons, new icons */}
+          <div className="ep-header-icons">
+            <button className="ep-icon-btn sm">
+              <IcoShareSm />
+            </button>
+            <button className="ep-icon-btn sm">
+              <IcoBookmarkSm />
+            </button>
+          </div>
+        </div>
 
-                <div className="ep-stats">
-                  <div className="ep-chip">
-                    <IcoVol />
-                    <strong>{market.volume}</strong> Vol
-                  </div>
-                  <div className="ep-chip">
-                    <IcoClock />
-                    Ends <strong>{market.expiryDate}</strong>
-                  </div>
-                  <div className="ep-chip">
-                    <IcoRepeat />
-                    {market.frequency}
-                  </div>
-                  {market.isTrending && <div className="ep-trending">🔥 Trending</div>}
-                </div>
-              </div>
-
-              {/* ── Price Chart ── */}
-              <div className="ep-section">
-                <div className="ep-section-header">
-                  <span className="ep-section-title">Price History</span>
-                  <div className="ep-chart-tabs">
-                    {["1D", "1W", "1M", "ALL"].map((t) => (
-                      <button
-                        key={t}
-                        className={`ep-chart-tab${chartTab === t ? " active" : ""}`}
-                        onClick={() => setChartTab(t)}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* YES / NO legend */}
-                <div className="ep-chart-legend">
-                  <div className="ep-legend-item">
-                    <div className="ep-legend-dot yes" /> YES
-                  </div>
-                  <div className="ep-legend-item">
-                    <div className="ep-legend-dot no" /> NO
-                  </div>
-                </div>
-
-                {/* ── Chart — lightweight-charts replaces Recharts here ── */}
-                {!market.priceHistory || market.priceHistory.length === 0 ? (
-                  <div className="ep-chart-empty">No price history yet</div>
-                ) : (
-                  <PriceChart priceHistory={market.priceHistory} />
-                )}
-              </div>
-
-              {/* ── Order Book ── */}
-              <div className="ep-section">
-                <div className="ep-section-header">
-                  <span className="ep-section-title">
-                    Order Book
-                    <span className="ep-section-title-info">i</span>
-                  </span>
-                  <span style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--muted)" }}>
-                    PRICE · SHARES
-                  </span>
-                </div>
-
-                {!market.orderBook ? (
-                  <div className="ep-ob-empty">No orders yet</div>
-                ) : (
-                  <div className="ep-ob-grid">
-                    <div>
-                      <div className="ep-ob-col-label yes">▲ YES</div>
-                      <div className="ep-ob-col-head">
-                        <span>Price</span>
-                        <span style={{ textAlign: "right" }}>Shares</span>
-                      </div>
-                      {market.orderBook.yes.map((row, i) => (
-                        <div key={i} className="ep-ob-row yes">
-                          <div
-                            className="ep-ob-depth"
-                            style={{ width: `${(row.shares / maxShares) * 100}%` }}
-                          />
-                          <span className="ep-ob-price yes">{(row.price * 100).toFixed(0)}¢</span>
-                          <span className="ep-ob-shares">{row.shares.toLocaleString()}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div>
-                      <div className="ep-ob-col-label no">▼ NO</div>
-                      <div className="ep-ob-col-head">
-                        <span>Price</span>
-                        <span style={{ textAlign: "right" }}>Shares</span>
-                      </div>
-                      {market.orderBook.no.map((row, i) => (
-                        <div key={i} className="ep-ob-row no">
-                          <div
-                            className="ep-ob-depth"
-                            style={{ width: `${(row.shares / maxShares) * 100}%` }}
-                          />
-                          <span className="ep-ob-price no">{(row.price * 100).toFixed(0)}¢</span>
-                          <span className="ep-ob-shares">{row.shares.toLocaleString()}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* ── Rules & About ── */}
-              <div className="ep-section">
-                <div className="ep-section-header">
-                  <span className="ep-section-title">Rules &amp; Resolution</span>
-                </div>
-
-                {rules ? (
-                  <>
-                    <p className="ep-rules-text">{rulesPreview}</p>
-                    {rules.length > RULES_MAX && (
-                      <button className="ep-rules-toggle" onClick={() => setRulesOpen((p) => !p)}>
-                        {rulesOpen ? "▲ Show less" : "▼ Show more"}
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <p className="ep-rules-text">No resolution rules provided.</p>
-                )}
-
-                <div className="ep-meta-grid">
-                  <div className="ep-meta-item">
-                    <div className="ep-meta-label">Volume</div>
-                    <div className="ep-meta-value">{market.volume}</div>
-                  </div>
-                  <div className="ep-meta-item">
-                    <div className="ep-meta-label">End Date</div>
-                    <div className="ep-meta-value">{market.expiryDate}</div>
-                  </div>
-                  {market.createdAt && (
-                    <div className="ep-meta-item">
-                      <div className="ep-meta-label">Created At</div>
-                      <div className="ep-meta-value">{market.createdAt}</div>
-                    </div>
-                  )}
-                  {market.resolver && (
-                    <div className="ep-meta-item">
-                      <div className="ep-meta-label">Resolver</div>
-                      <div className="ep-meta-value mono">{shorten(market.resolver)}</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* ── Comments ── */}
-              <CommentSection marketId={market.id} />
+        {/* ── Meta chips ── */}
+        {/* ✅ FIX 2: IcoClockSm (14px forced), formatMarketDate, new icons */}
+        <div className="ep-stats">
+          <div className="ep-chip">
+            <IcoClockSm />
+            Ends <strong>{formatMarketDate(market.expiryDate)}</strong>
+          </div>
+          <div className="ep-chip">
+            <IcoVolSm />
+            <strong>{market.volume}</strong> Vol
+          </div>
+          {/* {market.liquidity && (
+            <div className="ep-chip">
+              <IcoLiquiditySm />
+              <strong>{market.liquidity}</strong> Liquidity
             </div>
-            {/* ══════════════ END LEFT ══════════════ */}
+          )} */}
+          {market.frequency && (
+            <div className="ep-chip">
+              <IcoRepeatSm />
+              {market.frequency}
+            </div>
+          )}
+          {market.isTrending && <div className="ep-trending">🔥 Trending</div>}
+        </div>
 
-            {/* ══════════════ RIGHT COLUMN ══════════════ */}
-            <div className="ep-right">
-              <div className="ep-sticky">
-                <TradePanel
-                  yesProbability={yesP}
-                  noProbability={noP}
-                  isCrypto={!isBinary}
-                  onLoginRequired={() => {
-                    setIsLoginOpen(true)
-                  }}
-                  onDepositRequired={() => magic?.wallet?.showUI()}
-                  onTrade={handleTrade}
-                />
+        {/* ── Two-column layout ── (unchanged below) ── */}
+        <div className="ep-layout">
+          {/* ══ LEFT ══ */}
+          <div className="ep-left">
+            {/* Chart card */}
+            <div className="ep-chart-card">
+              <div className="ep-chart-header">
+                <div>
+                  <div className="ep-price-label">Yes Price Probability</div>
+                  <div className="ep-price-big">${(yesP / 100).toFixed(2)}</div>
+                  <div className="ep-price-change">
+                    <span>↗</span>
+                    <span>+12.4% (24h)</span>
+                  </div>
+                </div>
+                <div className="ep-chart-tabs">
+                  {["1D", "1W", "1M", "ALL"].map((t) => (
+                    <button
+                      key={t}
+                      className={`ep-chart-tab${chartTab === t ? " active" : ""}`}
+                      onClick={() => setChartTab(t)}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {!market.priceHistory || market.priceHistory.length === 0 ? (
+                <div className="ep-chart-empty">No price history yet</div>
+              ) : (
+                <PriceChart priceHistory={market.priceHistory} />
+              )}
+            </div>
+
+            {/* Bottom tabs */}
+            <div className="ep-tabs-row">
+              {TABS.map((t) => (
+                <button
+                  key={t.key}
+                  className={`ep-tab${activeTab === t.key ? " active" : ""}`}
+                  onClick={() => setActiveTab(t.key)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab content */}
+            <div className="ep-tab-content">
+              {activeTab === "rules" && (
+                <div className="ep-section">
+                  {rules ? (
+                    <>
+                      <p className="ep-rules-text">{rulesPreview}</p>
+                      {rules.length > RULES_MAX && (
+                        <button className="ep-rules-toggle" onClick={() => setRulesOpen((p) => !p)}>
+                          {rulesOpen ? "▲ Show less" : "▼ Show more"}
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <p className="ep-rules-text">No resolution rules provided.</p>
+                  )}
+                  <div className="ep-meta-grid">
+                    <div>
+                      <div className="ep-meta-label">Volume</div>
+                      <div className="ep-meta-value">{market.volume}</div>
+                    </div>
+                    <div>
+                      <div className="ep-meta-label">End Date</div>
+                      {/* ✅ formatMarketDate used here too */}
+                      <div className="ep-meta-value">{formatMarketDate(market.expiryDate)}</div>
+                    </div>
+                    {market.createdAt && (
+                      <div>
+                        <div className="ep-meta-label">Created</div>
+                        <div className="ep-meta-value">{formatMarketDate(market.createdAt)}</div>
+                      </div>
+                    )}
+                    {market.resolver && (
+                      <div>
+                        <div className="ep-meta-label">Resolver</div>
+                        <div className="ep-meta-value mono">{shorten(market.resolver)}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "activity" && (
+                <p className="ep-rules-text" style={{ textAlign: "center", padding: "48px 0" }}>
+                  Activity feed coming soon.
+                </p>
+              )}
+
+              {activeTab === "orderbook" && (
+                <div className="ep-section">
+                  <div className="ep-section-header">
+                    <span className="ep-section-title">
+                      Order Book <span className="ep-section-title-info">i</span>
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "var(--ep-mono)",
+                        fontSize: 11,
+                        color: "var(--ep-muted)",
+                      }}
+                    >
+                      PRICE · SHARES
+                    </span>
+                  </div>
+                  {!market.orderBook ? (
+                    <div className="ep-ob-empty">No orders yet</div>
+                  ) : (
+                    <div className="ep-ob-grid">
+                      <div>
+                        <div className="ep-ob-col-label yes">▲ YES</div>
+                        <div className="ep-ob-col-head">
+                          <span>Price</span>
+                          <span style={{ textAlign: "right" }}>Shares</span>
+                        </div>
+                        {market.orderBook.yes.map((row, i) => (
+                          <div key={i} className="ep-ob-row yes">
+                            <div
+                              className="ep-ob-depth"
+                              style={{ width: `${(row.shares / maxShares) * 100}%` }}
+                            />
+                            <span className="ep-ob-price yes">{(row.price * 100).toFixed(0)}¢</span>
+                            <span className="ep-ob-shares">{row.shares.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div>
+                        <div className="ep-ob-col-label no">▼ NO</div>
+                        <div className="ep-ob-col-head">
+                          <span>Price</span>
+                          <span style={{ textAlign: "right" }}>Shares</span>
+                        </div>
+                        {market.orderBook.no.map((row, i) => (
+                          <div key={i} className="ep-ob-row no">
+                            <div
+                              className="ep-ob-depth"
+                              style={{ width: `${(row.shares / maxShares) * 100}%` }}
+                            />
+                            <span className="ep-ob-price no">{(row.price * 100).toFixed(0)}¢</span>
+                            <span className="ep-ob-shares">{row.shares.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "comments" && <CommentSection marketId={market.id} />}
+            </div>
+          </div>
+
+          {/* ══ RIGHT ══ */}
+          <div className="ep-right">
+            <div className="ep-sticky">
+              <TradePanel
+                yesProbability={yesP}
+                noProbability={noP}
+                isCrypto={!isBinary}
+                onLoginRequired={() => setIsLoginOpen(true)}
+                onDepositRequired={() => magic?.wallet?.showUI()}
+                onTrade={handleTrade}
+              />
             </div>
           </div>
         </div>

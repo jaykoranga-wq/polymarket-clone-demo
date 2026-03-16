@@ -1,74 +1,162 @@
-import { BarChart3, Calendar, History, Share2 } from "lucide-react"
+import { Bookmark, Bot, ImageIcon, RefreshCw } from "lucide-react"
 import type { FC } from "react"
 import { useNavigate } from "react-router"
 
 import { useAppDispatch } from "@/app/hooks"
-import { Button } from "@/components/ui/button"
+import { IcoVolSm } from "@/components/custom/EventPageIcons"
 import { setSelectedMarket } from "@/features/markets/marketSlice"
 import type { BinaryMarket } from "@/features/markets/types"
-
-import { PercentageBar } from "./PercentageBar"
 
 interface MarketCardProps {
   market: BinaryMarket
 }
 
-export const BinaryMarketCard: FC<MarketCardProps> = ({ market }: MarketCardProps) => {
+export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  function handleNavigation(market: BinaryMarket) {
+
+  const yesP = market.yesProbability ?? 50
+  const noP = market.noProbability ?? 50
+
+  const handleNavigation = () => {
     dispatch(setSelectedMarket(market))
     navigate(`/event/${market.id}`)
   }
+
   return (
     <div
-      className="group flex flex-col bg-surface border border-border rounded-xl p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer"
-      onClick={() => handleNavigation(market)}
+      onClick={handleNavigation}
+      className="flex flex-col gap-3 cursor-pointer rounded-2xl p-4  "
+      style={{
+        background: "black",
+        border: "1px solid rgba(255,255,255,0.07)",
+        fontFamily: "Inter, sans-serif",
+      }}
     >
-      <div className="flex gap-4 mb-4">
-        <div className="size-12 min-w-12 rounded-lg overflow-hidden border border-border bg-background">
+      {/* ── Title row: thumbnail + title ── */}
+      <div className="flex items-start gap-3">
+        <div
+          className="shrink-0 rounded-lg overflow-hidden"
+          style={{ width: 44, height: 44, border: "1px solid rgba(255,255,255,0.08)" }}
+        >
           <img
             src={market.thumbnailUrl}
             alt={market.title}
-            className="size-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </div>
-        <h3 className="text-sm font-bold leading-tight line-clamp-2 min-h-10 group-hover:text-primary transition-colors">
+        <h3
+          className="line-clamp-3 leading-snug"
+          style={{ fontSize: 14, fontWeight: 700, color: "#ffffff", flex: 1 }}
+        >
           {market.title}
         </h3>
       </div>
 
-      <div className="mt-auto space-y-4">
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="flex-1 bg-primary/10 border-primary/20 text-primary font-bold hover:bg-primary hover:text-background transition-all active:scale-95"
+      {/* ── YES / NO buttons ── */}
+      <div className="flex gap-2">
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+          className="flex-1 py-3 rounded-[10px] transition-opacity hover:opacity-90"
+          style={{
+            background: "rgba(0,200,83,0.15)",
+            color: "#00c853",
+            fontWeight: 800,
+            fontSize: 14,
+          }}
+        >
+          Yes
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+          className="flex-1 py-3 rounded-[10px] transition-opacity hover:opacity-90"
+          style={{
+            background: "rgba(229,57,53,0.15)",
+            color: "#e53935",
+            fontWeight: 800,
+            fontSize: 14,
+          }}
+        >
+          No
+        </button>
+      </div>
+
+      {/* ── Probability bar + labels ── */}
+      <div className="flex flex-col gap-1">
+        {/* bar */}
+        <div
+          className="w-full overflow-hidden"
+          style={{ height: 4, borderRadius: 99, background: "rgba(255,255,255,0.06)" }}
+        >
+          <div
+            style={{
+              height: "100%",
+              width: `${yesP}%`,
+              background: "#00c853",
+              borderRadius: 99,
+              transition: "width 0.4s ease",
+            }}
+          />
+        </div>
+        {/* pct labels */}
+        <div className="flex justify-between">
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#00c853" }}>{yesP}%</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#e53935" }}>{noP}%</span>
+        </div>
+      </div>
+
+      {/* ── Footer row ── */}
+      <div
+        className="flex items-center justify-between pt-1"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+      >
+        {/* left: vol + frequency */}
+        <div className="flex items-center gap-3">
+          <span
+            className="flex items-center gap-1"
+            style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}
           >
-            Yes {market.yesProbability}%
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1 bg-secondary/10 border-secondary/20 text-secondary font-bold hover:bg-secondary hover:text-background transition-all active:scale-95"
-          >
-            No {market.noProbability}%
-          </Button>
+            <IcoVolSm size={13} />
+            {market.volume} Vol.
+          </span>
+          {market.frequency && (
+            <span
+              className="flex items-center gap-1"
+              style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}
+            >
+              <RefreshCw size={11} />
+              {market.frequency}
+            </span>
+          )}
         </div>
 
-        <PercentageBar yesPercentage={market.yesProbability} noPercentage={market.noProbability} />
-
-        <div className="flex items-center justify-between text-[10px] text-muted-foreground font-bold uppercase tracking-widest pt-2 border-t border-border/50">
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <BarChart3 className="size-3" /> {market.volume} Vol.
-            </span>
-            <span className="flex items-center gap-1">
-              <History className="size-3" /> {market.frequency}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Share2 className="size-3 hover:text-foreground transition-colors" />
-            <Calendar className="size-3 hover:text-foreground transition-colors" />
-          </div>
+        {/* right: action icons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => e.stopPropagation()}
+            style={{ color: "rgba(255,255,255,0.3)" }}
+            className="hover:text-white transition-colors"
+          >
+            <Bot size={14} />
+          </button>
+          <button
+            onClick={(e) => e.stopPropagation()}
+            style={{ color: "rgba(255,255,255,0.3)" }}
+            className="hover:text-white transition-colors"
+          >
+            <ImageIcon size={14} />
+          </button>
+          <button
+            onClick={(e) => e.stopPropagation()}
+            style={{ color: "rgba(255,255,255,0.3)" }}
+            className="hover:text-white transition-colors"
+          >
+            <Bookmark size={14} />
+          </button>
         </div>
       </div>
     </div>

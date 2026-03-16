@@ -14,16 +14,15 @@ export const CategoryTabs: FC = () => {
   const navigate = useNavigate()
   const { data } = useGetCategoriesQuery()
 
-  // ✅ useMemo — no useState, no useEffect, no cascading render error
   const allCategory = useMemo(() => {
     if (data && data.length > 0) return [...CATEGORIES, ...data]
     return CATEGORIES
   }, [data])
 
   return (
-    <div className="border-b border-border bg-background sticky top-16 z-40 md:mx-20">
-      <div className="container mx-auto px-4 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-6 min-w-max h-12">
+    <div className="border-b border-white/[0.06] bg-[#0d0f13] sticky top-14 z-40 md:mx-20">
+      <div className="container mx-auto px-4 overflow-x-auto no-scrollbar p-2">
+        <div className="flex items-center gap-6 min-w-max h-11">
           {allCategory.map((category) => (
             <button
               key={category}
@@ -32,15 +31,15 @@ export const CategoryTabs: FC = () => {
                 navigate(`/markets/${category}`)
               }}
               className={clsx(
-                "relative h-full flex items-center text-sm font-semibold transition-all duration-200 whitespace-nowrap",
-                selectedCategory === category
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground",
+                // FIX 7+8: text-[13px], font-medium always (no bold on active)
+                // active = green color + underline only, NOT bold
+                "relative h-full flex items-center text-[13px] font-medium transition-colors duration-200 whitespace-nowrap",
+                selectedCategory === category ? "text-[#f1f8f4]" : "text-white/50 hover:text-white",
               )}
             >
               {category}
               {selectedCategory === category && (
-                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary shadow-[0_-2px_8px_rgba(22,199,132,0.4)] transition-all duration-300" />
+                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00c853] shadow-[0_0_8px_rgba(0,200,83,0.5)]" />
               )}
             </button>
           ))}

@@ -3,31 +3,30 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-background: #0B0F14;
-  --color-foreground: #FFFFFF;
+  --color-background: #0b0f14;
+  --color-foreground: #ffffff;
   --color-card: #121821;
-  --color-card-foreground: #FFFFFF;
+  --color-card-foreground: #ffffff;
   --color-popover: #121821;
-  --color-popover-foreground: #FFFFFF;
-  --color-primary: #16C784;
-  --color-primary-foreground: #FFFFFF;
-  --color-secondary: #EA3943;
-  --color-secondary-foreground: #FFFFFF;
-  --color-muted: #1F2937;
-  --color-muted-foreground: #9CA3AF;
-  --color-accent: #1F2937;
-  --color-accent-foreground: #FFFFFF;
-  --color-destructive: #EA3943;
-  --color-destructive-foreground: #FFFFFF;
-  --color-border: #1F2937;
-  --color-input: #1F2937;
-  --color-ring: #16C784;
-  
-  /* Custom colors for prediction market */
-  --color-market-green: #16C784;
-  --color-market-red: #EA3943;
-  --color-market-blue: #3B82F6;
-  
+  --color-popover-foreground: #ffffff;
+  --color-primary: #16c784;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #ea3943;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #1f2937;
+  --color-muted-foreground: #9ca3af;
+  --color-accent: #1f2937;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #ea3943;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #1f2937;
+  --color-input: #1f2937;
+  --color-ring: #16c784;
+
+  --color-market-green: #16c784;
+  --color-market-red: #ea3943;
+  --color-market-blue: #3b82f6;
+
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -40,7 +39,19 @@
   *::after {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-family: "Inter", sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
+}
+
+/* ── Scrollbar utility ── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -66,7 +66,7 @@ const MarketsPage = () => {
   const title = group ? (GROUP_TITLES[group] ?? `${group} `) : "All Markets"
 
   return (
-    <div className="mp-wrap">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 md:mx-20">
       <div className="mp-header">
         <h1 className="mp-title">{title}</h1>
         <span className="mp-count">{markets.length} markets</span>
