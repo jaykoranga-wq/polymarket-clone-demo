@@ -3,7 +3,9 @@ import "./TradePanel.css"
 import { useEffect, useRef, useState } from "react"
 
 import { useAppSelector } from "@/app/hooks"
+import { useDebouncedCallback } from "@/hooks/custom/useDebounce"
 import type { TradePanelOrder } from "@/hooks/trade/TradeTypes"
+import { formatCash } from "@/libs/formatCurrency"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -12,19 +14,10 @@ export interface TradePanelProps {
   noProbability: number
   isCrypto?: boolean // "Up/Down" labels instead of "Yes/No"
   onTrade?: (o: TradePanelOrder) => void
-  onLoginRequired?: () => void // ← called when not authenticated
-  onDepositRequired?: () => void // ← called when no balance
+  onLoginRequired?: () => void
+  onDepositRequired?: () => void
+  approvalState?: "idle" | "approving-usdc" | "approving-ctf" | "signing" | "submitting"
 }
-
-// export interface TradePanelOrder {
-//   action: "Buy" | "Sell"
-//   orderType: "Market" | "Limit"
-//   outcome: "Yes" | "No" | "Up" | "Down"
-//   amount?: number // Market Buy  — dollar amount
-//   shares?: number // all other modes
-//   limitCents?: number // Limit only
-//   expirationEnabled: boolean
-// }
 
 type Action = "Buy" | "Sell"
 type OrderType = "Market" | "Limit"
@@ -54,37 +47,36 @@ const TradePanel = ({
   onTrade,
   onLoginRequired,
   onDepositRequired,
+  approvalState = "idle",
 }: TradePanelProps) => {
-  // Outcome labels depend on market type
   const labelA = isCrypto ? "Up" : "Yes"
   const labelB = isCrypto ? "Down" : "No"
   const priceA = yesProbability
   const priceB = noProbability
 
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
-  let balance = useAppSelector((state) => state.auth.cashAmount)
-  if (!balance) balance = 0
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated)
+  const availableAmount = useAppSelector((s) => s.auth.availableAmount)
+  const balance = availableAmount ?? 0
   const buttonState = !isAuthenticated ? "login" : balance <= 0 ? "deposit" : "trade"
 
-  // ── Core state ──
+  // ── Core state ──────────────────────────────────────────────────────────────
   const [action, setAction] = useState<Action>("Buy")
-  const [orderType, setOrderType] = useState<OrderType>("Market")
+  const [orderType, setOrderType] = useState<OrderType>("Limit")
   const [outcome, setOutcome] = useState(labelA)
   const [dropOpen, setDropOpen] = useState(false)
 
-  // ── Market Buy state ──
-  const [amount, setAmount] = useState(0) // dollar amount
+  // ── Market Buy ──────────────────────────────────────────────────────────────
+  const [amount, setAmount] = useState(0)
 
-  // ── Market Sell state ──
+  // ── Market Sell ─────────────────────────────────────────────────────────────
   const [sellShares, setSellShares] = useState(0)
   const [sellPct, setSellPct] = useState<string | null>(null)
 
-  // ── Limit state (shared Buy + Sell) ──
+  // ── Limit (Buy + Sell) ──────────────────────────────────────────────────────
   const [limitCents, setLimitCents] = useState(priceA)
   const [shares, setShares] = useState(0)
   const [expiry, setExpiry] = useState(false)
 
-  // Reset everything when switching action or order type
   const handleAction = (a: Action) => {
     setAction(a)
     setAmount(0)
@@ -94,7 +86,6 @@ const TradePanel = ({
     setExpiry(false)
     setLimitCents(outcome === labelA ? priceA : priceB)
   }
-
   const handleOrderType = (t: OrderType) => {
     setOrderType(t)
     setDropOpen(false)
@@ -104,7 +95,6 @@ const TradePanel = ({
     setShares(0)
     setExpiry(false)
   }
-
   const handleOutcome = (o: string) => {
     setOutcome(o)
     setLimitCents(o === labelA ? priceA : priceB)
@@ -113,56 +103,47 @@ const TradePanel = ({
     setShares(0)
   }
 
-  // Close dropdown when clicking outside
+  // close dropdown on outside click
   const dropRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
-        setDropOpen(false)
-      }
+    const h = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropOpen(false)
     }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
+    document.addEventListener("mousedown", h)
+    return () => document.removeEventListener("mousedown", h)
   }, [])
 
-  // ── Market Buy: quick dollar add ──
-  const handleAmountAdd = (val: number | "Max") => {
-    if (val === "Max") {
-      setAmount(500)
-      return
-    } // 500 = mock balance
-    setAmount((p) => p + val)
+  // ── Pct shortcuts ────────────────────────────────────────────────────────────
+  const PCT_MAP: Record<string, number> = {
+    MIN: 0.05,
+    "10%": 0.1,
+    "20%": 0.2,
+    "30%": 0.3,
+    "40%": 0.4,
+    "50%": 0.5,
+    MAX: 1,
+  }
+  const SELL_MAP: Record<string, number> = { "25%": 0.25, "50%": 0.5, Max: 1 }
+
+  const handleAmountPct = (key: string) => {
+    setAmount(Math.floor(balance * (PCT_MAP[key] ?? 0)))
+  }
+  const handleSellPct = (p: string) => {
+    setSellPct(p)
+    const holdings = 200 // TODO: replace with Redux holdings
+    setSellShares(parseFloat((holdings * (SELL_MAP[p] ?? 0)).toFixed(2)))
+  }
+  const handleSharesAdjust = (d: number) => setShares((p) => Math.max(0, p + d))
+  const handleLimitSellPct = (p: string) => {
+    const holdings = 200
+    setShares(parseFloat((holdings * (SELL_MAP[p] ?? 0)).toFixed(2)))
   }
 
-  // ── Market Sell: pct of holdings ──
-  const handleSellPct = (pct: string) => {
-    setSellPct(pct)
-    const mockHoldings = 200 // replace with real holdings from Redux
-    const map: Record<string, number> = { "25%": 0.25, "50%": 0.5, Max: 1 }
-    setSellShares(parseFloat((mockHoldings * (map[pct] ?? 0)).toFixed(2)))
-  }
-
-  // ── Limit: shares adjust buttons (Buy) ──
-  const handleSharesAdjust = (delta: number) => {
-    setShares((p) => Math.max(0, p + delta))
-  }
-
-  // ── Limit: pct shortcuts (Sell) ──
-  const handleLimitSellPct = (pct: string) => {
-    const mockHoldings = 200
-    const map: Record<string, number> = { "25%": 0.25, "50%": 0.5, Max: 1 }
-    setShares(parseFloat((mockHoldings * (map[pct] ?? 0)).toFixed(2)))
-  }
-
-  // ── Computed summary values ──
-  // Total cost (Limit Buy) = shares × limitCents / 100
+  // ── Computed ─────────────────────────────────────────────────────────────────
   const total = shares > 0 ? ((shares * limitCents) / 100).toFixed(2) : "0"
-  // To win (Limit Buy)  = shares × $1 (each share pays $1 if correct)
   const toWin = shares > 0 ? shares.toFixed(2) : "0"
-  // You'll receive (Limit Sell) = shares × limitCents / 100
   const youReceive = shares > 0 ? ((shares * limitCents) / 100).toFixed(2) : "0"
 
-  // ── Is trade button disabled? ──
   const tradeDisabled =
     (action === "Buy" && orderType === "Market" && amount <= 0) ||
     (action === "Sell" && orderType === "Market" && sellShares <= 0) ||
@@ -170,7 +151,7 @@ const TradePanel = ({
 
   const handleTrade = () => {
     if (tradeDisabled) return
-    console.log("trade button working")
+
     onTrade?.({
       action,
       orderType,
@@ -180,12 +161,18 @@ const TradePanel = ({
       limitCents: orderType === "Limit" ? limitCents : undefined,
       expirationEnabled: expiry,
     })
+    handleAction(action)
   }
+  //debounced handle trade for one click only...
+  const debouncedHandleTrade = useDebouncedCallback(handleTrade, 500)
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="tp ep">
-      {/* ── Buy / Sell tabs  +  Market/Limit dropdown ── */}
+    <div className="tp">
+      {/* ── "Place Bet" title ── */}
+      <div className="tp-header-title">Place Bet</div>
+
+      {/* ── BUY / SELL + Market dropdown ── */}
       <div className="tp-top">
         <div className="tp-action-tabs">
           {(["Buy", "Sell"] as Action[]).map((a) => (
@@ -199,13 +186,14 @@ const TradePanel = ({
           ))}
         </div>
 
-        {/* Order type dropdown */}
         <div className="tp-dropdown-wrap" ref={dropRef}>
           <div className="tp-order-type" onClick={() => setDropOpen((p) => !p)}>
             {orderType} <ChevronDown />
           </div>
           {dropOpen && (
             <div className="tp-dropdown-menu">
+              {/* commenting market for now as it is not made currently , but if market is ready please add it below .... */}
+
               {(["Market", "Limit"] as OrderType[]).map((t) => (
                 <button
                   key={t}
@@ -223,8 +211,14 @@ const TradePanel = ({
       <div className="tp-divider" />
 
       <div className="tp-body">
-        {/* ── YES / NO (or Up / Down) outcome toggle ── */}
-        {/* Same in all 4 modes */}
+        {/* ── Balance row ── */}
+        {isAuthenticated && (
+          <div className="tp-balance-row">
+            Balance: <strong>{formatCash(balance)}</strong>
+          </div>
+        )}
+
+        {/* ── YES / NO outcome buttons ── */}
         <div className="tp-outcome">
           <button
             className={`tp-outcome-btn yes${outcome === labelA ? " active" : ""}`}
@@ -240,43 +234,41 @@ const TradePanel = ({
           </button>
         </div>
 
-        {/* ════════════════════════════════════════════════════
+        {/* ══════════════════════════════════════
             MODE 1 — MARKET + BUY
-            Shows: Amount ($0) + quick add buttons
-        ════════════════════════════════════════════════════ */}
+            Amount input + pct shortcuts
+        ══════════════════════════════════════ */}
         {orderType === "Market" && action === "Buy" && (
           <>
-            <div className="tp-field-row">
-              <span className="tp-field-label">Amount</span>
+            {/* Amount input with USD suffix */}
+            <div className="tp-amount-wrap">
               <input
                 type="text"
                 inputMode="numeric"
-                className="tp-shares-input"
                 value={amount || ""}
-                placeholder="$0"
+                placeholder="0.00"
                 onChange={(e) => {
-                  const val = e.target.value.replace(/[^0-9]/g, "")
-                  setAmount(val === "" ? 0 : parseInt(val, 10))
+                  const val = e.target.value.replace(/[^0-9.]/g, "")
+                  setAmount(val === "" ? 0 : parseFloat(val) || 0)
                 }}
               />
+              <span className="tp-amount-suffix">USD</span>
             </div>
-            <div className="tp-quick-group">
-              {[1, 5, 10, 100].map((v) => (
-                <button key={v} className="tp-quick-btn" onClick={() => handleAmountAdd(v)}>
-                  +${v}
+            {/* MIN / 10% / 20% / 30% / 40% / 50% / MAX */}
+            <div className="tp-pct-group">
+              {["MIN", "10%", "20%", "30%", "40%", "50%", "MAX"].map((v) => (
+                <button key={v} className="tp-pct-btn" onClick={() => handleAmountPct(v)}>
+                  {v}
                 </button>
               ))}
-              <button className="tp-quick-btn" onClick={() => handleAmountAdd("Max")}>
-                Max
-              </button>
             </div>
           </>
         )}
 
-        {/* ════════════════════════════════════════════════════
+        {/* ══════════════════════════════════════
             MODE 2 — MARKET + SELL
-            Shows: Shares (0) + 25%/50%/Max buttons
-        ════════════════════════════════════════════════════ */}
+            Shares input + 25%/50%/Max
+        ══════════════════════════════════════ */}
         {orderType === "Market" && action === "Sell" && (
           <>
             <div className="tp-field-row">
@@ -307,15 +299,11 @@ const TradePanel = ({
           </>
         )}
 
-        {/* ════════════════════════════════════════════════════
+        {/* ══════════════════════════════════════
             MODE 3 — LIMIT + BUY
-            Shows: Limit price stepper + Shares input
-                   + -100/-10/+10/+100/+200 buttons
-                   + Set Expiration + Total + To win
-        ════════════════════════════════════════════════════ */}
+        ══════════════════════════════════════ */}
         {orderType === "Limit" && action === "Buy" && (
           <>
-            {/* Limit price row */}
             <div className="tp-field-row">
               <span className="tp-field-label">Limit Price</span>
               <div className="tp-stepper-inline">
@@ -334,11 +322,9 @@ const TradePanel = ({
                 </button>
               </div>
             </div>
-
-            {/* Shares input + adjust buttons */}
             <div className="tp-field-row">
               <span className="tp-field-label">Shares</span>
-              <div className="tp-shares-input-wrap" style={{ marginBottom: 0 }}>
+              <div className="tp-shares-input-wrap">
                 <input
                   type="text"
                   inputMode="numeric"
@@ -359,8 +345,6 @@ const TradePanel = ({
                 </button>
               ))}
             </div>
-
-            {/* Set Expiration */}
             <div className="tp-expiry">
               <span>Set Expiration</span>
               <div
@@ -370,15 +354,11 @@ const TradePanel = ({
                 <div className="tp-switch-knob" />
               </div>
             </div>
-
-            {/* Total */}
             <div className="tp-summary-row">
               <span className="tp-summary-label dotted">Total</span>
               <span className="tp-summary-value">${total}</span>
             </div>
-
-            {/* To win */}
-            <div className="tp-summary-row" style={{ marginBottom: 16 }}>
+            <div className="tp-summary-row">
               <span className="tp-summary-label">
                 To win <span className="tp-summary-info">i</span>
               </span>
@@ -387,15 +367,11 @@ const TradePanel = ({
           </>
         )}
 
-        {/* ════════════════════════════════════════════════════
+        {/* ══════════════════════════════════════
             MODE 4 — LIMIT + SELL
-            Shows: Limit price stepper + Shares input
-                   + 25%/50%/Max buttons
-                   + Set Expiration + You'll receive
-        ════════════════════════════════════════════════════ */}
+        ══════════════════════════════════════ */}
         {orderType === "Limit" && action === "Sell" && (
           <>
-            {/* Limit price row */}
             <div className="tp-field-row">
               <span className="tp-field-label">Limit Price</span>
               <div className="tp-stepper-inline">
@@ -414,11 +390,9 @@ const TradePanel = ({
                 </button>
               </div>
             </div>
-
-            {/* Shares input + pct shortcuts */}
             <div className="tp-field-row">
               <span className="tp-field-label">Shares</span>
-              <div className="tp-shares-input-wrap" style={{ marginBottom: 0 }}>
+              <div className="tp-shares-input-wrap">
                 <input
                   type="text"
                   inputMode="numeric"
@@ -439,8 +413,6 @@ const TradePanel = ({
                 </button>
               ))}
             </div>
-
-            {/* Set Expiration */}
             <div className="tp-expiry">
               <span>Set Expiration</span>
               <div
@@ -450,9 +422,7 @@ const TradePanel = ({
                 <div className="tp-switch-knob" />
               </div>
             </div>
-
-            {/* You'll receive */}
-            <div className="tp-summary-row" style={{ marginBottom: 16 }}>
+            <div className="tp-summary-row">
               <span className="tp-summary-label">
                 You'll receive <span className="tp-summary-info">i</span>
               </span>
@@ -461,10 +431,10 @@ const TradePanel = ({
           </>
         )}
 
-        {/* ── Trade button ── */}
-        {/* Red when Sell, blue when Buy */}
+        {/* ── Place Order button ── */}
         <button
-          className={`tp-trade-btn${action === "Sell" ? " sell" : ""}`}
+          className={`tp-trade-btn${action === "Sell" ? " sell" : ""}${buttonState === "deposit" ? " deposit" : ""}`}
+          disabled={approvalState !== "idle" || (buttonState === "trade" && tradeDisabled)}
           onClick={() => {
             if (buttonState === "login") {
               onLoginRequired?.()
@@ -474,12 +444,23 @@ const TradePanel = ({
               onDepositRequired?.()
               return
             }
-            handleTrade()
+            debouncedHandleTrade()
           }}
         >
-          {buttonState === "login" && "Trade"}
+          {/* spinner — only shown when processing */}
+          {approvalState !== "idle" && <span className="tp-spinner" />}
+
+          {/* label */}
+          {buttonState === "login" && "Place Order"}
           {buttonState === "deposit" && "Deposit"}
-          {buttonState === "trade" && "Trade"}
+          {buttonState === "trade" &&
+            {
+              idle: "Place Order",
+              "approving-usdc": "Approving USDC...",
+              "approving-ctf": "Approving shares...",
+              signing: "Sign in wallet...",
+              submitting: "Submitting...",
+            }[approvalState]}
         </button>
 
         <div className="tp-terms">

@@ -4,7 +4,7 @@ import type { RootState } from "@/app/store"
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_BASE_URL,
+    baseUrl: import.meta.env.VITE_API_BASE_URL_SECOND,
 
     prepareHeaders: (headers, { getState }) => {
       headers.set("ngrok-skip-browser-warning", "true")
@@ -15,6 +15,6 @@ export const api = createApi({
       return headers
     },
   }),
-  tagTypes: ["Users", "Markets", "Categories"],
+  tagTypes: ["Users", "Markets", "Categories", "Orders"],
   endpoints: () => ({}),
 })

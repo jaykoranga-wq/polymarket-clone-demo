@@ -4,9 +4,16 @@ import { useDispatch, useSelector } from "react-redux"
 
 import type { RootState } from "@/app/store"
 import { setCashAmount, setCashLoading } from "@/features/auth/authSlice"
-// import { ADDRESSES, ERC20_ABI } from "@/libs/contracts"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import { useMagic } from "@/features/auth/lib/magic"
+
+// ← paste your USDC contract address from Magic wallet here
+const USDC_ADDRESS = "0xb157f0dD6859722AfE1A5b4D983b94db1468b15A"
+
+const USDC_ABI = [
+  "function balanceOf(address) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+]
 
 export const useWalletBalance = () => {
   const { magic } = useMagic()
@@ -30,10 +37,18 @@ export const useWalletBalance = () => {
           provider = new ethers.BrowserProvider(magic.rpcProvider as ethers.Eip1193Provider)
         }
 
-        const raw = await provider.getBalance(address) // ← one line, no contract
-        const balance = Number(ethers.formatEther(raw)) // converts wei → MATIC
+        // ← USDC is an ERC-20 contract, not native token
+        const usdc = new ethers.Contract(USDC_ADDRESS, USDC_ABI, provider)
+        const [raw, decimals] = await Promise.all([
+          usdc.getFunction("balanceOf")(address),
+          usdc.getFunction("decimals")(),
+        ])
 
-        console.log("MATIC balance:", balance)
+        // USDC has 6 decimals (not 18 like POL)
+        // formatUnits handles it automatically
+        const balance = Number(ethers.formatUnits(raw, decimals))
+
+        console.log("USDC balance:", balance)
         dispatch(setCashAmount({ cashAmount: balance }))
       } catch (err) {
         console.error("Balance fetch failed:", err)

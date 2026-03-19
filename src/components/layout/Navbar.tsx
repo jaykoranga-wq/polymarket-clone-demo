@@ -1,4 +1,4 @@
-import { Bell, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
+import { ChevronDown, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
 import { type FC, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router"
@@ -12,27 +12,28 @@ import {
   loadingFalse,
   loadingTrue,
   logout,
-  selectCashAmount,
+  selectAvailableAmount,
+  selectIsAuthChecking,
   selectIsAuthenticated,
+  selectLoginMethod,
   selectPortfolioAmount,
   selectUserData,
 } from "@/features/auth/authSlice"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import { useMagic } from "@/features/auth/lib/magic"
+import { useDebouncedCallback } from "@/hooks/custom/useDebounce"
+import { formatCash, formatPortfolio } from "@/libs/formatCurrency"
 import { setMetaMaskLoggedOut } from "@/routes/utils"
 
+import { MetaMaskDepositModal } from "../deposit/MetaMaskDepositModal"
+import { NotificationBell } from "../navbar/NotificationBell"
+import { AuthLoader } from "../ui/AuthLoader"
 import { CategoryTabs } from "./CategoryTabs"
 
-// ─── Hamburger icon ───────────────────────────────────────────────────────────
-const HamburgerIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-    <rect y="3" width="20" height="2" rx="1" fill="currentColor" />
-    <rect y="9" width="20" height="2" rx="1" fill="currentColor" />
-    <rect y="15" width="20" height="2" rx="1" fill="currentColor" />
-  </svg>
-)
+// ─── FIX 1: Polymarket diamond/shield SVG logo ────────────────────────────────
 
 // ─── Avatar initials ──────────────────────────────────────────────────────────
+// FIX 6: w-9 h-9 (slightly larger), rounded-full (already was)
 const Avatar = ({ email, address }: { email: string | null; address: string | null }) => {
   const initials = email
     ? email.slice(0, 2).toUpperCase()
@@ -40,7 +41,7 @@ const Avatar = ({ email, address }: { email: string | null; address: string | nu
       ? address.slice(2, 4).toUpperCase()
       : "??"
   return (
-    <div className="w-8 h-8 rounded-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold shrink-0 cursor-pointer">
+    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold shrink-0 cursor-pointer select-none">
       {initials}
     </div>
   )
@@ -62,7 +63,7 @@ const MenuItem = ({
 }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5 rounded-lg
+    className={` cursor-pointer w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5 rounded-lg
       ${red ? "text-red-500 hover:text-red-400" : "text-white/80 hover:text-white"}`}
   >
     {icon && <span className="text-base w-5 flex items-center justify-center">{icon}</span>}
@@ -125,14 +126,18 @@ export const Navbar: FC = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated)
   const { email, publicAddress } = useSelector(selectUserData)
   const portfolioAmount = useSelector(selectPortfolioAmount)
-  const cashAmount = useSelector(selectCashAmount)
+  const cashAmount = useSelector(selectAvailableAmount)
   const user = useAppSelector(selectUserData)
+  const isAuthChecking = useAppSelector(selectIsAuthChecking)
+  const loginMethod = useAppSelector(selectLoginMethod)
 
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const navigate = useNavigate()
   const [logoutToBackend] = useLogoutMutation()
+  const [depositLoading, setDepositLoading] = useState(false)
+  const [metamaskDepositOpen, setMetamaskDepositOpen] = useState(false)
 
   const displayName = email
     ? email.split("@")[0]
@@ -145,24 +150,16 @@ export const Navbar: FC = () => {
     setProfileOpen(false)
 
     try {
-      // ── Magic users (email + google) ──────────────────────────────────────
-      // 1. tell backend to invalidate the session token
-      // 2. log out of Magic SDK so getIdToken no longer works
       if (user.loginMethod === LOGIN_METHODS.Email || user.loginMethod === LOGIN_METHODS.Google) {
         try {
           await logoutToBackend().unwrap()
         } catch (err) {
           console.error("Backend logout failed:", err)
-          // continue anyway — we still want to clear local state
         }
-
         const isLoggedIn = await magic?.user.isLoggedIn()
         if (isLoggedIn) await magic?.user.logout()
       }
 
-      // ── MetaMask users ────────────────────────────────────────────────────
-      // MetaMask has no programmatic logout — just set the flag
-      // so checkMetaMask skips on next page refresh
       if (user.loginMethod === LOGIN_METHODS.MetaMask) {
         setMetaMaskLoggedOut()
         localStorage.removeItem("auth_token")
@@ -172,9 +169,8 @@ export const Navbar: FC = () => {
     } catch (err) {
       console.error("Logout error:", err)
     } finally {
-      // always clear Redux state regardless of what happened above
       localStorage.removeItem("isSignedIn")
-      dispatch(logout()) // clears token, email, publicAddress, loginMethod
+      dispatch(logout())
       dispatch(loadingFalse())
       navigate(`/${ROUTES.HOME}`)
     }
@@ -185,105 +181,109 @@ export const Navbar: FC = () => {
       setIsLoginOpen(true)
       return
     }
-    await magic?.wallet.showUI()
-  }
-
-  const handlePortfolioClick = () => {
-    if (isAuthenticated) {
-      navigate(`${ROUTES.PORTFOLIO}`)
+    setDepositLoading(true)
+    if (loginMethod === LOGIN_METHODS.MetaMask) {
+      setMetamaskDepositOpen(true) // ← show our custom modal
+      setDepositLoading(false)
+      return
     } else {
-      setIsLoginOpen(true)
+      await magic?.wallet.showUI()
+      setDepositLoading(false)
     }
   }
 
-  const handleLoginClose = () => {
-    setIsLoginOpen(false)
+  const handlePortfolioClick = () => {
+    if (isAuthenticated) navigate(`${ROUTES.PORTFOLIO}`)
+    else setIsLoginOpen(true)
   }
+  const debouncedHandleDeposit = useDebouncedCallback(handleDeposit, 500)
 
   return (
     <>
-      <header className=" sticky top-0 z-50  border-b border-border bg-background/80 backdrop-blur-md md:mx-20   ">
-        <div className=" container mx-auto flex h-16 items-center justify-between px-4">
-          {/* ── Logo + Nav ── */}
-          <div
-            className="flex items-center gap-8 cursor-pointer"
-            onClick={() => {
-              navigate("/")
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div className="size-8 rounded bg-primary flex items-center justify-center">
-                <span className="text-xl font-bold text-background">P</span>
+      {/* FIX 9: bg-[#0d0f13] instead of bg-background/80 */}
+      <MetaMaskDepositModal
+        open={metamaskDepositOpen}
+        onClose={() => setMetamaskDepositOpen(false)}
+      />
+      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#0d0f13] md:mx-20">
+        <div className="container mx-auto flex h-14 items-center justify-between px-4">
+          {/* ── FIX 1: Logo + Nav ── */}
+          <div className="flex items-center gap-8 cursor-pointer" onClick={() => navigate("/")}>
+            <div className="flex items-center gap-0">
+              <div className="size-8 rounded-md flex items-center justify-center shrink-0">
+                <img src="/icon-black.png" alt="logo" className="size-8 invert" />
               </div>
-              <span className="text-xl font-bold tracking-tight">Polymarket</span>
+              <span className="text-[15px] font-bold tracking-tight text-white">Polymarket</span>
             </div>
 
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-              <button className="text-foreground transition-colors hover:text-primary">
-                Trending
-              </button>
-              <button className="text-foreground transition-colors hover:text-primary">
-                Breaking
-              </button>
-              <button className="text-foreground transition-colors hover:text-primary">New</button>
-              <button className="text-foreground transition-colors hover:text-primary ml-0">
-                More
+            {/* FIX 2: all nav links same muted color + weight, none highlighted */}
+            <nav className="hidden md:flex items-center gap-6">
+              {["Trending", "Breaking", "New"].map((link) => (
+                <button
+                  key={link}
+                  className="text-[13px] font-medium text-white/60 hover:text-white transition-colors"
+                >
+                  {link}
+                </button>
+              ))}
+              {/* FIX 3: More with chevron */}
+              <button className="flex items-center gap-1 text-[13px] font-medium text-white/60 hover:text-white transition-colors">
+                More <ChevronDown size={13} className="opacity-70" />
               </button>
             </nav>
           </div>
 
-          {/* ── Search ── */}
-          <div className="hidden lg:flex flex-1 max-w-md mx-8 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          {/* FIX 4: Search bar max-w-[360px] not too wide */}
+          <div className="hidden lg:flex max-w-[280px] w-full ml-70 shrink-0 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" />
             <input
               type="text"
-              placeholder={isAuthenticated ? "Search markets" : "Search polymarkets..."}
-              className="w-full bg-surface border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all placeholder:text-muted-foreground/60"
+              placeholder="Search markets"
+              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-white/20 transition-all placeholder:text-white/30"
             />
           </div>
 
           {/* ── Right side ── */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {isAuthenticated ? (
               <>
-                {/* Portfolio + Cash */}
-                <div className="hidden sm:flex items-center gap-4 text-[10px] font-bold mr-1">
+                {/* FIX 5: gap-6 between portfolio and cash (was gap-4) */}
+                <div className="hidden sm:flex items-center gap-6 mr-5">
                   <div
-                    className="flex flex-col items-end cursor-pointer"
+                    className="flex flex-col items-center cursor-pointer"
                     onClick={handlePortfolioClick}
                   >
-                    <span className="text-muted-foreground uppercase tracking-widest leading-none mb-1">
+                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
                       Portfolio
                     </span>
-                    <span className="text-primary text-sm font-bold">$ {portfolioAmount}</span>
+                    <span className="text-[13px] font-bold text-[#00c853]">
+                      {formatPortfolio(portfolioAmount as number)}
+                    </span>
                   </div>
-                  <div className="flex flex-col items-end border-l border-border pl-4">
-                    <span className="text-muted-foreground uppercase tracking-widest leading-none mb-1">
+
+                  <div className="flex flex-col items-center">
+                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
                       Cash
                     </span>
-                    <span className="text-primary text-sm font-bold">$ {cashAmount}</span>
+                    <span className="text-[13px] font-bold text-[#00c853] max-w-[80px] truncate">
+                      {formatCash(cashAmount as number)}
+                    </span>
                   </div>
                 </div>
 
-                {/* Deposit button */}
+                {/* Deposit */}
                 <Button
-                  onClick={handleDeposit}
-                  variant="default"
-                  className="bg-primary text-background font-bold hover:bg-primary/90 px-6 rounded-lg h-10"
+                  onClick={debouncedHandleDeposit}
+                  disabled={isLoginOpen || depositLoading}
+                  className="bg-[#00c853] text-black font-bold hover:bg-[#00c853]/90 px-5 rounded-lg h-9 text-[13px] cursor-pointer"
                 >
-                  Deposit
+                  {depositLoading ? `Opening wallet` : `Deposit`}
                 </Button>
 
                 {/* Bell */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground hover:text-foreground h-10 w-10"
-                >
-                  <Bell className="size-5" />
-                </Button>
+                <NotificationBell />
 
-                {/* Profile avatar + dropdown */}
+                {/* Avatar */}
                 <div className="relative">
                   <div onClick={() => setProfileOpen((p) => !p)}>
                     <Avatar email={email} address={publicAddress} />
@@ -291,9 +291,13 @@ export const Navbar: FC = () => {
 
                   {profileOpen && (
                     <Dropdown onClose={() => setProfileOpen(false)}>
-                      {/* User header */}
                       <div className="flex items-center justify-between px-4 py-3">
-                        <div className="flex items-center gap-2">
+                        <div
+                          className="flex items-center gap-2 cursor-pointer"
+                          onClick={() => {
+                            navigate(`/profile/${user.publicAddress}`)
+                          }}
+                        >
                           <Avatar email={email} address={publicAddress} />
                           <span className="text-sm font-semibold text-white">{displayName}</span>
                         </div>
@@ -301,71 +305,71 @@ export const Navbar: FC = () => {
                           <Settings size={16} />
                         </button>
                       </div>
+                      <Divider />
+                      <MenuItem
+                        icon="🏆"
+                        label="Leaderboard"
+                        onClick={() => {
+                          console.log("clicked")
+                          setMenuOpen(false)
+                          navigate(`/leaderboard/${user.publicAddress}`)
+                        }}
+                      />
+                      <MenuItem
+                        icon="💚"
+                        label="Rewards"
+                        onClick={() => {
+                          setProfileOpen(false)
+                          navigate(`/rewards/${user.publicAddress}`)
+                        }}
+                      />
 
                       <Divider />
+                      {/* we dont need dark mode right now , as per the figma design.
+                       */}
 
-                      <MenuItem icon="🏆" label="Leaderboard" />
-                      <MenuItem icon="💚" label="Rewards" />
-                      <MenuItem icon="🔗" label="APIs" />
-                      <MenuItem icon="🛠️" label="Builders" />
-
-                      <Divider />
-
-                      <DarkModeRow />
-
-                      <Divider />
-
-                      <MenuItem label="Accuracy" onClick={() => setProfileOpen(false)} />
-                      <MenuItem label="Support" onClick={() => setProfileOpen(false)} />
-                      <MenuItem label="Documentation" onClick={() => setProfileOpen(false)} />
-                      <MenuItem label="Help Center" onClick={() => setProfileOpen(false)} />
-                      <MenuItem label="Terms of Use" onClick={() => setProfileOpen(false)} />
-                      <MenuItem label="Language" rightIcon={<ChevronRight size={14} />} />
-
-                      <Divider />
+                      {/* <DarkModeRow /> */}
 
                       <MenuItem label="Logout" red onClick={handleLogout} />
 
-                      {/* Explore all */}
-                      <div className="mx-3 mt-1 mb-2">
+                      {/* as per figma , no explore all button  */}
+
+                      {/* <div className="mx-3 mt-1 mb-2">
                         <button className="w-full py-2.5 text-sm font-bold text-white bg-white/8 hover:bg-white/12 rounded-xl transition-colors">
                           Explore all
                         </button>
-                      </div>
+                      </div> */}
                     </Dropdown>
                   )}
                 </div>
               </>
+            ) : isAuthChecking ? (
+              <AuthLoader />
             ) : (
               <>
-                {/* How it works */}
-                <div className="hidden md:flex items-center gap-2 text-accent cursor-pointer hover:opacity-80 transition-opacity">
+                <div className="hidden md:flex items-center gap-2 text-white/50 cursor-pointer hover:text-white transition-colors">
                   <Info className="size-4" />
-                  <span className="text-sm font-medium">How it works</span>
+                  <span className="text-[13px] font-medium">How it works</span>
                 </div>
 
-                {/* Log In / Sign Up */}
                 <Button
-                  variant="default"
-                  className="bg-accent text-white font-bold hover:bg-accent/90 px-6 rounded-lg h-10 cursor-pointer"
+                  className="bg-[#00c853] text-black font-bold hover:bg-[#00c853]/90 px-5 rounded-lg h-9 text-[13px] cursor-pointer"
                   onClick={() => setIsLoginOpen(true)}
                 >
                   Log In
                 </Button>
                 <Button
-                  variant="default"
-                  className="bg-accent text-white font-bold hover:bg-accent/90 px-6 rounded-lg h-10 cursor-pointer"
+                  className="bg-[#00c853] text-black font-bold hover:bg-[#00c853]/90 px-5 rounded-lg h-9 text-[13px] cursor-pointer"
                   onClick={() => setIsLoginOpen(true)}
                 >
                   Sign Up
                 </Button>
 
-                {/* Hamburger + dropdown */}
                 <div className="relative">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-muted-foreground hover:text-foreground h-10 w-10 cursor-pointer"
+                    className="text-white/40 hover:text-white h-9 w-9 cursor-pointer"
                     onClick={() => setMenuOpen((p) => !p)}
                   >
                     {menuOpen ? <X className="size-5" /> : <HamburgerIcon />}
@@ -376,13 +380,9 @@ export const Navbar: FC = () => {
                       <MenuItem icon="🏆" label="Leaderboard" />
                       <MenuItem icon="💚" label="Rewards" />
                       <MenuItem icon="🔗" label="APIs" />
-
                       <Divider />
-
                       <DarkModeRow />
-
                       <Divider />
-
                       <MenuItem label="Accuracy" onClick={() => setMenuOpen(false)} />
                       <MenuItem label="Documentation" onClick={() => setMenuOpen(false)} />
                       <MenuItem label="Help Center" onClick={() => setMenuOpen(false)} />
@@ -396,9 +396,18 @@ export const Navbar: FC = () => {
           </div>
         </div>
       </header>
-      <CategoryTabs />
 
-      <LoginModal open={isLoginOpen} onClose={handleLoginClose} />
+      <CategoryTabs />
+      <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </>
   )
 }
+
+// ─── Hamburger ────────────────────────────────────────────────────────────────
+const HamburgerIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+    <rect y="3" width="20" height="2" rx="1" fill="currentColor" />
+    <rect y="9" width="20" height="2" rx="1" fill="currentColor" />
+    <rect y="15" width="20" height="2" rx="1" fill="currentColor" />
+  </svg>
+)

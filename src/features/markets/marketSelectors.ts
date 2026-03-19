@@ -38,3 +38,5 @@ export const selectNewMarkets = createSelector([selectMarketsState], (marketsSta
     return diffInHours <= 48 // ← created within last 48 hours
   })
 })
+
+export const selectSelectedMarket = (state: RootState) => state.markets.selectedMarket

@@ -2,11 +2,9 @@ import { ChevronRight } from "lucide-react"
 import type { FC } from "react"
 import { useNavigate } from "react-router"
 
-import { MARKET_TYPES } from "@/features/markets/marketTypes"
 import type { Market } from "@/features/markets/types"
 
 import { BinaryMarketCard } from "./BinaryMarketCard"
-import { MultiOptionBinaryMarketCard } from "./MultiOptionBinaryMarketCard"
 
 interface MarketGridProps {
   title: string
@@ -32,14 +30,9 @@ export const MarketGrid: FC<MarketGridProps> = ({ title, markets, groupKey }) =>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {markets.map((market) => {
-          //testing
-          if (market.type === MARKET_TYPES.MULTI_OPTION_BINARY) {
-            return <MultiOptionBinaryMarketCard key={market.id} market={market} />
-          } else if (market.type === MARKET_TYPES.BINARY) {
-            return <BinaryMarketCard key={market.id} market={market} />
-          }
-        })}
+        {markets.map((market) => (
+          <BinaryMarketCard key={market.id} market={market} />
+        ))}
       </div>
     </section>
   )

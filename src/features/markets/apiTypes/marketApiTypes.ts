@@ -1,7 +1,11 @@
+// Raw API shapes used only for transformResponse in marketApi.ts
+// MarketDetails has been removed — use the unified Market type from features/markets/types.ts
+
 export interface ApiToken {
   id: string
-  title: string
+  title: string // "Yes" | "No"
   volume: number
+  tokenId: string
 }
 
 export interface ApiOptionGroup {
@@ -20,11 +24,29 @@ export interface ApiMarket {
   title: string
   displayImageUrl: string | null
   categoryId: string
+  description?: string
   resolutionTime: string
   createdAt: string
+
   status: number
+  oracleIdentifier: string
+
   optionGroups: ApiOptionGroup[]
-  category: ApiCategory
+
+  category: {
+    id: string
+    name: string
+  }
+}
+
+export interface ApiSingleMarketResponse {
+  statusCode: number
+  status: boolean
+  message: string
+  type: string
+  data: {
+    data: ApiMarket
+  }
 }
 
 export interface ApiMarketListResponse {
@@ -33,7 +55,7 @@ export interface ApiMarketListResponse {
   message: string
   type: string
   data: {
-    data: ApiMarket[] // ← double nested
+    data: ApiMarket[]
     count: number
   }
 }
