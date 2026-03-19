@@ -70,6 +70,9 @@ export async function checkGoogleRedirect(
       }),
     )
     localStorage.setItem("isSignedIn", "true")
+    localStorage.setItem("auth_token", resultFromBackend.data.token)
+    localStorage.setItem("auth_method", LOGIN_METHODS.Google)
+    localStorage.setItem("auth_address", publicAddress as string)
     return true
   } catch {
     // getRedirectResult throws when page load is NOT from a Google redirect — expected.

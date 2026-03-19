@@ -27,11 +27,11 @@ export function PublicLayout() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       void checkAuth(magic, dispatch, loginToBackend as any)
     }
-    // if(markets){
-    //   console.log("markets from APi in index:",markets)
-    //   dispatch(setMarkets([...markets]))
-    // }
-    dispatch(setMarkets(MOCK_MARKETS))
+    if (markets) {
+      console.log("markets from APi in index:", markets)
+      dispatch(setMarkets([...markets, ...MOCK_MARKETS]))
+    } else dispatch(setMarkets(MOCK_MARKETS))
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [magic, dispatch, markets])
 

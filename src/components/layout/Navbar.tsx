@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
+import { ChevronDown, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
 import { type FC, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router"
@@ -12,16 +12,22 @@ import {
   loadingFalse,
   loadingTrue,
   logout,
-  selectCashAmount,
+  selectAvailableAmount,
+  selectIsAuthChecking,
   selectIsAuthenticated,
+  selectLoginMethod,
   selectPortfolioAmount,
   selectUserData,
 } from "@/features/auth/authSlice"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import { useMagic } from "@/features/auth/lib/magic"
+import { useDebouncedCallback } from "@/hooks/custom/useDebounce"
 import { formatCash, formatPortfolio } from "@/libs/formatCurrency"
 import { setMetaMaskLoggedOut } from "@/routes/utils"
 
+import { MetaMaskDepositModal } from "../deposit/MetaMaskDepositModal"
+import { NotificationBell } from "../navbar/NotificationBell"
+import { AuthLoader } from "../ui/AuthLoader"
 import { CategoryTabs } from "./CategoryTabs"
 
 // ─── FIX 1: Polymarket diamond/shield SVG logo ────────────────────────────────
@@ -57,7 +63,7 @@ const MenuItem = ({
 }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5 rounded-lg
+    className={` cursor-pointer w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5 rounded-lg
       ${red ? "text-red-500 hover:text-red-400" : "text-white/80 hover:text-white"}`}
   >
     {icon && <span className="text-base w-5 flex items-center justify-center">{icon}</span>}
@@ -120,14 +126,18 @@ export const Navbar: FC = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated)
   const { email, publicAddress } = useSelector(selectUserData)
   const portfolioAmount = useSelector(selectPortfolioAmount)
-  const cashAmount = useSelector(selectCashAmount)
+  const cashAmount = useSelector(selectAvailableAmount)
   const user = useAppSelector(selectUserData)
+  const isAuthChecking = useAppSelector(selectIsAuthChecking)
+  const loginMethod = useAppSelector(selectLoginMethod)
 
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const navigate = useNavigate()
   const [logoutToBackend] = useLogoutMutation()
+  const [depositLoading, setDepositLoading] = useState(false)
+  const [metamaskDepositOpen, setMetamaskDepositOpen] = useState(false)
 
   const displayName = email
     ? email.split("@")[0]
@@ -171,17 +181,30 @@ export const Navbar: FC = () => {
       setIsLoginOpen(true)
       return
     }
-    await magic?.wallet.showUI()
+    setDepositLoading(true)
+    if (loginMethod === LOGIN_METHODS.MetaMask) {
+      setMetamaskDepositOpen(true) // ← show our custom modal
+      setDepositLoading(false)
+      return
+    } else {
+      await magic?.wallet.showUI()
+      setDepositLoading(false)
+    }
   }
 
   const handlePortfolioClick = () => {
     if (isAuthenticated) navigate(`${ROUTES.PORTFOLIO}`)
     else setIsLoginOpen(true)
   }
+  const debouncedHandleDeposit = useDebouncedCallback(handleDeposit, 500)
 
   return (
     <>
       {/* FIX 9: bg-[#0d0f13] instead of bg-background/80 */}
+      <MetaMaskDepositModal
+        open={metamaskDepositOpen}
+        onClose={() => setMetamaskDepositOpen(false)}
+      />
       <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#0d0f13] md:mx-20">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           {/* ── FIX 1: Logo + Nav ── */}
@@ -250,20 +273,15 @@ export const Navbar: FC = () => {
 
                 {/* Deposit */}
                 <Button
-                  onClick={handleDeposit}
-                  className="bg-[#00c853] text-black font-bold hover:bg-[#00c853]/90 px-5 rounded-lg h-9 text-[13px]"
+                  onClick={debouncedHandleDeposit}
+                  disabled={isLoginOpen || depositLoading}
+                  className="bg-[#00c853] text-black font-bold hover:bg-[#00c853]/90 px-5 rounded-lg h-9 text-[13px] cursor-pointer"
                 >
-                  Deposit
+                  {depositLoading ? `Opening wallet` : `Deposit`}
                 </Button>
 
                 {/* Bell */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white/40 hover:text-white h-9 w-9"
-                >
-                  <Bell className="size-[18px]" />
-                </Button>
+                <NotificationBell />
 
                 {/* Avatar */}
                 <div className="relative">
@@ -274,7 +292,12 @@ export const Navbar: FC = () => {
                   {profileOpen && (
                     <Dropdown onClose={() => setProfileOpen(false)}>
                       <div className="flex items-center justify-between px-4 py-3">
-                        <div className="flex items-center gap-2">
+                        <div
+                          className="flex items-center gap-2 cursor-pointer"
+                          onClick={() => {
+                            navigate(`/profile/${user.publicAddress}`)
+                          }}
+                        >
                           <Avatar email={email} address={publicAddress} />
                           <span className="text-sm font-semibold text-white">{displayName}</span>
                         </div>
@@ -283,30 +306,45 @@ export const Navbar: FC = () => {
                         </button>
                       </div>
                       <Divider />
-                      <MenuItem icon="🏆" label="Leaderboard" />
-                      <MenuItem icon="💚" label="Rewards" />
-                      <MenuItem icon="🔗" label="APIs" />
-                      <MenuItem icon="🛠️" label="Builders" />
+                      <MenuItem
+                        icon="🏆"
+                        label="Leaderboard"
+                        onClick={() => {
+                          console.log("clicked")
+                          setMenuOpen(false)
+                          navigate(`/leaderboard/${user.publicAddress}`)
+                        }}
+                      />
+                      <MenuItem
+                        icon="💚"
+                        label="Rewards"
+                        onClick={() => {
+                          setProfileOpen(false)
+                          navigate(`/rewards/${user.publicAddress}`)
+                        }}
+                      />
+
                       <Divider />
-                      <DarkModeRow />
-                      <Divider />
-                      <MenuItem label="Accuracy" onClick={() => setProfileOpen(false)} />
-                      <MenuItem label="Support" onClick={() => setProfileOpen(false)} />
-                      <MenuItem label="Documentation" onClick={() => setProfileOpen(false)} />
-                      <MenuItem label="Help Center" onClick={() => setProfileOpen(false)} />
-                      <MenuItem label="Terms of Use" onClick={() => setProfileOpen(false)} />
-                      <MenuItem label="Language" rightIcon={<ChevronRight size={14} />} />
-                      <Divider />
+                      {/* we dont need dark mode right now , as per the figma design.
+                       */}
+
+                      {/* <DarkModeRow /> */}
+
                       <MenuItem label="Logout" red onClick={handleLogout} />
-                      <div className="mx-3 mt-1 mb-2">
+
+                      {/* as per figma , no explore all button  */}
+
+                      {/* <div className="mx-3 mt-1 mb-2">
                         <button className="w-full py-2.5 text-sm font-bold text-white bg-white/8 hover:bg-white/12 rounded-xl transition-colors">
                           Explore all
                         </button>
-                      </div>
+                      </div> */}
                     </Dropdown>
                   )}
                 </div>
               </>
+            ) : isAuthChecking ? (
+              <AuthLoader />
             ) : (
               <>
                 <div className="hidden md:flex items-center gap-2 text-white/50 cursor-pointer hover:text-white transition-colors">

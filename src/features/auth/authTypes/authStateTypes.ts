@@ -7,7 +7,10 @@ export interface AuthState {
   loading: true | false
   portfolioAmount?: number
   cashAmount?: number
+  reservedAmount: number // USDC locked in pending/partial orders
+  availableAmount: number // cashAmount - reservedAmount (always derived)
   loginMethod: LoginMethod
   token: string | null
   cashLoading: boolean
+  isAuthChecking: boolean
 }

@@ -3,6 +3,7 @@ import "./TradePanel.css"
 import { useEffect, useRef, useState } from "react"
 
 import { useAppSelector } from "@/app/hooks"
+import { useDebouncedCallback } from "@/hooks/custom/useDebounce"
 import type { TradePanelOrder } from "@/hooks/trade/TradeTypes"
 import { formatCash } from "@/libs/formatCurrency"
 
@@ -15,6 +16,7 @@ export interface TradePanelProps {
   onTrade?: (o: TradePanelOrder) => void
   onLoginRequired?: () => void
   onDepositRequired?: () => void
+  approvalState?: "idle" | "approving-usdc" | "approving-ctf" | "signing" | "submitting"
 }
 
 type Action = "Buy" | "Sell"
@@ -45,6 +47,7 @@ const TradePanel = ({
   onTrade,
   onLoginRequired,
   onDepositRequired,
+  approvalState = "idle",
 }: TradePanelProps) => {
   const labelA = isCrypto ? "Up" : "Yes"
   const labelB = isCrypto ? "Down" : "No"
@@ -52,13 +55,13 @@ const TradePanel = ({
   const priceB = noProbability
 
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated)
-  const rawBalance = useAppSelector((s) => s.auth.cashAmount)
-  const balance = rawBalance ?? 0
+  const availableAmount = useAppSelector((s) => s.auth.availableAmount)
+  const balance = availableAmount ?? 0
   const buttonState = !isAuthenticated ? "login" : balance <= 0 ? "deposit" : "trade"
 
   // ── Core state ──────────────────────────────────────────────────────────────
   const [action, setAction] = useState<Action>("Buy")
-  const [orderType, setOrderType] = useState<OrderType>("Market")
+  const [orderType, setOrderType] = useState<OrderType>("Limit")
   const [outcome, setOutcome] = useState(labelA)
   const [dropOpen, setDropOpen] = useState(false)
 
@@ -148,6 +151,7 @@ const TradePanel = ({
 
   const handleTrade = () => {
     if (tradeDisabled) return
+
     onTrade?.({
       action,
       orderType,
@@ -157,7 +161,10 @@ const TradePanel = ({
       limitCents: orderType === "Limit" ? limitCents : undefined,
       expirationEnabled: expiry,
     })
+    handleAction(action)
   }
+  //debounced handle trade for one click only...
+  const debouncedHandleTrade = useDebouncedCallback(handleTrade, 500)
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
@@ -185,6 +192,8 @@ const TradePanel = ({
           </div>
           {dropOpen && (
             <div className="tp-dropdown-menu">
+              {/* commenting market for now as it is not made currently , but if market is ready please add it below .... */}
+
               {(["Market", "Limit"] as OrderType[]).map((t) => (
                 <button
                   key={t}
@@ -425,7 +434,7 @@ const TradePanel = ({
         {/* ── Place Order button ── */}
         <button
           className={`tp-trade-btn${action === "Sell" ? " sell" : ""}${buttonState === "deposit" ? " deposit" : ""}`}
-          disabled={buttonState === "trade" && tradeDisabled}
+          disabled={approvalState !== "idle" || (buttonState === "trade" && tradeDisabled)}
           onClick={() => {
             if (buttonState === "login") {
               onLoginRequired?.()
@@ -435,12 +444,23 @@ const TradePanel = ({
               onDepositRequired?.()
               return
             }
-            handleTrade()
+            debouncedHandleTrade()
           }}
         >
+          {/* spinner — only shown when processing */}
+          {approvalState !== "idle" && <span className="tp-spinner" />}
+
+          {/* label */}
           {buttonState === "login" && "Place Order"}
           {buttonState === "deposit" && "Deposit"}
-          {buttonState === "trade" && "Place Order"}
+          {buttonState === "trade" &&
+            {
+              idle: "Place Order",
+              "approving-usdc": "Approving USDC...",
+              "approving-ctf": "Approving shares...",
+              signing: "Sign in wallet...",
+              submitting: "Submitting...",
+            }[approvalState]}
         </button>
 
         <div className="tp-terms">

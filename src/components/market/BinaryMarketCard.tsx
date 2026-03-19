@@ -5,10 +5,10 @@ import { useNavigate } from "react-router"
 import { useAppDispatch } from "@/app/hooks"
 import { IcoVolSm } from "@/components/custom/EventPageIcons"
 import { setSelectedMarket } from "@/features/markets/marketSlice"
-import type { BinaryMarket } from "@/features/markets/types"
+import type { Market } from "@/features/markets/types"
 
 interface MarketCardProps {
-  market: BinaryMarket
+  market: Market
 }
 
 export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
@@ -18,6 +18,14 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
   const yesP = market.yesProbability ?? 50
   const noP = market.noProbability ?? 50
 
+  const totalVolume = (market.yesVolume ?? 0) + (market.noVolume ?? 0)
+  const volumeLabel =
+    totalVolume >= 1_000_000
+      ? `$${(totalVolume / 1_000_000).toFixed(1)}M`
+      : totalVolume >= 1_000
+        ? `$${(totalVolume / 1_000).toFixed(0)}K`
+        : `$${totalVolume.toLocaleString()}`
+
   const handleNavigation = () => {
     dispatch(setSelectedMarket(market))
     navigate(`/event/${market.id}`)
@@ -25,8 +33,7 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
 
   return (
     <div
-      onClick={handleNavigation}
-      className="flex flex-col gap-3 cursor-pointer rounded-2xl p-4  "
+      className="flex flex-col gap-3 rounded-2xl p-4  "
       style={{
         background: "black",
         border: "1px solid rgba(255,255,255,0.07)",
@@ -40,13 +47,20 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
           style={{ width: 44, height: 44, border: "1px solid rgba(255,255,255,0.08)" }}
         >
           <img
-            src={market.thumbnailUrl}
+            src={
+              market.image?.length
+                ? market.image.includes("string")
+                  ? "/fallbackImg.jpg"
+                  : market.image
+                : "/fallbackImg.jpg"
+            }
             alt={market.title}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </div>
         <h3
-          className="line-clamp-3 leading-snug"
+          onClick={handleNavigation}
+          className="line-clamp-3 leading-snug cursor-pointer w-full object-contain"
           style={{ fontSize: 14, fontWeight: 700, color: "#ffffff", flex: 1 }}
         >
           {market.title}
@@ -56,10 +70,8 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
       {/* ── YES / NO buttons ── */}
       <div className="flex gap-2">
         <button
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-          className="flex-1 py-3 rounded-[10px] transition-opacity hover:opacity-90"
+          onClick={handleNavigation}
+          className="flex-1 py-3 rounded-[10px] transition-opacity hover:opacity-90 cursor-pointer"
           style={{
             background: "rgba(0,200,83,0.15)",
             color: "#00c853",
@@ -70,10 +82,8 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
           Yes
         </button>
         <button
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-          className="flex-1 py-3 rounded-[10px] transition-opacity hover:opacity-90"
+          onClick={handleNavigation}
+          className="flex-1 py-3 rounded-[10px] transition-opacity hover:opacity-90 cursor-pointer"
           style={{
             background: "rgba(229,57,53,0.15)",
             color: "#e53935",
@@ -121,7 +131,7 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
             style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}
           >
             <IcoVolSm size={13} />
-            {market.volume} Vol.
+            {volumeLabel} Vol.
           </span>
           {market.frequency && (
             <span

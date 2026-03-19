@@ -16,4 +16,16 @@ export interface TradeOrder extends TradePanelOrder {
   noTokenId: string
   collateralToken: string
   conditionId: string
+  yesTokenOnChainId: string | null
+  noTokenOnChainId: string | null
+}
+
+export type OrderMeta = {
+  marketId: string
+  outcome: string
+  side: "Buy" | "Sell"
+  orderType: "LIMIT"
+  price: number
+  shares: number
+  usdcAmount: number
 }
