@@ -1,7 +1,7 @@
 // src/components/market/tabs/OrderBookTab.tsx
 // TODO: replace MOCK_ORDER_BOOK with useGetOrderBookQuery(marketId) when API ready
 
-import { MOCK_ORDER_BOOK, type OrderBookRow } from "@/mocks/mockOrderBook"
+import { MOCK_ORDER_BOOK, type OrderBook, type OrderBookRow } from "@/mocks/mockOrderBook"
 
 interface OrderBookTabProps {
   marketId: string // ready for API call later
@@ -55,10 +55,10 @@ const SpreadLine = ({ spread }: { spread: number }) => (
 // ── Main component ────────────────────────────────────────────────────────────
 export const OrderBookTab = ({ marketId: _ }: OrderBookTabProps) => {
   // TODO: const { data: book = MOCK_ORDER_BOOK } = useGetOrderBookQuery(marketId)
-  const book = MOCK_ORDER_BOOK
+  const book: OrderBook = MOCK_ORDER_BOOK
 
-  const yesSpread = book?.yes.asks[0].price - book.yes.bids[0].price
-  const noSpread = book.no.asks[0].price - book.no.bids[0].price
+  const yesSpread = (book.yes.asks[0]?.price ?? 0) - (book.yes.bids[0]?.price ?? 0)
+  const noSpread = (book.no.asks[0]?.price ?? 0) - (book.no.bids[0]?.price ?? 0)
 
   return (
     <div className="ep-section">
