@@ -5,10 +5,13 @@ import type { LoginMethod } from "./authTypes/loginMethodsTypes"
 
 const initialState: AuthState = {
   isAuthenticated: false,
+  isAuthChecking: true,
   email: null,
   publicAddress: null,
   loading: false,
   cashAmount: 0,
+  reservedAmount: 0,
+  availableAmount: 0,
   portfolioAmount: 0,
   loginMethod: null,
   token: null,
@@ -40,6 +43,7 @@ const authSlice = createSlice({
       state.loading = action.payload.loading
       state.loginMethod = action.payload.loginMethod ?? null
       state.token = action.payload.token
+      state.isAuthChecking = false
     },
 
     logout(state) {
@@ -49,9 +53,11 @@ const authSlice = createSlice({
       state.loading = false
       state.loginMethod = null
       state.token = null
+      state.isAuthChecking = false
     },
 
     loadingTrue(state) {
+      state.isAuthChecking = true
       state.loading = true
     },
 
@@ -63,13 +69,32 @@ const authSlice = createSlice({
     },
     setCashAmount(state, action: PayloadAction<{ cashAmount: number }>) {
       state.cashAmount = action.payload.cashAmount
+      // recalculate available whenever total cash changes
+      state.availableAmount = action.payload.cashAmount - state.reservedAmount
     },
     setCashLoading: (state, action: PayloadAction<boolean>) => {
       state.cashLoading = action.payload
     },
     clearWalletBalance: (state) => {
       state.cashAmount = 0
+      state.reservedAmount = 0
+      state.availableAmount = 0
       state.cashLoading = false
+    },
+    // ── Reserved balance reducers ──────────────────────────────────────────
+    // Called after a new order is signed — locks the USDC until filled/cancelled
+    reserveAmount: (state, action: PayloadAction<number>) => {
+      state.reservedAmount = (state.reservedAmount ?? 0) + action.payload
+      state.availableAmount = (state.cashAmount ?? 0) - state.reservedAmount
+    },
+    // Called when an order is cancelled — unlocks the USDC
+    releaseAmount: (state, action: PayloadAction<number>) => {
+      state.reservedAmount = Math.max(0, (state.reservedAmount ?? 0) - action.payload)
+      state.availableAmount = (state.cashAmount ?? 0) - state.reservedAmount
+    },
+    // Utility — recompute available from current cashAmount and reservedAmount
+    recalculateAvailable: (state) => {
+      state.availableAmount = (state.cashAmount ?? 0) - (state.reservedAmount ?? 0)
     },
   },
 })
@@ -83,13 +108,19 @@ export const {
   setCashAmount,
   setCashLoading,
   clearWalletBalance,
+  reserveAmount,
+  releaseAmount,
+  recalculateAvailable,
 } = authSlice.actions
 
 export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated
+export const selectIsAuthChecking = (state: { auth: AuthState }) => state.auth.isAuthChecking
 export const selectUserData = (state: { auth: AuthState }) => state.auth
 export const selectUserLoading = (state: { auth: AuthState }) => state.auth.loading
 export const selectCashAmount = (state: { auth: AuthState }) => state.auth.cashAmount
 export const selectPortfolioAmount = (state: { auth: AuthState }) => state.auth.portfolioAmount
 export const selectLoginMethod = (state: { auth: AuthState }) => state.auth.loginMethod
+export const selectAvailableAmount = (state: { auth: AuthState }) => state.auth.availableAmount
+export const selectReservedAmount = (state: { auth: AuthState }) => state.auth.reservedAmount
 
 export default authSlice.reducer

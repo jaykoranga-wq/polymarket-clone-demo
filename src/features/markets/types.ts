@@ -1,12 +1,11 @@
-import type { MARKET_TYPES } from "./marketTypes"
+// ─── Shared sub-types ─────────────────────────────────────────────────────────
 
 export type MarketFrequency = "Daily" | "Monthly" | "Event"
 
-// ─── Detail-only types (optional — only present on event detail page) ─────────
-
 export interface PricePoint {
-  timestamp: string // e.g. "Oct 6", "5:00"
+  timestamp: string // ISO string  e.g. "2024-10-01T00:00:00.000Z"
   yesPrice: number // 0.0 to 1.0
+  noPrice?: number
 }
 
 export interface OrderEntry {
@@ -19,55 +18,45 @@ export interface OrderBook {
   no: OrderEntry[]
 }
 
-// ─── Base ─────────────────────────────────────────────────────────────────────
+// ─── Unified Market type (matches API MarketDetails shape) ────────────────────
+//
+// Both mock data and API responses use this single type.
+// Fields marked optional are populated by mock data but may be absent from API list results.
 
-export interface BaseMarket {
+export interface Market {
+  // ── Core identity ──────────────────────────────────────────────────────────
   id: string
   title: string
-  description?: string
+  description: string
+  image: string // API: displayImageUrl  |  mock: replaces thumbnailUrl
   category: string
-  thumbnailUrl: string
-  expiryDate: string
-  volume: string
-  frequency: MarketFrequency
-  isTrending?: boolean
-
-  // optional detail fields — not present on card, loaded on event page
-  rules?: string
+  resolutionTime: string // API: resolutionTime   |  mock: replaces expiryDate
   createdAt: string
+
+  // ── On-chain / trade fields ────────────────────────────────────────────────
+  collateralToken: string
+  conditionId: string
+  yesTokenId: string | null
+  noTokenId: string | null
+  yesTokenOnChainId: string | null
+  noTokenOnChainId: string | null
+
+  // ── Volume (numeric, UI formats as needed) ─────────────────────────────────
+  yesVolume: number
+  noVolume: number
+
+  // ── Probabilities (display only; derived or estimated) ─────────────────────
+  yesProbability: number // 0–100
+  noProbability: number // 0–100
+
+  // ── Optional display / mock-only extras ────────────────────────────────────
+  isTrending?: boolean
+  frequency?: MarketFrequency
   resolver?: string
+  rules?: string
   priceHistory?: PricePoint[]
   orderBook?: OrderBook
-  conditionId?: string
-  yesTokenId?: string
-  noTokenId?: string
-  collateralToken?: string
 }
-
-// ─── Binary Market ────────────────────────────────────────────────────────────
-
-export interface BinaryMarket extends BaseMarket {
-  type: typeof MARKET_TYPES.BINARY
-  yesProbability: number // 0 to 100
-  noProbability: number // 0 to 100
-}
-
-// ─── Multi Option Binary ──────────────────────────────────────────────────────
-
-export interface MultiOptionBinaryOption {
-  date: string
-  yesProbability: number
-  noProbability: number
-}
-
-export interface MultiOptionBinaryMarket extends BaseMarket {
-  type: typeof MARKET_TYPES.MULTI_OPTION_BINARY
-  options: MultiOptionBinaryOption[]
-}
-
-// ─── Union ────────────────────────────────────────────────────────────────────
-
-export type Market = BinaryMarket | MultiOptionBinaryMarket
 
 // ─── Redux State ──────────────────────────────────────────────────────────────
 

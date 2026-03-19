@@ -7,14 +7,12 @@ import { useParams } from "react-router"
 
 import { useAppDispatch } from "@/app/hooks"
 import { BinaryMarketCard } from "@/components/market/BinaryMarketCard"
-import { MultiOptionBinaryMarketCard } from "@/components/market/MultiOptionBinaryMarketCard"
 import {
-  selectAllMarkets, // ← raw unfiltered list
+  selectAllMarkets,
   selectNewMarkets,
   selectTrendingMarkets,
 } from "@/features/markets/marketSelectors"
 import { setSelectedCategory } from "@/features/markets/marketSlice"
-import { MARKET_TYPES } from "@/features/markets/marketTypes"
 import type { Market } from "@/features/markets/types"
 
 const GROUP_TITLES: Record<string, string> = {
@@ -24,7 +22,6 @@ const GROUP_TITLES: Record<string, string> = {
   earn_rewards: "📈 Earn Rewards Markets",
 }
 
-// these are your fixed group keys — anything else is treated as a category
 const KNOWN_GROUPS = new Set(["trending", "ending_soon", "new_market", "earn_rewards"])
 
 const MarketsPage = () => {
@@ -34,7 +31,8 @@ const MarketsPage = () => {
 
   const trending = useSelector(selectTrendingMarkets)
   const newMarkets = useSelector(selectNewMarkets)
-  const allMarkets = useSelector(selectAllMarkets) // ← raw, no category filter
+  const allMarkets = useSelector(selectAllMarkets)
+
   useEffect(() => {
     return () => {
       dispatch(setSelectedCategory(""))
@@ -44,7 +42,6 @@ const MarketsPage = () => {
   const markets = useMemo(() => {
     if (!group) return allMarkets
 
-    // ✅ known group key → use selector result
     if (KNOWN_GROUPS.has(group)) {
       const groupMap: Record<string, Market[]> = {
         trending,
@@ -55,15 +52,11 @@ const MarketsPage = () => {
       return groupMap[group] ?? allMarkets
     }
 
-    // ✅ not a known group → treat as category, filter from URL param directly
-    // this survives refresh because group comes from URL, not Redux
     if (group === "All Markets") return allMarkets
-    return allMarkets.filter((m) => {
-      if (m.category.toLowerCase() === group.toLowerCase()) return true
-    })
+    return allMarkets.filter((m) => m.category.toLowerCase() === group.toLowerCase())
   }, [group, trending, newMarkets, allMarkets])
 
-  const title = group ? (GROUP_TITLES[group] ?? `${group} `) : "All Markets"
+  const title = group ? (GROUP_TITLES[group] ?? `${group}`) : "All Markets"
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 md:mx-20">
@@ -76,15 +69,9 @@ const MarketsPage = () => {
         <p className="mp-empty">No markets found.</p>
       ) : (
         <div className="mp-list">
-          {markets.map((market) => {
-            if (market.type === MARKET_TYPES.MULTI_OPTION_BINARY) {
-              return <MultiOptionBinaryMarketCard key={market.id} market={market} />
-            }
-            if (market.type === MARKET_TYPES.BINARY) {
-              return <BinaryMarketCard key={market.id} market={market} />
-            }
-            return null
-          })}
+          {markets.map((market) => (
+            <BinaryMarketCard key={market.id} market={market} />
+          ))}
         </div>
       )}
     </div>

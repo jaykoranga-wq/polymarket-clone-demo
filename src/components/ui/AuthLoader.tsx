@@ -1,11 +1,9 @@
 export const AuthLoader = () => {
   return (
-    <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
-      <div className="flex flex-col items-center gap-4">
-        {/* Spinner */}
-        <div className="size-10 rounded-full border-4 border-white/10 border-t-accent animate-spin" />
-        <p className="text-sm text-muted-foreground animate-pulse">Loading ...</p>
-      </div>
+    <div className="flex items-center gap-3">
+      <div className="w-20 h-8 rounded-lg bg-white/10 animate-pulse" />
+      <div className="w-24 h-8 rounded-lg bg-white/10 animate-pulse" />
+      <div className="w-9 h-9 rounded-full bg-white/10 animate-pulse" />
     </div>
   )
 }
