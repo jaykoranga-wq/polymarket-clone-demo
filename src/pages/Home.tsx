@@ -44,11 +44,11 @@ const Home: FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 md:mx-20">
+    <div className="min-h-screen bg-background text-white selection:bg-primary/30 md:mx-20">
       <Toaster richColors position="top-center" />
       {userLoading && <AuthLoader />}
 
-      <main className="container mx-auto px-4 pb-20">
+      <main className="container mx-auto px-4 pb-12.5">
         {mainHeroMarket && <MyCarousel items={carouselItems} renderItem={renderHeroBanner} />}
         <MarketGrid title="NEW MARKETS" markets={newMarkets.slice(0, 4)} groupKey={`new_market`} />
         <MarketGrid

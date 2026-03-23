@@ -21,9 +21,9 @@ export const CategoryTabs: FC = () => {
   }, [data])
 
   return (
-    <div className="border-b border-border bg-background sticky top-16 z-40 md:mx-20">
-      <div className="container mx-auto px-4 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-6 min-w-max h-12">
+    <div className=" border-b border-border/70  bg-background sticky top-14 z-40 md:px-25 font-liberation">
+      <div className="overflow-x-auto no-scrollbar">
+        <div className=" container flex items-center gap-2  mb-1 h-9">
           {allCategory.map((category) => (
             <button
               key={category}
@@ -32,10 +32,8 @@ export const CategoryTabs: FC = () => {
                 navigate(`/markets/${category}`)
               }}
               className={clsx(
-                "relative h-full flex items-center text-sm font-semibold transition-all duration-200 whitespace-nowrap",
-                selectedCategory === category
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground",
+                "relative h-full flex items-center text-xs font-bold transition-all duration-200 px-3 whitespace-nowrap",
+                selectedCategory === category ? "text-white" : "text-secondary hover:text-white",
               )}
             >
               {category}

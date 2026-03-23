@@ -7,6 +7,7 @@ import {
   type IChartApi,
   type ISeriesApi,
 } from "lightweight-charts"
+import { Gift, RefreshCcw } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux"
 import { useNavigate, useParams } from "react-router"
@@ -14,11 +15,10 @@ import { Toaster } from "sonner"
 
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import { LoginModal } from "@/components/auth/LoginModal"
+import { IcoAI } from "@/components/custom/IcoAI"
 import { IcoBack } from "@/components/custom/IcoBack"
 import { IcoBookmark } from "@/components/custom/IcoBookmark"
 import { IcoClock } from "@/components/custom/IcoClock"
-import { IcoLink } from "@/components/custom/IconLink"
-import { IcoRepeat } from "@/components/custom/IcoRepeat"
 import { IcoVol } from "@/components/custom/IcoVol"
 import TradePanel from "@/components/event/tradePanel/TradePanel"
 import { CommentSection } from "@/components/market/comment/CommentSection"
@@ -230,7 +230,7 @@ const EventPage = () => {
   return (
     <>
       {tradeError && <p className="text-red-500">{tradeError}</p>}
-      <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 md:mx-20">
+      <div className="min-h-screen bg-background text-white selection:bg-primary/30 md:mx-20">
         <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <Toaster richColors position="top-center" />
         {userLoading && <AuthLoader />}
@@ -253,7 +253,10 @@ const EventPage = () => {
                   </div>
                   <div className="ep-header-icons">
                     <button className="ep-icon-btn">
-                      <IcoLink />
+                      <IcoAI size={14} />
+                    </button>
+                    <button className="ep-icon-btn">
+                      <Gift size={14} />
                     </button>
                     <button className="ep-icon-btn">
                       <IcoBookmark />
@@ -271,7 +274,7 @@ const EventPage = () => {
                     Ends <strong>{market.expiryDate}</strong>
                   </div>
                   <div className="ep-chip">
-                    <IcoRepeat />
+                    <RefreshCcw />
                     {market.frequency}
                   </div>
                   {market.isTrending && <div className="ep-trending">🔥 Trending</div>}

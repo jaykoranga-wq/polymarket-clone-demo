@@ -1,37 +1,106 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Liberation Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://fonts.cdnfonts.com/s/277/LiberationSans-Regular.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Liberation Sans";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://fonts.cdnfonts.com/s/277/LiberationSans-Italic.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Liberation Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://fonts.cdnfonts.com/s/277/LiberationSans-Bold.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Liberation Sans";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://fonts.cdnfonts.com/s/277/LiberationSans-BoldItalic.woff") format("woff");
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-background: #0B0F14;
-  --color-foreground: #FFFFFF;
   --color-card: #121821;
-  --color-card-foreground: #FFFFFF;
+  --color-card-foreground: #ffffff;
   --color-popover: #121821;
-  --color-popover-foreground: #FFFFFF;
-  --color-primary: #16C784;
-  --color-primary-foreground: #FFFFFF;
-  --color-secondary: #EA3943;
-  --color-secondary-foreground: #FFFFFF;
-  --color-muted: #1F2937;
-  --color-muted-foreground: #9CA3AF;
-  --color-accent: #1F2937;
-  --color-accent-foreground: #FFFFFF;
-  --color-destructive: #EA3943;
-  --color-destructive-foreground: #FFFFFF;
-  --color-border: #1F2937;
-  --color-input: #1F2937;
-  --color-ring: #16C784;
-  
+  --color-popover-foreground: #ffffff;
+
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #ea3943;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #1f2937;
+  --color-muted-foreground: #9ca3af;
+  --color-accent: #1f2937;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #ea3943;
+  --color-destructive-foreground: #ffffff;
+
+  --color-input: #1f2937;
+  --color-ring: #16c784;
+
+  /* colors */
+  --color-black: #000000;
+  --color-option-no: #411c29;
+  --color-no: #e11d48;
+  --color-progress-bar: #2a2a2a;
+
+  /* green color */
+  --color-primary: #10d260;
+  --color-green-text: #14e96c;
+  --color-option-yes: #162f2d;
+  --color-yes: #059669;
+
+  /* main bg color */
+  --color-background: #0a0c10;
+  --color-slate: #12161d;
+  --color-secondary: #8b949e;
+  --color-border: #1e232b;
+
+  /* colors white */
+  --color-white: #ffffff;
+
   /* Custom colors for prediction market */
-  --color-market-green: #16C784;
-  --color-market-red: #EA3943;
-  --color-market-blue: #3B82F6;
-  
+  --color-market-green: #16c784;
+  --color-market-red: #ea3943;
+  --color-market-blue: #3b82f6;
+
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
+
+  --font-sans: "Inter", sans-serif;
+  --font-liberation: "Liberation Sans", sans-serif;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer components {
+  .container {
+    @apply max-w-[1280px] min-[1680px]:max-w-[1400px] mx-auto px-[20px];
+  }
 }
 
 @layer base {
@@ -40,7 +109,59 @@
   *::after {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-white;
+  }
+}
+
+/* font sizes */
+
+.font-xs {
+  font-size: 10px;
+}
+
+.font-base {
+  font-size: 12px;
+}
+
+.font-sm {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.font-default {
+  font-size: 16px;
+}
+
+.font-md {
+  font-size: 18px;
+}
+
+.font-lg {
+  font-size: 24px;
+}
+
+.font-xl {
+  font-size: 30px;
+  line-height: 37.5px;
+}
+
+/* custom  radius */
+.rounded-2sm {
+  border-radius: 6px;
+}
+
+.rounded-2md {
+  border-radius: 10px;
+}
+
+@media only screen and (max-width: 1380px) {
+}
+
+@media only screen and (max-width: 880px) {
+  .font-xl {
+    font-size: 20px;
+    line-height: 25px;
   }
 }

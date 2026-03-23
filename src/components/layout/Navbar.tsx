@@ -1,4 +1,4 @@
-import { Bell, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
+import { Bell, ChevronDown, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
 import { type FC, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router"
@@ -95,7 +95,15 @@ const DarkModeRow = () => {
 }
 
 // ─── Dropdown wrapper ─────────────────────────────────────────────────────────
-const Dropdown = ({ children, onClose }: { children: React.ReactNode; onClose: () => void }) => {
+const Dropdown = ({
+  children,
+  onClose,
+  className = "right-0 top-12 w-64",
+}: {
+  children: React.ReactNode
+  onClose: () => void
+  className?: string
+}) => {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -109,7 +117,7 @@ const Dropdown = ({ children, onClose }: { children: React.ReactNode; onClose: (
   return (
     <div
       ref={ref}
-      className="absolute right-0 top-12 w-64 bg-[#141920] border border-white/10 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] z-50 py-2 overflow-hidden"
+      className={`absolute bg-[#141920] border border-white/10 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] z-50 py-2 overflow-hidden ${className}`}
     >
       {children}
     </div>
@@ -131,6 +139,7 @@ export const Navbar: FC = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
   const navigate = useNavigate()
   const [logoutToBackend] = useLogoutMutation()
 
@@ -202,8 +211,8 @@ export const Navbar: FC = () => {
 
   return (
     <>
-      <header className=" sticky top-0 z-50  border-b border-border bg-background/80 backdrop-blur-md md:mx-20   ">
-        <div className=" container mx-auto flex h-16 items-center justify-between px-4">
+      <header className=" sticky top-0 z-50  border-b border-border bg-background/80 backdrop-blur-md font-liberation md:px-20">
+        <div className=" container  flex h-14 items-center gap-4 justify-between ">
           {/* ── Logo + Nav ── */}
           <div
             className="flex items-center gap-8 cursor-pointer"
@@ -212,38 +221,51 @@ export const Navbar: FC = () => {
             }}
           >
             <div className="flex items-center gap-2">
-              <div className="size-8 rounded bg-primary flex items-center justify-center">
-                <span className="text-xl font-bold text-background">P</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight">Polymarket</span>
+              <img src="/logo.png" alt="Polymarket" className=" h-4 sm:h-5.5 w-auto" />
             </div>
 
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-              <button className="text-foreground transition-colors hover:text-primary">
+            <nav className="hidden lg:flex items-center gap-6 py-1.5 px-3 text-sm font-bold  ">
+              <button className="text-secondary transition-colors hover:text-white">
                 Trending
               </button>
-              <button className="text-foreground transition-colors hover:text-primary">
+              <button className="text-secondary transition-colors hover:text-white">
                 Breaking
               </button>
-              <button className="text-foreground transition-colors hover:text-primary">New</button>
-              <button className="text-foreground transition-colors hover:text-primary ml-0">
-                More
-              </button>
+              <button className="text-secondary transition-colors hover:text-white">New</button>
+              <div className="relative">
+                <button
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={() => setMoreOpen((p) => !p)}
+                  className="flex items-center gap-1 text-secondary transition-colors hover:text-white ml-0"
+                >
+                  More{" "}
+                  <ChevronDown
+                    size={14}
+                    className={`transition-transform ${moreOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {moreOpen && (
+                  <Dropdown onClose={() => setMoreOpen(false)} className="left-0 mt-2 w-48">
+                    <MenuItem label="Option 1" onClick={() => setMoreOpen(false)} />
+                    <MenuItem label="Option 2" onClick={() => setMoreOpen(false)} />
+                    <MenuItem label="Option 3" onClick={() => setMoreOpen(false)} />
+                  </Dropdown>
+                )}
+              </div>
             </nav>
           </div>
 
-          {/* ── Search ── */}
-          <div className="hidden lg:flex flex-1 max-w-md mx-8 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder={isAuthenticated ? "Search markets" : "Search polymarkets..."}
-              className="w-full bg-surface border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all placeholder:text-muted-foreground/60"
-            />
-          </div>
-
-          {/* ── Right side ── */}
-          <div className="flex items-center gap-3">
+          {/* ── Right side with search ── */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden xl:flex w-70  max-w-md  relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder={isAuthenticated ? "Search markets" : "Search polymarkets"}
+                className="w-full bg-slate border border-progress-bar rounded-2sm py-2.5 pl-8.5 pr-2.5 text-sm leading-4 text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all placeholder-[#6B7280] max-w-67.5 "
+              />
+            </div>
             {isAuthenticated ? (
               <>
                 {/* Portfolio + Cash */}
@@ -269,7 +291,7 @@ export const Navbar: FC = () => {
                 <Button
                   onClick={handleDeposit}
                   variant="default"
-                  className="bg-primary text-background font-bold hover:bg-primary/90 px-6 rounded-lg h-10"
+                  className="bg-primary text-background text-xs font-bold hover:bg-primary/90 px-4 rounded-sm h-8"
                 >
                   Deposit
                 </Button>
@@ -278,14 +300,17 @@ export const Navbar: FC = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-muted-foreground hover:text-foreground h-10 w-10"
+                  className="text-muted-foreground hover:text-white h-8 w-8"
                 >
                   <Bell className="size-5" />
                 </Button>
 
                 {/* Profile avatar + dropdown */}
                 <div className="relative">
-                  <div onClick={() => setProfileOpen((p) => !p)}>
+                  <div
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={() => setProfileOpen((p) => !p)}
+                  >
                     <Avatar email={email} address={publicAddress} />
                   </div>
 
@@ -339,22 +364,22 @@ export const Navbar: FC = () => {
             ) : (
               <>
                 {/* How it works */}
-                <div className="hidden md:flex items-center gap-2 text-accent cursor-pointer hover:opacity-80 transition-opacity">
+                <div className="hidden lg:flex items-center gap-2 text-secondary cursor-pointer hover:opacity-80 transition-opacity">
                   <Info className="size-4" />
-                  <span className="text-sm font-medium">How it works</span>
+                  <span className="text-sm font-medium text-nowrap">How it works</span>
                 </div>
 
                 {/* Log In / Sign Up */}
                 <Button
                   variant="default"
-                  className="bg-accent text-white font-bold hover:bg-accent/90 px-6 rounded-lg h-10 cursor-pointer"
+                  className="bg-accent text-white font-base font-bold text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7  cursor-pointer"
                   onClick={() => setIsLoginOpen(true)}
                 >
                   Log In
                 </Button>
                 <Button
                   variant="default"
-                  className="bg-accent text-white font-bold hover:bg-accent/90 px-6 rounded-lg h-10 cursor-pointer"
+                  className="bg-accent text-primary font-bold border-black border text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7 cursor-pointer"
                   onClick={() => setIsLoginOpen(true)}
                 >
                   Sign Up
@@ -365,7 +390,8 @@ export const Navbar: FC = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-muted-foreground hover:text-foreground h-10 w-10 cursor-pointer"
+                    className="text-muted-foreground hover:text-white h-10 w-10 cursor-pointer"
+                    onMouseDown={(e) => e.stopPropagation()}
                     onClick={() => setMenuOpen((p) => !p)}
                   >
                     {menuOpen ? <X className="size-5" /> : <HamburgerIcon />}
