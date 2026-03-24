@@ -16,3 +16,7 @@ export const ERC20_ABI = [
   "function approve(address spender, uint256 amount) returns (bool)",
   "function allowance(address owner, address spender) view returns (uint256)", // ← add this
 ]
+
+export const CTF_REDEEM_ABI = [
+  "function redeemPositions(address collateralToken , bytes32 conditionId, uint256[] indexSets)",
+]

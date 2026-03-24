@@ -10,6 +10,7 @@ import { IcoBookmarkSm, IcoClockSm, IcoShareSm, IcoVolSm } from "@/components/cu
 import TradePanel from "@/components/event/tradePanel/TradePanel"
 import { CommentSection } from "@/components/market/comment/CommentSection"
 import { PriceChart } from "@/components/market/priceChart/PriceChart"
+import { ShareModal } from "@/components/market/ShareModal"
 import { ActivityTab, MarketRulesTab, OrderBookTab } from "@/components/market/tabs"
 import { EventPageSkeleton } from "@/components/ui/MarketSkeleton"
 import { useGetMarketByIdQuery } from "@/features/api/markets/marketApi"
@@ -37,6 +38,7 @@ const EventPage = () => {
 
   const [activeTab, setActiveTab] = useState<TabKey>("rules")
   const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
 
   const { executeTrade, tradeError, approvalState } = useTrade()
 
@@ -80,6 +82,11 @@ const EventPage = () => {
     } satisfies TradeOrder)
   }
 
+  // save as bookmark.
+  const saveAsBookmark = () => {
+    toast.success("Saved")
+  }
+
   useEffect(() => {
     if (tradeError) {
       if (tradeError.includes('reason="rejected"')) {
@@ -106,6 +113,15 @@ const EventPage = () => {
     <>
       <div className="ep md:px-20 px-4 md:mx-20">
         <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+        <ShareModal
+          open={shareOpen}
+          onClose={() => {
+            setShareOpen(false)
+          }}
+          title={market.title}
+          probability={market.yesProbability ?? 100}
+          outcome="Yes"
+        />
         <Toaster richColors position="top-center" />
 
         {/* ── Breadcrumb ── */}
@@ -121,10 +137,15 @@ const EventPage = () => {
         <div className="ep-title-row">
           <h1 className="ep-page-title">{market.title}</h1>
           <div className="ep-header-icons">
-            <button className="ep-icon-btn sm">
+            <button
+              className="ep-icon-btn sm"
+              onClick={() => {
+                setShareOpen(true)
+              }}
+            >
               <IcoShareSm />
             </button>
-            <button className="ep-icon-btn sm">
+            <button className="ep-icon-btn sm" onClick={saveAsBookmark}>
               <IcoBookmarkSm />
             </button>
           </div>

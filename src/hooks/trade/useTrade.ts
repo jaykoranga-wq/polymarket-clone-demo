@@ -131,6 +131,7 @@ export const useTrade = () => {
   // ── Step 4: sign order (EIP-712 — free, no gas) ───────────────────────────
   const signOrder = async (signer: ethers.JsonRpcSigner, order: TradeOrder) => {
     const tokenId = order.outcome === "Yes" ? order.yesTokenOnChainId : order.noTokenOnChainId
+    console.log("while signing , the tokneId is :", tokenId)
 
     const domain = {
       name: "PolymarketCTFExchange",
