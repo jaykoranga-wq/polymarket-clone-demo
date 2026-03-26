@@ -56,7 +56,7 @@ const ordersSlice = createSlice({
       const newRemaining = order.originalShares - newFilled
       order.filledShares = newFilled
       order.remainingShares = newRemaining
-      order.status = newRemaining === 0 ? "filled" : "partial"
+      order.status = newRemaining === 0 ? "filled" : "partially filled"
     },
 
     // mark an order as cancelled (softer than removeOrder — keeps it in list)
@@ -94,7 +94,7 @@ import type { RootState } from "@/app/store"
 
 export const selectAllOrders = (s: RootState) => s.orders.list
 export const selectPendingOrders = (s: RootState) =>
-  s.orders.list.filter((o) => o.status === "pending" || o.status === "partial")
+  s.orders.list.filter((o) => o.status === "pending" || o.status === "partially filled")
 export const selectOpenOrders = selectPendingOrders // alias for clarity
 export const selectFilledOrders = (s: RootState) =>
   s.orders.list.filter((o) => o.status === "filled")

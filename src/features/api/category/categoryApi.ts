@@ -36,18 +36,25 @@ type GetCategoriesParams = {
 
 const categoryApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getCategories: builder.query<string[], GetCategoriesParams | void>({
-      query: (params) => ({
-        url: "/v1/user/categories",
-        method: "GET",
-        params: params ?? {},
-      }),
-      transformResponse: (res: CategoryListResponse) =>
-        res.data.data.map((category) => category.name), // ← returns string[]
+    getCategories: builder.query<Category[], GetCategoriesParams | void>({
+      query: (params) => {
+        const queryParams = params ?? {}
+
+        return {
+          url: "/v1/user/categories",
+          params: queryParams,
+        }
+      },
+
+      transformResponse: (res: CategoryListResponse): Category[] => res?.data?.data ?? [],
+
       providesTags: (result) =>
-        result
+        result && result.length > 0
           ? [
-              ...result.map((name) => ({ type: "Categories" as const, id: name })),
+              ...result.map((category) => ({
+                type: "Categories" as const,
+                id: category.id,
+              })),
               { type: "Categories", id: "LIST" },
             ]
           : [{ type: "Categories", id: "LIST" }],

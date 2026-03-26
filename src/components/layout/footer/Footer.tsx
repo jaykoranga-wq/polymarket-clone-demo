@@ -1,5 +1,36 @@
+// src/components/layout/Footer.tsx
+// Links come from src/data/footerData.ts — edit that file to change links.
+
 import { useNavigate } from "react-router"
 
+import { FOOTER_GROUPS, type FooterLink } from "@/data/footerData"
+
+// ── Single link button ────────────────────────────────────────────────────────
+const FooterLinkBtn = ({ link }: { link: FooterLink }) => {
+  const navigate = useNavigate()
+
+  const handleClick = () => {
+    if (link.external) {
+      window.open(link.external, "_blank", "noopener noreferrer")
+    } else if (link.path) {
+      navigate(link.path)
+    } else if (link.slug) {
+      navigate(`/page/${link.slug}`)
+    }
+  }
+
+  return (
+    <button
+      key={link.label}
+      onClick={handleClick}
+      className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-fit"
+    >
+      {link.label}
+    </button>
+  )
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
 export const Footer = () => {
   const navigate = useNavigate()
 
@@ -25,35 +56,17 @@ export const Footer = () => {
             </p>
           </div>
 
-          {/* Platform links */}
-          <div className="flex flex-col gap-3">
-            <span className="text-xs font-bold tracking-widest text-foreground uppercase">
-              Platform
-            </span>
-            {["How it works", "Market Rules", "Rewards Program"].map((item) => (
-              <button
-                key={item}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-fit"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
-          {/* Support links */}
-          <div className="flex flex-col gap-3">
-            <span className="text-xs font-bold tracking-widest text-foreground uppercase">
-              Support
-            </span>
-            {["Discord Community", "Help Center", "Terms of Service"].map((item) => (
-              <button
-                key={item}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-fit"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
+          {/* Link groups — rendered from footerData.ts */}
+          {FOOTER_GROUPS.map((group) => (
+            <div key={group.heading} className="flex flex-col gap-3">
+              <span className="text-xs font-bold tracking-widest text-foreground uppercase">
+                {group.heading}
+              </span>
+              {group.links.map((link) => (
+                <FooterLinkBtn key={link.label} link={link} />
+              ))}
+            </div>
+          ))}
         </div>
 
         {/* ── Bottom bar ── */}

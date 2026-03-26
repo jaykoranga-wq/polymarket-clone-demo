@@ -192,7 +192,7 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
   // TODO: replace MOCK_COMMENTS with useGetCommentsQuery(marketId) when API is ready
   const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS)
   const [text, setText] = useState("")
-  const [sortBy, setSortBy] = useState<"top" | "new">("top")
+  const [sortBy, setSortBy] = useState<"top" | "new">("new")
 
   const sorted = [...comments].sort((a, b) =>
     sortBy === "top"

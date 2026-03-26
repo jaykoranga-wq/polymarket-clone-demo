@@ -64,6 +64,7 @@ export interface MarketsState {
   list: Market[]
   loading: boolean
   error: string | null
-  selectedCategory: string
+  selectedCategoryId: string
+  selectedCategoryName: string
   selectedMarket: Market | null
 }

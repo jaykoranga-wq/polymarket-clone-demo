@@ -6,8 +6,9 @@ const initialState: MarketsState = {
   list: [],
   loading: false,
   error: null,
-  selectedCategory: "",
+  selectedCategoryId: "",
   selectedMarket: null,
+  selectedCategoryName: "",
 }
 
 const marketSlice = createSlice({
@@ -25,8 +26,11 @@ const marketSlice = createSlice({
       state.error = action.payload
       state.loading = false
     },
-    setSelectedCategory: (state, action: PayloadAction<string>) => {
-      state.selectedCategory = action.payload
+    setSelectedCategoryById: (state, action: PayloadAction<string>) => {
+      state.selectedCategoryId = action.payload
+    },
+    setSelectedCategoryByName: (state, action: PayloadAction<string>) => {
+      state.selectedCategoryName = action.payload
     },
     setSelectedMarket: (state, action: PayloadAction<Market | null>) => {
       state.selectedMarket = action.payload
@@ -34,6 +38,12 @@ const marketSlice = createSlice({
   },
 })
 
-export const { setMarkets, setLoading, setError, setSelectedCategory, setSelectedMarket } =
-  marketSlice.actions
+export const {
+  setMarkets,
+  setLoading,
+  setError,
+  setSelectedCategoryById,
+  setSelectedCategoryByName,
+  setSelectedMarket,
+} = marketSlice.actions
 export default marketSlice.reducer

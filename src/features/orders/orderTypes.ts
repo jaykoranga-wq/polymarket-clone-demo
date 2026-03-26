@@ -1,6 +1,6 @@
 // src/features/orders/orderTypes.ts
 
-export type OrderStatus = "pending" | "filled" | "cancelled" | "partial"
+export type OrderStatus = "pending" | "filled" | "cancelled" | "partially filled" | "failed"
 export type OrderSide = "Buy" | "Sell"
 
 export interface UserOrder {

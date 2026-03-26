@@ -22,6 +22,7 @@ const Home: FC = () => {
     return (
       <HeroBanner
         key={index}
+        market={item}
         title={item.title}
         description={item.description || ""}
         favorite="Democratic Party"

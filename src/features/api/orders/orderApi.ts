@@ -1,7 +1,12 @@
 // orderApi.ts
 
 import { secondApi } from "../secondApi"
-import type { CreateOrderRequest, CreateOrderResponse } from "./orderApiTypes"
+import type {
+  CreateOrderRequest,
+  CreateOrderResponse,
+  GetOrdersParams,
+  GetOrdersResponse,
+} from "./orderApiTypes"
 
 export const orderApi = secondApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -14,7 +19,31 @@ export const orderApi = secondApi.injectEndpoints({
 
       invalidatesTags: ["Orders"],
     }),
+
+    //get orders
+
+    // GET /v1/user/orders
+    getOrders: builder.query<GetOrdersResponse, GetOrdersParams>({
+      query: ({ status, limit = 10, page, offset }) => {
+        const params = new URLSearchParams()
+        if (status !== undefined) params.set("status", String(status))
+        if (limit !== undefined) params.set("limit", String(limit))
+        if (page !== undefined) params.set("page", String(page)) // future
+        if (offset !== undefined) params.set("offset", String(offset)) // future
+        return `/v1/user/orders?${params.toString()}`
+      },
+      // cache each unique param combination separately
+      serializeQueryArgs: ({ queryArgs }) => queryArgs,
+    }),
+
+    cancelOrder: builder.mutation<unknown, string>({
+      query: (orderId) => ({
+        url: `/v1/orders`,
+        method: "DELETE",
+        body: { orderId: orderId },
+      }),
+    }),
   }),
 })
 
-export const { useCreateOrderMutation } = orderApi
+export const { useCreateOrderMutation, useGetOrdersQuery, useCancelOrderMutation } = orderApi

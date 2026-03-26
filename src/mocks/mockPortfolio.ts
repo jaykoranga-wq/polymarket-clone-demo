@@ -20,13 +20,24 @@ export interface Position {
   marketId: string
   marketTitle: string
   category: string
-  tags?: string[] // e.g. ["Closing Soon"]
+  tags?: string[]
   side: PositionSide
   shares: number
-  avgPrice: number // cents e.g. 67
-  nowPrice: number // cents e.g. 89
-  invested: number // USDC
-  value: number // current USDC value
+  avgPrice: number
+  nowPrice: number
+  invested: number
+  value: number
+
+  // ── blockchain fields needed for redeem ──
+  conditionId: string // identifies market on-chain
+  yesTokenId: string // on-chain uint256 token ID
+  noTokenId: string // on-chain uint256 token ID
+  collateralToken: string // USDC address
+
+  // ── resolution fields ──
+  isResolved: boolean
+  winningOutcome: "YES" | "NO" | null // null = not resolved yet
+  isRedeemed: boolean // user already claimed winnings
 }
 
 export interface PortfolioOrder {
@@ -76,6 +87,15 @@ export const MOCK_POSITIONS: Position[] = [
     nowPrice: 89,
     invested: 502.5,
     value: 667.5,
+    // blockchain
+    conditionId: "0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1",
+    yesTokenId: "50797541917343757740820451019718158946955363447418211844464195437",
+    noTokenId: "12345678901234567890123456789012345678901234567890123456789012345",
+    collateralToken: "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
+    // resolution — active market
+    isResolved: false,
+    winningOutcome: null,
+    isRedeemed: false,
   },
   {
     id: "pos-002",
@@ -88,6 +108,13 @@ export const MOCK_POSITIONS: Position[] = [
     nowPrice: 56,
     invested: 252.0,
     value: 336.0,
+    conditionId: "0xbcd234ef5678bcd234ef5678bcd234ef5678bcd234ef5678bcd234ef5678bcd2",
+    yesTokenId: "98765432109876543210987654321098765432109876543210987654321098765",
+    noTokenId: "11111111111111111111111111111111111111111111111111111111111111111",
+    collateralToken: "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
+    isResolved: false,
+    winningOutcome: null,
+    isRedeemed: false,
   },
   {
     id: "pos-003",
@@ -100,6 +127,13 @@ export const MOCK_POSITIONS: Position[] = [
     nowPrice: 34,
     invested: 357.0,
     value: 289.0,
+    conditionId: "0xcde345f06789cde345f06789cde345f06789cde345f06789cde345f06789cde3",
+    yesTokenId: "22222222222222222222222222222222222222222222222222222222222222222",
+    noTokenId: "33333333333333333333333333333333333333333333333333333333333333333",
+    collateralToken: "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
+    isResolved: false,
+    winningOutcome: null,
+    isRedeemed: false,
   },
   {
     id: "pos-004",
@@ -113,30 +147,92 @@ export const MOCK_POSITIONS: Position[] = [
     nowPrice: 76,
     invested: 792.0,
     value: 912.0,
+    conditionId: "0xdef456017890def456017890def456017890def456017890def456017890def4",
+    yesTokenId: "44444444444444444444444444444444444444444444444444444444444444444",
+    noTokenId: "55555555555555555555555555555555555555555555555555555555555555555",
+    collateralToken: "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
+    isResolved: false,
+    winningOutcome: null,
+    isRedeemed: false,
   },
+
+  // ── RESOLVED markets below — for testing redeem flow ──
+
   {
     id: "pos-005",
-    marketId: "m-005",
-    marketTitle: "Major tech IPO valued over $50B in Q1 2026?",
-    category: "Tech",
-    side: POSITION_SIDE.YES,
+    marketId: "9e282e56-870c-4279-9314-9fd403253755",
+    marketTitle: "string",
+    category: "string",
+    side: POSITION_SIDE.YES, // user held YES
     shares: 450,
     avgPrice: 55,
-    nowPrice: 65,
+    nowPrice: 100, // resolved = $1.00
     invested: 247.5,
-    value: 292.5,
+    value: 450.0, // 450 shares × $1.00
+    conditionId: "0xef5670289012ef5670289012ef5670289012ef5670289012ef5670289012ef56",
+    yesTokenId: "66666666666666666666666666666666666666666666666666666666666666666",
+    noTokenId: "77777777777777777777777777777777777777777777777777777777777777777",
+    collateralToken: "0xb157f0dD6859722AfE1A5b4D983b94db1468b15A",
+    isResolved: true,
+    winningOutcome: "YES", // YES won → user can redeem ✅
+    isRedeemed: false, // not yet redeemed
   },
   {
     id: "pos-006",
     marketId: "m-006",
     marketTitle: "S&P 500 above 6500 by June 2026?",
     category: "Finance",
-    side: POSITION_SIDE.YES,
+    side: POSITION_SIDE.YES, // user held YES
     shares: 900,
     avgPrice: 71,
-    nowPrice: 82,
+    nowPrice: 0, // resolved = $0.00 (lost)
     invested: 639.0,
-    value: 738.0,
+    value: 0, // worthless
+    conditionId: "0xf06781390123f06781390123f06781390123f06781390123f06781390123f067",
+    yesTokenId: "88888888888888888888888888888888888888888888888888888888888888888",
+    noTokenId: "99999999999999999999999999999999999999999999999999999999999999999",
+    collateralToken: "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
+    isResolved: true,
+    winningOutcome: "NO", // NO won → user held YES → lost ❌
+    isRedeemed: false,
+  },
+  {
+    id: "pos-007",
+    marketId: "m-007",
+    marketTitle: "Will Fed cut rates before Q3 2026?",
+    category: "Economy",
+    side: POSITION_SIDE.NO, // user held NO
+    shares: 300,
+    avgPrice: 38,
+    nowPrice: 100,
+    invested: 114.0,
+    value: 300.0, // 300 shares × $1.00
+    conditionId: "0x017892401234017892401234017892401234017892401234017892401234017892",
+    yesTokenId: "10101010101010101010101010101010101010101010101010101010101010101",
+    noTokenId: "20202020202020202020202020202020202020202020202020202020202020202",
+    collateralToken: "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
+    isResolved: true,
+    winningOutcome: "NO", // NO won → user held NO → can redeem ✅
+    isRedeemed: false,
+  },
+  {
+    id: "pos-008",
+    marketId: "m-008",
+    marketTitle: "Will Apple release AR glasses in 2025?",
+    category: "Tech",
+    side: POSITION_SIDE.NO,
+    shares: 400,
+    avgPrice: 61,
+    nowPrice: 100,
+    invested: 244.0,
+    value: 400.0,
+    conditionId: "0x12890350234512890350234512890350234512890350234512890350234512890",
+    yesTokenId: "30303030303030303030303030303030303030303030303030303030303030303",
+    noTokenId: "40404040404040404040404040404040404040404040404040404040404040404",
+    collateralToken: "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
+    isResolved: true,
+    winningOutcome: "NO", // NO won → user held NO → ALREADY redeemed
+    isRedeemed: true, // ← already claimed, no button shown
   },
 ]
 

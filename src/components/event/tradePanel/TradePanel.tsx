@@ -1,6 +1,7 @@
 import "./TradePanel.css"
 
 import { useEffect, useRef, useState } from "react"
+import { useNavigate } from "react-router"
 
 import { useAppSelector } from "@/app/hooks"
 import { useDebouncedCallback } from "@/hooks/custom/useDebounce"
@@ -64,6 +65,7 @@ const TradePanel = ({
   const [orderType, setOrderType] = useState<OrderType>("Limit")
   const [outcome, setOutcome] = useState(labelA)
   const [dropOpen, setDropOpen] = useState(false)
+  const navigate = useNavigate()
 
   // ── Market Buy ──────────────────────────────────────────────────────────────
   const [amount, setAmount] = useState(0)
@@ -463,7 +465,12 @@ const TradePanel = ({
             }[approvalState]}
         </button>
 
-        <div className="tp-terms">
+        <div
+          className="tp-terms"
+          onClick={() => {
+            navigate("/terms")
+          }}
+        >
           By trading, you agree to the <a>Terms of Use</a>.
         </div>
       </div>

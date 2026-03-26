@@ -5,9 +5,12 @@ import Event from "@/pages/event/Event"
 import Home from "@/pages/Home"
 import LeaderboardPage from "@/pages/leaderboard/LeaderboardPage"
 import MarketPage from "@/pages/market/MarketPage"
+import MarketsPage from "@/pages/market/MarketPage"
 import PortfolioPage from "@/pages/portfolio/Portfolio"
 import ProfilePage from "@/pages/profile/ProfilePage"
 import RewardsPage from "@/pages/rewards/RewardsPage"
+import StaticPage from "@/pages/static/StaticPage"
+import TermsPage from "@/pages/terms/TermsPage"
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -38,4 +41,16 @@ export const publicRoutes: RouteObject[] = [
     path: ROUTES.REWARDS,
     element: <RewardsPage />,
   },
+  {
+    path: ROUTES.TERMS,
+    element: <TermsPage />,
+  },
+
+  { path: ROUTES.MarketSearch, element: <MarketsPage /> },
+  {
+    path: ROUTES.MarketCategory,
+    element: <MarketsPage />,
+  },
+
+  { path: "/page/:slug", element: <StaticPage /> },
 ]

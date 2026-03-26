@@ -1,13 +1,18 @@
 import { TrendingUp } from "lucide-react"
 import type { FC } from "react"
+import { useNavigate } from "react-router"
 
+import { useAppDispatch } from "@/app/hooks"
 import { Button } from "@/components/ui/button"
+import { setSelectedMarket } from "@/features/markets/marketSlice"
+import type { Market } from "@/features/markets/types"
 
 interface HeroBannerProps {
   title: string
   description: string
   favorite: string
   favoriteProbability: number
+  market: Market
 }
 
 export const HeroBanner: FC<HeroBannerProps> = ({
@@ -15,7 +20,18 @@ export const HeroBanner: FC<HeroBannerProps> = ({
   description,
   favorite,
   favoriteProbability,
+  market,
 }) => {
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  function handleClickTrade() {
+    console.log("handle trade clicked ..")
+    dispatch(setSelectedMarket(market))
+    if (market) {
+      navigate(`/event/${market?.id as string}`)
+    }
+  }
+
   return (
     <section className="relative w-full h-[220x] md:h-62.5 flex items-center overflow-hidden rounded-2xl bg-background border border-border mt-6">
       {/* Background Gradient */}
@@ -71,6 +87,7 @@ export const HeroBanner: FC<HeroBannerProps> = ({
           <Button
             size="sm"
             className="bg-primary text-background font-bold hover:bg-primary/90 px-6 h-10 rounded-lg text-sm transition-transform active:scale-95 shadow-[0_6px_16px_-6px_rgba(22,199,132,0.4)]"
+            onClick={handleClickTrade}
           >
             Trade Now
           </Button>
