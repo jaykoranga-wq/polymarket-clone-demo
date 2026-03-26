@@ -9,6 +9,7 @@ import { LoginModal } from "@/components/auth/LoginModal"
 import { IcoBookmarkSm, IcoClockSm, IcoShareSm, IcoVolSm } from "@/components/custom/EventPageIcons"
 import TradePanel from "@/components/event/tradePanel/TradePanel"
 import { CommentSection } from "@/components/market/comment/CommentSection"
+import { MarketResolvedCard } from "@/components/market/MarketResolvedCard"
 import { PriceChart } from "@/components/market/priceChart/PriceChart"
 import { ShareModal } from "@/components/market/ShareModal"
 import { ActivityTab, MarketRulesTab, OrderBookTab } from "@/components/market/tabs"
@@ -58,6 +59,9 @@ const EventPage = () => {
     marketId: id ?? "",
     startPrice: yesProbability,
   })
+  const isResolved = market?.resolutionTime
+    ? new Date(market.resolutionTime).getTime() <= new Date().getTime()
+    : false
 
   const handleTrade = (params: TradePanelOrder) => {
     if (
@@ -216,15 +220,23 @@ const EventPage = () => {
           {/* ══ RIGHT ══ */}
           <div className="ep-right">
             <div className="ep-sticky">
-              <TradePanel
-                yesProbability={market.yesProbability ?? 50}
-                noProbability={market.noProbability ?? 50}
-                isCrypto={false}
-                onLoginRequired={() => setIsLoginOpen(true)}
-                onDepositRequired={() => magic?.wallet?.showUI()}
-                onTrade={handleTrade}
-                approvalState={approvalState}
-              />
+              {isResolved === true ? (
+                <MarketResolvedCard
+                  winningOutcome={"NO"}
+                  //  winningOutcome={market.winningOutcome as "YES" | "NO"}
+                  resolutionTime={market.resolutionTime}
+                />
+              ) : (
+                <TradePanel
+                  yesProbability={market.yesProbability ?? 50}
+                  noProbability={market.noProbability ?? 50}
+                  isCrypto={false}
+                  onLoginRequired={() => setIsLoginOpen(true)}
+                  onDepositRequired={() => magic?.wallet?.showUI()}
+                  onTrade={handleTrade}
+                  approvalState={approvalState}
+                />
+              )}
             </div>
           </div>
           {/* ══ END RIGHT ══ */}

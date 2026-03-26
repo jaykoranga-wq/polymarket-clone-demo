@@ -10,7 +10,9 @@ const mapApiMarketToMarket = (m: ApiMarketListResponse["data"]["data"][number]):
   const tokens = m.optionGroups?.[0]?.tokens ?? []
   const yesToken = tokens.find((t) => t.title === "Yes")
   const noToken = tokens.find((t) => t.title === "No")
-
+  const now = Date.now()
+  const isResolved = new Date(m.resolutionTime).getTime() < now
+  console.log("isresolved: ", isResolved)
   return {
     id: m.id,
     title: m.title,
