@@ -24,7 +24,7 @@ export const PercentageBar: FC<PercentageBarProps> = ({
         />
       </div>
       {!hideLabels && (
-        <div className="flex justify-between font-xs font-medium uppercase tracking-wider">
+        <div className="flex justify-between font-base font-medium uppercase tracking-wider">
           <span className="text-primary">{yesPercentage}%</span>
           <span className="text-no">{noPercentage}%</span>
         </div>

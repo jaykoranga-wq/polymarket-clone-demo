@@ -40,8 +40,10 @@ const Avatar = ({ email, address }: { email: string | null; address: string | nu
       ? address.slice(2, 4).toUpperCase()
       : "??"
   return (
-    <div className="w-8 h-8 rounded-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold shrink-0 cursor-pointer">
-      {initials}
+    <div className="w-8 h-8 rounded-full bg-slate border border-border flex items-center justify-center">
+      <div className="w-4 h-4  flex items-center justify-center text-muted-foreground font-base font-bold shrink-0 cursor-pointer">
+        {initials}
+      </div>
     </div>
   )
 }
@@ -269,23 +271,26 @@ export const Navbar: FC = () => {
             {isAuthenticated ? (
               <>
                 {/* Portfolio + Cash */}
-                <div className="hidden sm:flex items-center gap-4 text-[10px] font-bold mr-1">
+                <div className="hidden sm:flex items-center gap-4 font-base font-bold ">
                   <div
-                    className="flex flex-col items-end cursor-pointer"
+                    className="flex flex-col items-start cursor-pointer"
                     onClick={handlePortfolioClick}
                   >
-                    <span className="text-muted-foreground uppercase tracking-widest leading-none mb-1">
+                    <span className="text-secondary uppercase tracking-wide leading-none">
                       Portfolio
                     </span>
-                    <span className="text-primary text-sm font-bold">$ {portfolioAmount}</span>
+                    <span className="text-primary font-sm font-bold">$ {portfolioAmount}</span>
                   </div>
-                  <div className="flex flex-col items-end border-l border-border pl-4">
-                    <span className="text-muted-foreground uppercase tracking-widest leading-none mb-1">
+                  <div className="flex flex-col ">
+                    <span className="text-secondary uppercase tracking-wide leading-none ">
                       Cash
                     </span>
-                    <span className="text-primary text-sm font-bold">$ {cashAmount}</span>
+                    <span className="text-primary font-sm font-bold">$ {cashAmount}</span>
                   </div>
                 </div>
+
+                {/* Vertical Divider */}
+                <div className="hidden sm:block w-px bg-vertical-divider h-4 mx-1" />
 
                 {/* Deposit button */}
                 <Button
@@ -300,13 +305,13 @@ export const Navbar: FC = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-muted-foreground hover:text-white h-8 w-8"
+                  className="text-muted-foreground hover:text-white h-9 w-9 flex items-center justify-center p-0"
                 >
-                  <Bell className="size-5" />
+                  <Bell width={16} height={20} className="shrink-0" />
                 </Button>
 
                 {/* Profile avatar + dropdown */}
-                <div className="relative">
+                <div className="relative ">
                   <div
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={() => setProfileOpen((p) => !p)}

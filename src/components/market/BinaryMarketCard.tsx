@@ -30,7 +30,7 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }: MarketCardProp
       className="group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer"
       onClick={() => handleNavigation(market)}
     >
-      <div className="flex gap-4 mb-1.5">
+      <div className="flex gap-4 mb-2">
         <div className="size-10 min-w-10 rounded-md overflow-hidden border border-white ">
           <img
             src={market.thumbnailUrl}
@@ -61,7 +61,7 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }: MarketCardProp
 
         <PercentageBar yesPercentage={market.yesProbability} noPercentage={market.noProbability} />
 
-        <div className="flex items-center justify-between font-xs text-white font-bold uppercase tracking-widest pt-4 border-t border-white/30">
+        <div className="flex items-center justify-between font-xs text-white font-bold  tracking-widest pt-4 border-t border-card-divider">
           <div className="flex items-center gap-3">
             <span className="flex font-base font-medium items-center gap-1">
               {market.volume} Vol.

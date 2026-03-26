@@ -199,6 +199,8 @@ export const RAW_MARKETS: Market[] = [
     id: "2",
     title: "US strikes Iran by end of March?",
     category: "Geopolitics",
+    description:
+      "Predict the outcome of the upcoming US Presidential Election. Over $142M in total trading volume.",
     thumbnailUrl:
       "https://images.unsplash.com/photo-1668076476189-7664ff0e7a91?q=80&w=1172&auto=format&fit=crop",
     expiryDate: "2024-03-31T00:00:00.000Z",
@@ -220,6 +222,8 @@ export const RAW_MARKETS: Market[] = [
     id: "3",
     title: "How long will the DHS shutdown last?",
     category: "Politics",
+    description:
+      "Predict the outcome of the upcoming US Presidential Election. Over $142M in total trading volume.",
     thumbnailUrl:
       "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=400&auto=format&fit=crop",
     expiryDate: "2024-02-20T00:00:00.000Z",
@@ -242,6 +246,8 @@ export const RAW_MARKETS: Market[] = [
     id: "4",
     title: "Khamenei out as Supreme Leader of Iran by March 31?",
     category: "Geopolitics",
+    description:
+      "Predict the outcome of the upcoming US Presidential Election. Over $142M in total trading volume.",
     thumbnailUrl:
       "https://media.istockphoto.com/id/124638317/photo/ruhollah-musavi-khomeini.jpg?s=2048x2048&w=is&k=20&c=uKLf5xGfia4OcraqtZ7dYyzKLNchRzsH0yTLiXWM16A=",
     expiryDate: "2024-03-31T00:00:00.000Z",
@@ -264,6 +270,8 @@ export const RAW_MARKETS: Market[] = [
     id: "5",
     title: "Which company has best AI model end of February?",
     category: "AI",
+    description:
+      "Predict the outcome of the upcoming US Presidential Election. Over $142M in total trading volume.",
     thumbnailUrl:
       "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=400&auto=format&fit=crop",
     expiryDate: "2024-02-28T00:00:00.000Z",
@@ -286,6 +294,8 @@ export const RAW_MARKETS: Market[] = [
     id: "6",
     title: "BTC 5 Minute Up or Down",
     category: "Crypto",
+    description:
+      "Predict the outcome of the upcoming US Presidential Election. Over $142M in total trading volume.",
     thumbnailUrl:
       "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?q=80&w=400&auto=format&fit=crop",
     expiryDate: "2024-02-10T05:30:00.000Z",
@@ -308,6 +318,7 @@ export const RAW_MARKETS: Market[] = [
     id: "7",
     title: "Will ETH reach $5000 before June 2026?",
     category: "Crypto",
+
     description:
       "Ethereum price prediction market. Resolves YES if ETH/USD hits $5000 on any major exchange.",
     thumbnailUrl:

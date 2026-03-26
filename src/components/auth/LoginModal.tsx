@@ -54,7 +54,9 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
           ✕
         </button>
 
-        <h2 className="font-lg font-bold text-white mb-6 text-center">Welcome to Polymarket</h2>
+        <h2 className="font-md sm:font-lg font-bold text-white mb-6 text-center">
+          Welcome to Polymarket
+        </h2>
 
         {/* Google Login */}
         <Button
@@ -99,12 +101,12 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
         {/* Divider */}
         <div className="flex items-center my-4">
           <div className="flex-1 h-px bg-white/10" />
-          <span className="px-3 font-xs text-white/40">OR</span>
+          <span className="px-3 font-xs sm:font-sm text-white/40">OR</span>
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
         {/* Email input */}
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-4">
           <input
             type="email"
             placeholder="you@example.com"
@@ -125,7 +127,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
                 onError: () => setLoading(null),
               })
             }
-            className="flex-1 bg-white/5 border font-medium border-white/10 rounded-2md px-4 py-2 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500 font-sm"
+            className="flex-1 bg-white/5 border font-medium border-white/10 rounded-2md px-4 py-2 text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-primary/50 font-sm"
           />
           <Button
             onClick={() => {
@@ -153,7 +155,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
         {/* Divider */}
         <div className="flex items-center my-4">
           <div className="flex-1 h-px bg-white/10" />
-          <span className="px-3 font-xs text-white/40">WALLETS</span>
+          <span className="px-3 font-xs sm:font-sm text-white/40">WALLETS</span>
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
@@ -175,7 +177,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
             })
           }}
           disabled={!!loading}
-          className="w-full bg-slate hover:bg-slate-800 border border-progress-bar text-primary font-semibold py-3 rounded-2sm flex items-center justify-center gap-3"
+          className="w-full bg-slate hover:bg-primary hover:text-black border border-progress-bar text-white font-semibold py-3 rounded-2sm flex items-center justify-center gap-3"
         >
           {loading === "metamask" ? (
             "Connecting..."
@@ -187,7 +189,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
           )}
         </Button>
 
-        <p className="font-xs text-white/30 text-center mt-5">Terms • Privacy</p>
+        <p className="font-xs sm:font-sm text-white/30 text-center mt-5">Terms • Privacy</p>
       </div>
     </div>
   )

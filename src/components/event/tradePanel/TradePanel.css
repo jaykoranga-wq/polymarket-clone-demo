@@ -2,66 +2,63 @@
 /* Inherits CSS variables from .ep (EventPage) */
 
 .tp {
-  background: var(--s1);
-  border: 1px solid var(--border2);
+  border: 1px solid #ffffff10;
   border-radius: 14px;
   overflow: hidden;
   font-family: var(--font);
   width: 100%;
 }
 
-/* ── Top bar: Buy/Sell tabs + order type dropdown ── */
+/* ── Top bar: Place Bet title + Buy/Sell tabs + order type dropdown ── */
 .tp-top {
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: space-between;
-  padding: 14px 16px 0;
+  padding: 25px 25px 14px;
+}
+
+.tp-top-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tp-title {
+  font-size: 18px;
+  font-weight: 900;
+
+  color: #fff;
+  margin: 0;
 }
 
 .tp-action-tabs {
   display: flex;
+  gap: 6px;
 }
 
 .tp-action-tab {
-  padding: 8px 14px;
-  font-size: 15px;
-  font-weight: 600;
+  padding: 6px 16px;
+  font-size: 10px;
+  font-weight: 900;
   font-family: var(--font);
-  background: none;
-  border: none;
+  background: #12161d;
+  border: 1px solid #1e232d;
+  border-radius: 5px;
   cursor: pointer;
-  color: var(--muted);
-  position: relative;
-  transition: color 0.15s;
-}
-
-/* underline indicator */
-.tp-action-tab::after {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--blue);
-  transform: scaleX(0);
-  transition: transform 0.15s;
-  border-radius: 2px;
+  color: white;
+  transition: all 0.15s;
 }
 
 .tp-action-tab.active {
-  color: var(--text);
-}
-.tp-action-tab.active::after {
-  transform: scaleX(1);
+  background: var(--color-primary);
+  color: #000;
+  border-color: #16a34a;
 }
 
-/* Sell tab gets red when active */
 .tp-action-tab.sell.active {
-  color: var(--no);
-}
-.tp-action-tab.sell.active::after {
-  background: var(--no);
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
 }
 
 /* Market / Limit dropdown */
@@ -69,20 +66,22 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--text);
   font-family: var(--font);
   padding: 5px 9px;
   border-radius: 7px;
-  background: var(--s2);
-  border: 1px solid var(--border);
+  background: transparent;
+  border: none;
   cursor: pointer;
   transition: all 0.12s;
 }
+
 .tp-order-type:hover {
-  background: var(--s3);
+  color: #fff;
 }
+
 .tp-order-type svg {
   width: 13px;
   height: 13px;
@@ -91,13 +90,15 @@
 /* ── Dropdown menu ── */
 .tp-dropdown-wrap {
   position: relative;
+  display: flex;
+  align-items: flex-end;
 }
 
 .tp-dropdown-menu {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  background: var(--s2);
+  background: #191c22;
   border: 1px solid var(--border2);
   border-radius: 10px;
   overflow: hidden;
@@ -119,64 +120,178 @@
   transition: all 0.12s;
   font-family: var(--font);
 }
+
 .tp-dropdown-item:hover {
-  background: var(--s3);
+  background: #21262f;
   color: var(--text);
 }
+
 .tp-dropdown-item.active {
   color: var(--text);
-  background: var(--s3);
+  background: #21262f;
 }
 
 /* ── Divider ── */
 .tp-divider {
   height: 1px;
-  background: var(--border);
-  margin: 0 0 16px;
+  background: #ffffff10;
+  margin: 0 25px;
 }
 
 /* ── Body ── */
 .tp-body {
-  padding: 0 16px 16px;
+  padding: 16px 25px 25px;
+}
+
+/* ── Amount header row ── */
+.tp-amount-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.tp-amount-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.tp-balance {
+  font-size: 12px;
+  color: white;
+}
+
+.tp-balance strong {
+  color: white;
+  font-weight: 400;
 }
 
 /* ── YES / NO outcome toggle ── */
 .tp-outcome {
-  display: grid;
+  /* display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin-bottom: 16px; */
 }
 
 .tp-outcome-btn {
-  padding: 13px 0;
+  padding: 14px 0;
   border-radius: 8px;
-  border: 1px solid var(--border2);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   font-family: var(--font);
   cursor: pointer;
   transition: all 0.18s;
-  background: var(--s2);
+  background: var(--color-option-no);
+  letter-spacing: 0.02em;
 }
 
 .tp-outcome-btn.yes {
-  color: grey;
+  color: #22c55e;
+  border: 2px solid rgba(34, 197, 94, 0.3);
 }
+
+.tp-outcome-btn.yes:hover {
+  background: rgba(34, 197, 94, 0.08);
+}
+
 .tp-outcome-btn.yes.active {
-  background: var(--yes);
-  color: #fff;
-  border-color: var(--yes);
-  box-shadow: 0 4px 18px rgba(34, 197, 94, 0.25);
+  background: rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
+  color: #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.15);
 }
+
 .tp-outcome-btn.no {
-  color: grey;
+  color: #ef4444;
+  border: 2px solid rgba(239, 68, 68, 0.3);
 }
+
+.tp-outcome-btn.no:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
 .tp-outcome-btn.no.active {
-  background: var(--no);
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
+}
+
+/* ── Amount input box ── */
+.tp-amount-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0d1117;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.tp-amount-input {
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 20px;
+  font-weight: 600;
   color: #fff;
-  border-color: var(--no);
-  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.25);
+  width: 100%;
+  font-family: var(--font);
+}
+
+.tp-amount-input::placeholder {
+  color: #3a3f4a;
+}
+
+.tp-amount-currency {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+/* ── Percentage preset buttons ── */
+.tp-pct-presets {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tp-pct-preset {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: var(--font);
+}
+
+.tp-pct-preset:last-child {
+  border-right: none;
+}
+
+.tp-pct-preset:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tp-pct-preset.active {
+  color: #fff;
+  background: rgba(34, 197, 94, 0.15);
 }
 
 /* ── Inline field row (label left, value/control right) ── */
@@ -185,6 +300,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 14px;
+  gap: 15px;
 }
 
 .tp-field-label {
@@ -193,15 +309,30 @@
   color: var(--text);
 }
 
-/* ── Amount display (Market Buy) ── */
-.tp-amount-display {
-  font-family: var(--mono);
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--dim); /* grey when 0 */
+/* ── Shares input (used in Sell / Limit modes) ── */
+.tp-shares-input-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
 }
-.tp-amount-display.has-value {
+
+.tp-shares-input {
+  background: #0d1117;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 600;
   color: var(--text);
+  text-align: right;
+  width: 140px;
+  outline: none;
+  transition: border-color 0.12s;
+}
+
+.tp-shares-input:focus {
+  border-color: #22c55e;
 }
 
 /* ── Quick amount buttons (Market Buy: +$1, +$5 etc) ── */
@@ -215,34 +346,20 @@
 .tp-quick-btn {
   padding: 6px 12px;
   border-radius: 7px;
-  background: var(--s2);
-  border: 1px solid var(--border2);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 12px;
   font-weight: 600;
-  font-family: var(--mono);
-  color: var(--text);
+  font-family: var(--font);
+  color: var(--muted);
   cursor: pointer;
   transition: all 0.12s;
   white-space: nowrap;
 }
-.tp-quick-btn:hover {
-  background: var(--s3);
-}
-.tp-quick-btn.active {
-  background: var(--blue);
-  border-color: var(--blue);
-  color: #fff;
-}
 
-/* ── Shares display (Market Sell) ── */
-.tp-shares-display {
-  font-family: var(--mono);
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--dim);
-}
-.tp-shares-display.has-value {
-  color: var(--text);
+.tp-quick-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 /* ── Inline limit price stepper (Limit mode) ── */
@@ -256,9 +373,9 @@
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background: var(--s2);
-  border: 1px solid var(--border2);
-  color: var(--text);
+  background: var(--color-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: black;
   font-size: 16px;
   display: flex;
   align-items: center;
@@ -269,56 +386,33 @@
   font-family: var(--mono);
   line-height: 1;
 }
+
 .tp-stepper-btn:hover {
-  background: var(--s3);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .tp-stepper-val {
   font-family: var(--mono);
   font-size: 15px;
   font-weight: 500;
-  color: var(--muted);
+  color: white;
   min-width: 32px;
   text-align: center;
 }
 
-/* ── Hide number input spinners globally for this component ── */
+/* ── Hide number input spinners ── */
 .tp input[type="number"]::-webkit-inner-spin-button,
 .tp input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 .tp input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
 
-/* ── Shares input box (Limit mode) ── */
-.tp-shares-input-wrap {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 8px;
-}
-
-.tp-shares-input {
-  background: var(--s2);
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-family: var(--mono);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text);
-  text-align: right;
-  width: 140px;
-  outline: none;
-  transition: border-color 0.12s;
-}
-.tp-shares-input:focus {
-  border-color: var(--blue);
-}
-
-/* ── Share adjust buttons (Limit Buy: -100, -10, +10 etc) ── */
+/* ── Share adjust buttons (Limit Buy) ── */
 .tp-adjust-group {
   display: flex;
   gap: 5px;
@@ -329,8 +423,8 @@
 .tp-adjust-btn {
   padding: 5px 10px;
   border-radius: 7px;
-  background: var(--s2);
-  border: 1px solid var(--border2);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 11px;
   font-weight: 600;
   font-family: var(--mono);
@@ -338,9 +432,10 @@
   cursor: pointer;
   transition: all 0.12s;
 }
+
 .tp-adjust-btn:hover {
   color: var(--text);
-  background: var(--s3);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 /* ── Pct shortcut buttons (Sell: 25%, 50%, Max) ── */
@@ -354,19 +449,21 @@
 .tp-pct-btn {
   padding: 5px 12px;
   border-radius: 99px;
-  background: var(--s2);
-  border: 1px solid var(--border2);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 12px;
   font-family: var(--mono);
   color: var(--muted);
   cursor: pointer;
   transition: all 0.12s;
 }
+
 .tp-pct-btn:hover {
   color: var(--text);
 }
+
 .tp-pct-btn.active {
-  background: var(--s3);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text);
   border-color: var(--text);
 }
@@ -385,16 +482,16 @@
   width: 38px;
   height: 22px;
   border-radius: 99px;
-  background: var(--s2);
-  border: 1px solid var(--border2);
+  background: #191c22;
+  border: 1px solid #ffffff10;
   cursor: pointer;
   position: relative;
   transition: background 0.2s;
   flex-shrink: 0;
 }
+
 .tp-switch.on {
-  background: var(--blue);
-  border-color: var(--blue);
+  background: #10d26006;
 }
 
 .tp-switch-knob {
@@ -407,17 +504,84 @@
   background: #fff;
   transition: transform 0.2s;
 }
+
 .tp-switch.on .tp-switch-knob {
   transform: translateX(16px);
+  background: var(--color-primary);
 }
 
-/* ── Summary rows (Total / To win / You'll receive) ── */
+/* ── Expiration Box ── */
+.tp-expiry-box {
+  position: relative;
+  width: 100%;
+  margin: 12px 0 20px;
+}
+
+.tp-expiry-select-custom {
+  width: 100%;
+  padding: 16px 10px;
+  background: #ffffff05;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.15s;
+}
+
+.tp-expiry-select-custom:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.tp-expiry-chevron {
+  color: #5a6478;
+  display: flex;
+  align-items: center;
+}
+
+.tp-expiry-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #191c22;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 50;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.tp-expiry-item {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.tp-expiry-item:hover,
+.tp-expiry-item.active {
+  background: var(--color-primary);
+  color: #000;
+}
+
+/* ── Summary rows ── */
 .tp-summary-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 13px;
+
+  font-size: 14px;
 }
 
 .tp-summary-label {
@@ -427,7 +591,6 @@
   color: var(--muted);
 }
 
-/* dotted underline on "Total" */
 .tp-summary-label.dotted {
   border-bottom: 1px dotted var(--muted);
   padding-bottom: 1px;
@@ -437,7 +600,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--s2);
+  background: #191c22;
   border: 1px solid var(--border2);
   display: inline-flex;
   align-items: center;
@@ -452,49 +615,61 @@
   font-family: var(--mono);
   font-size: 14px;
   font-weight: 600;
-  color: var(--blue);
+  color: #22c55e;
 }
 
 .tp-summary-value.green {
-  color: var(--yes);
+  color: #22c55e;
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
-/* ── Trade button ── */
+/* ── Trade / Place Order button ── */
 .tp-trade-btn {
   width: 100%;
-  padding: 13px;
+  padding: 14px;
   border-radius: 10px;
   border: none;
   font-size: 15px;
   font-weight: 700;
   font-family: var(--font);
   cursor: pointer;
-  background: var(--blue);
+  background: #16a34a;
   color: #fff;
   transition: all 0.15s;
-  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.3);
   letter-spacing: 0.02em;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
+
 .tp-trade-btn:hover {
-  background: #2563eb;
+  background: #15803d;
   transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(22, 163, 74, 0.4);
 }
+
 .tp-trade-btn:active {
   transform: translateY(0);
 }
 
-/* Sell mode — red trade button */
 .tp-trade-btn.sell {
-  background: var(--blue);
-  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.25);
+  background: #16a34a;
+  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.3);
 }
+
 .tp-trade-btn.sell:hover {
-  background: #2563eb;
+  background: #15803d;
   transform: translateY(-1px);
+}
+
+.tp-trade-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* ── Terms ── */
@@ -504,8 +679,9 @@
   color: var(--muted);
   line-height: 1.5;
 }
+
 .tp-terms a {
-  color: var(--blue);
+  color: #fff;
   text-decoration: underline;
   cursor: pointer;
 }
