@@ -18,11 +18,11 @@ export const MarketGrid: FC<MarketGridProps> = ({ title, markets, groupKey }) =>
   if (markets.length === 0) return null
 
   return (
-    <section className="py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">{title}</h2>
+    <section className="py-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-md font-bold uppercase tracking-[3px] text-white">{title}</h2>
         <button
-          className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+          className="flex items-center gap-1 font-base font-bold uppercase  text-muted-foreground hover:text-primary transition-colors"
           onClick={() => navigate(`/markets/${groupKey}`)}
         >
           View All <ChevronRight className="size-3" />

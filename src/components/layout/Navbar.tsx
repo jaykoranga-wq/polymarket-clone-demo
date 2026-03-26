@@ -1,9 +1,4 @@
-// src/components/layout/Navbar.tsx
-// Changes from previous version:
-//   1. Search bar now navigates to /markets/search?q=<query> on submit
-//   2. Search clears when navigating away
-
-import { ChevronDown, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
+import { Bell, ChevronDown, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
 import { type FC, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router"
@@ -31,7 +26,6 @@ import { formatCash, formatPortfolio } from "@/libs/formatCurrency"
 import { setMetaMaskLoggedOut } from "@/routes/utils"
 
 import { MetaMaskDepositModal } from "../deposit/MetaMaskDepositModal"
-import { NotificationBell } from "../navbar/NotificationBell"
 import { AuthLoader } from "../ui/AuthLoader"
 import { CategoryTabs } from "./CategoryTabs"
 
@@ -43,8 +37,10 @@ const Avatar = ({ email, address }: { email: string | null; address: string | nu
       ? address.slice(2, 4).toUpperCase()
       : "??"
   return (
-    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold shrink-0 cursor-pointer select-none">
-      {initials}
+    <div className="w-8 h-8 rounded-full bg-slate border border-border flex items-center justify-center">
+      <div className="w-4 h-4  flex items-center justify-center text-muted-foreground font-base font-bold shrink-0 cursor-pointer">
+        {initials}
+      </div>
     </div>
   )
 }
@@ -95,8 +91,16 @@ const DarkModeRow = () => {
   )
 }
 
-// ── Dropdown ──────────────────────────────────────────────────────────────────
-const Dropdown = ({ children, onClose }: { children: React.ReactNode; onClose: () => void }) => {
+// ─── Dropdown wrapper ─────────────────────────────────────────────────────────
+const Dropdown = ({
+  children,
+  onClose,
+  className = "right-0 top-12 w-64",
+}: {
+  children: React.ReactNode
+  onClose: () => void
+  className?: string
+}) => {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -110,7 +114,7 @@ const Dropdown = ({ children, onClose }: { children: React.ReactNode; onClose: (
   return (
     <div
       ref={ref}
-      className="absolute right-0 top-12 w-64 bg-[#141920] border border-white/10 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] z-50 py-2 overflow-hidden"
+      className={`absolute bg-[#141920] border border-white/10 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] z-50 py-2 overflow-hidden ${className}`}
     >
       {children}
     </div>
@@ -141,7 +145,7 @@ const SearchBar = () => {
   return (
     <form
       onSubmit={handleSearch}
-      className="hidden lg:flex max-w-[280px] w-full ml-70 shrink-0 relative"
+      className="hidden lg:flex max-w-70 w-full ml-70 shrink-0 relative"
     >
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30 pointer-events-none" />
       <input
@@ -150,7 +154,7 @@ const SearchBar = () => {
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Search markets"
-        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-white/20 transition-all placeholder:text-white/30"
+        className="w-full bg-white/5 border border-white/8 rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-white/20 transition-all placeholder:text-white/30"
       />
       {/* clear button */}
       {query && (
@@ -184,6 +188,7 @@ export const Navbar: FC = () => {
   const [depositLoading, setDepositLoading] = useState(false)
   const [metamaskDepositOpen, setMetamaskDepositOpen] = useState(false)
 
+  const [moreOpen, setMoreOpen] = useState(false)
   const navigate = useNavigate()
   const [logoutToBackend] = useLogoutMutation()
 
@@ -248,83 +253,111 @@ export const Navbar: FC = () => {
 
   return (
     <>
+      {/* <header className=" sticky top-0 z-50  border-b border-border bg-background/80 backdrop-blur-md font-liberation md:px-20">
+        <div className=" container  flex h-14 items-center gap-4 justify-between "> */}
       <MetaMaskDepositModal
         open={metamaskDepositOpen}
         onClose={() => setMetamaskDepositOpen(false)}
       />
 
-      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#0d0f13] md:mx-20">
+      <header className="sticky top-0 z-50 border-b border-white/6 bg-[#0d0f13] md:mx-20">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           {/* ── Logo + Nav ── */}
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-0 cursor-pointer" onClick={() => navigate("/")}>
-              <div className="size-8 rounded-md flex items-center justify-center shrink-0">
-                <img src="/icon-black.png" alt="logo" className="size-8 invert" />
-              </div>
-              <span className="text-[15px] font-bold tracking-tight text-white">Polymarket</span>
+          <div
+            className="flex items-center gap-8 cursor-pointer"
+            onClick={() => {
+              navigate("/")
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="Polymarket" className=" h-4 sm:h-5.5 w-auto" />
             </div>
 
-            <nav className="hidden md:flex items-center gap-6">
-              {["Trending", "Breaking", "New"].map((link) => (
-                <button
-                  key={link}
-                  onClick={() => navigate(`/markets/${link}`)}
-                  className="text-[13px] font-medium text-white/60 hover:text-white transition-colors"
-                >
-                  {link}
-                </button>
-              ))}
-              <button className="flex items-center gap-1 text-[13px] font-medium text-white/60 hover:text-white transition-colors">
-                More <ChevronDown size={13} className="opacity-70" />
+            <nav className="hidden lg:flex items-center gap-6 py-1.5 px-3 text-sm font-bold  ">
+              <button className="text-secondary transition-colors hover:text-white">
+                Trending
               </button>
+              <button className="text-secondary transition-colors hover:text-white">
+                Breaking
+              </button>
+              <button className="text-secondary transition-colors hover:text-white">New</button>
+              <div className="relative">
+                <button
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={() => setMoreOpen((p) => !p)}
+                  className="flex items-center gap-1 text-secondary transition-colors hover:text-white ml-0"
+                >
+                  More{" "}
+                  <ChevronDown
+                    size={14}
+                    className={`transition-transform ${moreOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {moreOpen && (
+                  <Dropdown onClose={() => setMoreOpen(false)} className="left-0 mt-2 w-48">
+                    <MenuItem label="Option 1" onClick={() => setMoreOpen(false)} />
+                    <MenuItem label="Option 2" onClick={() => setMoreOpen(false)} />
+                    <MenuItem label="Option 3" onClick={() => setMoreOpen(false)} />
+                  </Dropdown>
+                )}
+              </div>
             </nav>
           </div>
 
-          {/* ── Search bar — navigates to /markets/search?q=... ── */}
-          <SearchBar />
-
-          {/* ── Right side ── */}
-          <div className="flex items-center gap-2">
+          {/* ── Right side with search ── */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <SearchBar />
             {isAuthenticated ? (
               <>
-                <div className="hidden sm:flex items-center gap-6 mr-5">
+                {/* Portfolio + Cash */}
+                <div className="hidden sm:flex items-center gap-4 font-base font-bold ">
                   <div
-                    className="flex flex-col items-center cursor-pointer"
+                    className="flex flex-col items-start cursor-pointer"
                     onClick={handlePortfolioClick}
                   >
-                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
+                    <span className="text-secondary uppercase tracking-wide leading-none">
                       Portfolio
                     </span>
-                    <span className="text-[13px] font-bold text-[#00c853]">
-                      {formatPortfolio(portfolioAmount as number)}
+                    <span className="text-primary font-sm font-bold">
+                      $ {formatPortfolio(portfolioAmount as number)}
                     </span>
                   </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
+                  <div className="flex flex-col ">
+                    <span className="text-secondary uppercase tracking-wide leading-none ">
                       Cash
                     </span>
-                    <span className="text-[13px] font-bold text-[#00c853] max-w-[80px] truncate">
+                    <span className="text-primary font-sm font-bold">
                       {formatCash(cashAmount as number)}
                     </span>
                   </div>
                 </div>
 
+                {/* Vertical Divider */}
+                <div className={`hidden sm:block w-px bg-vertical-divider h-4 mx-1 `} />
+
                 <Button
                   onClick={debouncedHandleDeposit}
                   disabled={isLoginOpen || depositLoading}
-                  className="bg-[#00c853] text-black font-bold hover:bg-[#00c853]/90 px-5 rounded-lg h-9 text-[13px] cursor-pointer"
+                  className={`bg-primary text-background text-xs font-bold hover:bg-primary/90 px-4 rounded-sm h-8`}
                 >
                   {depositLoading ? "Opening wallet" : "Deposit"}
                 </Button>
 
-                <NotificationBell />
+                {/* Bell */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-white h-9 w-9 flex items-center justify-center p-0"
+                >
+                  <Bell width={16} height={20} className="shrink-0" />
+                </Button>
 
-                <div className="relative">
+                {/* Profile avatar + dropdown */}
+                <div className="relative ">
                   <div
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setProfileOpen((p) => !p)
-                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={() => setProfileOpen((p) => !p)}
                   >
                     <Avatar email={email} address={publicAddress} />
                   </div>
@@ -370,18 +403,21 @@ export const Navbar: FC = () => {
               <AuthLoader />
             ) : (
               <>
-                <div className="hidden md:flex items-center gap-2 text-white/50 cursor-pointer hover:text-white transition-colors">
+                {/* How it works */}
+                <div className="hidden lg:flex items-center gap-2 text-secondary cursor-pointer hover:opacity-80 transition-opacity">
                   <Info className="size-4" />
-                  <span className="text-[13px] font-medium">How it works</span>
+                  <span className="text-sm font-medium text-nowrap">How it works</span>
                 </div>
                 <Button
-                  className="bg-[#00c853] text-black font-bold hover:bg-[#00c853]/90 px-5 rounded-lg h-9 text-[13px] cursor-pointer"
+                  variant="default"
+                  className="bg-accent text-white font-base font-bold text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7  cursor-pointer"
                   onClick={() => setIsLoginOpen(true)}
                 >
                   Log In
                 </Button>
                 <Button
-                  className="bg-[#00c853] text-black font-bold hover:bg-[#00c853]/90 px-5 rounded-lg h-9 text-[13px] cursor-pointer"
+                  variant="default"
+                  className="bg-accent text-primary font-bold border-black border text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7 cursor-pointer"
                   onClick={() => setIsLoginOpen(true)}
                 >
                   Sign Up
@@ -391,7 +427,8 @@ export const Navbar: FC = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-white/40 hover:text-white h-9 w-9 cursor-pointer"
+                    className="text-muted-foreground hover:text-white h-10 w-10 cursor-pointer"
+                    onMouseDown={(e) => e.stopPropagation()}
                     onClick={() => setMenuOpen((p) => !p)}
                   >
                     {menuOpen ? <X className="size-5" /> : <HamburgerIcon />}

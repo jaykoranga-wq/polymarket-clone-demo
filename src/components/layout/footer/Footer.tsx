@@ -35,22 +35,19 @@ export const Footer = () => {
   const navigate = useNavigate()
 
   return (
-    <footer className="border-t border-white/6 bg-background mt-auto">
-      <div className="container mx-auto px-4 md:px-20 py-12">
+    <footer className="border-t border-[#3B82F638] bg-background mt-auto">
+      <div className="container mx-auto px-4 md:px-6 py-12 flex flex-col gap-12 justify-between">
         {/* ── Top section ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-16 ">
           {/* Brand */}
-          <div className="flex flex-col gap-4 max-w-xs">
+          <div className="flex flex-col gap-4 sm:col-span-2 max-w-lg">
             <div
               className="flex items-center gap-2 cursor-pointer w-fit"
               onClick={() => navigate("/")}
             >
-              <div className="size-7 rounded bg-primary flex items-center justify-center flex-shrink-0">
-                <span className="text-base font-bold text-background">P</span>
-              </div>
-              <span className="text-base font-bold tracking-tight text-foreground">Polymarket</span>
+              <img src="/logo.png" alt="logo" className="h-5.5 w-auto" />
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="font-base text-white leading-5 max-w-96">
               Polymarket is a decentralized information markets platform, letting you trade on the
               world's most highly-debated topics.
             </p>
@@ -70,16 +67,16 @@ export const Footer = () => {
         </div>
 
         {/* ── Bottom bar ── */}
-        <div className="mt-10 pt-6 border-t border-white/6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <span className="text-xs text-muted-foreground uppercase tracking-widest">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:px-12">
+          <span className="font-xs font-bold text-white leading-4 uppercase tracking-widest">
             © {new Date().getFullYear()} Polymarket Simulation
           </span>
-          <div className="flex items-center gap-6">
-            <span className="text-xs text-muted-foreground uppercase tracking-widest">
-              Network: <span className="text-primary font-semibold">Polygon</span>
+          <div className="flex items-center gap-4">
+            <span className="font-xs font-bold text-white uppercase tracking-widest">
+              Network: Polygon
             </span>
-            <span className="text-xs text-muted-foreground uppercase tracking-widest">
-              Latency: <span className="text-primary font-semibold">24ms</span>
+            <span className="font-xs font-bold text-white uppercase tracking-widest">
+              Latency: 24ms
             </span>
           </div>
         </div>

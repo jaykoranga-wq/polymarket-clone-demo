@@ -1,5 +1,12 @@
-import "./eventPage.css"
-
+// import {
+//   AreaSeries,
+//   ColorType,
+//   createChart,
+//   type IChartApi,
+//   type ISeriesApi,
+// } from "lightweight-charts"
+// import { TrendingUp } from "lucide-react"
+// import { Flame, Gift, RefreshCcw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import { useParams } from "react-router"
@@ -7,6 +14,11 @@ import { toast, Toaster } from "sonner"
 
 import { LoginModal } from "@/components/auth/LoginModal"
 import { IcoBookmarkSm, IcoClockSm, IcoShareSm, IcoVolSm } from "@/components/custom/EventPageIcons"
+// import { IcoAI } from "@/components/custom/IcoAI"
+// import { IcoBack } from "@/components/custom/IcoBack"
+// import { IcoBookmark } from "@/components/custom/IcoBookmark"
+// import { IcoClock } from "@/components/custom/IcoClock"
+// import { IcoVol } from "@/components/custom/IcoVol"
 import TradePanel from "@/components/event/tradePanel/TradePanel"
 import { CommentSection } from "@/components/market/comment/CommentSection"
 import { MarketResolvedCard } from "@/components/market/MarketResolvedCard"
@@ -40,6 +52,7 @@ const EventPage = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("rules")
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
+  const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false)
 
   const { executeTrade, tradeError, approvalState } = useTrade()
 
@@ -106,8 +119,12 @@ const EventPage = () => {
   if (isLoading) return <EventPageSkeleton />
   if (!market)
     return (
-      <div className="ep">
-        <div className="ep-not-found">Market not found.</div>
+      /* ep + ep-not-found */
+      <div
+        className="flex items-center justify-center h-[60vh] text-[#5a6478] text-[13px] tracking-[0.06em]"
+        style={{ fontFamily: "var(--mono)" }}
+      >
+        Market not found.
       </div>
     )
 
@@ -115,7 +132,7 @@ const EventPage = () => {
 
   return (
     <>
-      <div className="ep md:px-20 px-4 md:mx-20">
+      <div className="min-h-screen bg-background text-white selection:bg-primary/30 md:mx-20 overflow-x-hidden">
         <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <ShareModal
           open={shareOpen}
@@ -152,6 +169,18 @@ const EventPage = () => {
             <button className="ep-icon-btn sm" onClick={saveAsBookmark}>
               <IcoBookmarkSm />
             </button>
+          </div>
+        </div>
+
+        {/* ── Meta chips ── */}
+        <div className="ep-stats">
+          <div className="ep-chip">
+            <IcoClockSm />
+            Ends <strong>{formatMarketDate(market.resolutionTime)}</strong>
+          </div>
+          <div className="ep-chip">
+            <IcoVolSm />
+            <strong>${totalVolume.toLocaleString()}</strong> Vol
           </div>
         </div>
 
@@ -239,6 +268,76 @@ const EventPage = () => {
               )}
             </div>
           </div>
+
+          {/* ── Mobile Trade Drawer ── */}
+          {isMobileTradeOpen && (
+            <>
+              {/*
+                ep-mobile-trade-overlay:
+                  fixed inset-0 bg-black/70 backdrop-blur-sm z-[200]
+                  animate-[fadeIn_0.2s_ease-out]
+              */}
+              <div
+                className="fixed inset-0 bg-black/70 backdrop-blur-sm z-200"
+                style={{ animation: "fadeIn 0.2s ease-out" }}
+                onClick={() => setIsMobileTradeOpen(false)}
+              />
+              {/*
+                ep-mobile-trade-drawer:
+                  fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                  bg-[#11141b] border-t border-white/10 rounded-[20px] z-[201]
+                  max-h-[90vh] max-w-[60vw] overflow-y-auto
+                  animate-[slideUp_0.3s_ease-out]
+              */}
+              <div
+                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#11141b] border-t border-white/10 rounded-[20px] z-201 max-h-[90vh] max-w-[60vw] overflow-y-auto"
+                style={{ animation: "slideUp 0.3s ease-out" }}
+              >
+                {/* ep-drawer-header: flex justify-between items-center px-6 pt-5 pb-2.5 */}
+                <div className="flex justify-between items-center px-6 pt-5 pb-2.5">
+                  {/* ep-drawer-title: font-bold text-lg */}
+                  <span className="font-bold text-lg">Place Bet</span>
+                  {/*
+                    ep-drawer-close:
+                      bg-white/5 border-none text-[#888] w-8 h-8 rounded-full
+                      flex items-center justify-center text-sm cursor-pointer
+                  */}
+                  <button
+                    className="bg-white/5 border-none text-[#888] w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer"
+                    onClick={() => setIsMobileTradeOpen(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                {/* ep-drawer-body: px-2.5 pb-[30px] */}
+                <div className="px-2.5 pb-7.5">
+                  <TradePanel
+                    yesProbability={market.yesProbability}
+                    noProbability={market.noProbability}
+                    isCrypto={false}
+                    onLoginRequired={() => setIsLoginOpen(true)}
+                    onDepositRequired={() => magic?.wallet?.showUI()}
+                    onTrade={(order) => {
+                      handleTrade(order)
+                      setIsMobileTradeOpen(false)
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Keyframe animations needed for drawer — injected via style tag */}
+              <style>{`
+                @keyframes fadeIn {
+                  from { opacity: 0; }
+                  to { opacity: 1; }
+                }
+                @keyframes slideUp {
+                  from { transform: translate(-50%, 100%); }
+                  to { transform: translate(-50%, -50%); }
+                }
+              `}</style>
+            </>
+          )}
           {/* ══ END RIGHT ══ */}
         </div>
       </div>

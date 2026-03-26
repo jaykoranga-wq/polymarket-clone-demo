@@ -326,6 +326,7 @@ export const RAW_MARKETS: Market[] = [
     id: "7",
     title: "Will ETH reach $5000 before June 2026?",
     category: "Crypto",
+
     description:
       "Ethereum price prediction market. Resolves YES if ETH/USD hits $5000 on any major exchange.",
     image:

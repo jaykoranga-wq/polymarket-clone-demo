@@ -220,9 +220,6 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
     <div className="cs-wrap ep-section">
       {/* Header */}
       <div className="cs-header">
-        <span className="ep-section-title">
-          Comments <span className="cs-count">{comments.length}</span>
-        </span>
         <div className="cs-sort-tabs">
           {(["top", "new"] as const).map((s) => (
             <button
