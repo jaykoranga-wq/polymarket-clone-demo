@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import { useDispatch } from "react-redux"
 import { Outlet } from "react-router"
 
-import { Footer } from "@/components/layout/Footer"
+import { Footer } from "@/components/layout/footer/Footer"
 import { Navbar } from "@/components/layout/Navbar"
 import { useLoginMutation } from "@/features/api/auth/authApi"
 import { useGetMarketsQuery } from "@/features/api/markets/marketApi"

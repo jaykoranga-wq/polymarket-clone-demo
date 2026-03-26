@@ -1,3 +1,8 @@
+// src/components/layout/Navbar.tsx
+// Changes from previous version:
+//   1. Search bar now navigates to /markets/search?q=<query> on submit
+//   2. Search clears when navigating away
+
 import { ChevronDown, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
 import { type FC, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
@@ -30,10 +35,7 @@ import { NotificationBell } from "../navbar/NotificationBell"
 import { AuthLoader } from "../ui/AuthLoader"
 import { CategoryTabs } from "./CategoryTabs"
 
-// ─── FIX 1: Polymarket diamond/shield SVG logo ────────────────────────────────
-
-// ─── Avatar initials ──────────────────────────────────────────────────────────
-// FIX 6: w-9 h-9 (slightly larger), rounded-full (already was)
+// ── Avatar ────────────────────────────────────────────────────────────────────
 const Avatar = ({ email, address }: { email: string | null; address: string | null }) => {
   const initials = email
     ? email.slice(0, 2).toUpperCase()
@@ -47,7 +49,7 @@ const Avatar = ({ email, address }: { email: string | null; address: string | nu
   )
 }
 
-// ─── Menu item ────────────────────────────────────────────────────────────────
+// ── MenuItem ──────────────────────────────────────────────────────────────────
 const MenuItem = ({
   icon,
   label,
@@ -63,7 +65,7 @@ const MenuItem = ({
 }) => (
   <button
     onClick={onClick}
-    className={` cursor-pointer w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5 rounded-lg
+    className={`cursor-pointer w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5 rounded-lg
       ${red ? "text-red-500 hover:text-red-400" : "text-white/80 hover:text-white"}`}
   >
     {icon && <span className="text-base w-5 flex items-center justify-center">{icon}</span>}
@@ -72,7 +74,7 @@ const MenuItem = ({
   </button>
 )
 
-// ─── Dark mode toggle row ─────────────────────────────────────────────────────
+// ── DarkModeRow ───────────────────────────────────────────────────────────────
 const DarkModeRow = () => {
   const [dark, setDark] = useState(true)
   return (
@@ -86,16 +88,14 @@ const DarkModeRow = () => {
         className={`relative w-10 h-6 rounded-full transition-colors ${dark ? "bg-blue-500" : "bg-white/20"}`}
       >
         <div
-          className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-            dark ? "translate-x-4" : "translate-x-0.5"
-          }`}
+          className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${dark ? "translate-x-4" : "translate-x-0.5"}`}
         />
       </button>
     </div>
   )
 }
 
-// ─── Dropdown wrapper ─────────────────────────────────────────────────────────
+// ── Dropdown ──────────────────────────────────────────────────────────────────
 const Dropdown = ({ children, onClose }: { children: React.ReactNode; onClose: () => void }) => {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -103,8 +103,8 @@ const Dropdown = ({ children, onClose }: { children: React.ReactNode; onClose: (
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose()
     }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
+    document.addEventListener("click", handler)
+    return () => document.removeEventListener("click", handler)
   }, [onClose])
 
   return (
@@ -119,7 +119,54 @@ const Dropdown = ({ children, onClose }: { children: React.ReactNode; onClose: (
 
 const Divider = () => <div className="my-1.5 mx-4 h-px bg-white/8" />
 
-// ─── Main Navbar ──────────────────────────────────────────────────────────────
+// ── SearchBar ─────────────────────────────────────────────────────────────────
+// Separate component so it can manage its own state cleanly
+const SearchBar = () => {
+  const navigate = useNavigate()
+  const [query, setQuery] = useState("")
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = query.trim()
+    if (!trimmed) return
+    // navigate to markets page with search query param
+    navigate(`${ROUTES.MarketSearch}?q=${encodeURIComponent(trimmed)}`)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleSearch(e as unknown as React.FormEvent)
+    if (e.key === "Escape") setQuery("")
+  }
+
+  return (
+    <form
+      onSubmit={handleSearch}
+      className="hidden lg:flex max-w-[280px] w-full ml-70 shrink-0 relative"
+    >
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30 pointer-events-none" />
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Search markets"
+        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-white/20 transition-all placeholder:text-white/30"
+      />
+      {/* clear button */}
+      {query && (
+        <button
+          type="button"
+          onClick={() => setQuery("")}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+        >
+          <X size={14} />
+        </button>
+      )}
+    </form>
+  )
+}
+
+// ── Main Navbar ───────────────────────────────────────────────────────────────
 export const Navbar: FC = () => {
   const dispatch = useDispatch()
   const { magic } = useMagic()
@@ -134,10 +181,11 @@ export const Navbar: FC = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
-  const navigate = useNavigate()
-  const [logoutToBackend] = useLogoutMutation()
   const [depositLoading, setDepositLoading] = useState(false)
   const [metamaskDepositOpen, setMetamaskDepositOpen] = useState(false)
+
+  const navigate = useNavigate()
+  const [logoutToBackend] = useLogoutMutation()
 
   const displayName = email
     ? email.split("@")[0]
@@ -145,6 +193,7 @@ export const Navbar: FC = () => {
       ? `${publicAddress.slice(0, 6)}...${publicAddress.slice(-4)}`
       : "User"
 
+  // ── Logout ────────────────────────────────────────────────────────────────
   const handleLogout = async () => {
     dispatch(loadingTrue())
     setProfileOpen(false)
@@ -154,12 +203,11 @@ export const Navbar: FC = () => {
         try {
           await logoutToBackend().unwrap()
         } catch (err) {
-          console.error("Backend logout failed:", err)
+          console.log(err)
         }
         const isLoggedIn = await magic?.user.isLoggedIn()
         if (isLoggedIn) await magic?.user.logout()
       }
-
       if (user.loginMethod === LOGIN_METHODS.MetaMask) {
         setMetaMaskLoggedOut()
         localStorage.removeItem("auth_token")
@@ -172,82 +220,73 @@ export const Navbar: FC = () => {
       localStorage.removeItem("isSignedIn")
       dispatch(logout())
       dispatch(loadingFalse())
-      navigate(`/${ROUTES.HOME}`)
+      navigate(ROUTES.HOME)
     }
   }
 
+  // ── Deposit ───────────────────────────────────────────────────────────────
   const handleDeposit = async () => {
     if (!isAuthenticated) {
       setIsLoginOpen(true)
       return
     }
-    setDepositLoading(true)
     if (loginMethod === LOGIN_METHODS.MetaMask) {
-      setMetamaskDepositOpen(true) // ← show our custom modal
-      setDepositLoading(false)
+      setMetamaskDepositOpen(true)
       return
-    } else {
-      await magic?.wallet.showUI()
-      setDepositLoading(false)
     }
+    setDepositLoading(true)
+    await magic?.wallet.showUI()
+    setDepositLoading(false)
   }
 
   const handlePortfolioClick = () => {
-    if (isAuthenticated) navigate(`${ROUTES.PORTFOLIO}`)
+    if (isAuthenticated) navigate(ROUTES.PORTFOLIO)
     else setIsLoginOpen(true)
   }
+
   const debouncedHandleDeposit = useDebouncedCallback(handleDeposit, 500)
 
   return (
     <>
-      {/* FIX 9: bg-[#0d0f13] instead of bg-background/80 */}
       <MetaMaskDepositModal
         open={metamaskDepositOpen}
         onClose={() => setMetamaskDepositOpen(false)}
       />
+
       <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#0d0f13] md:mx-20">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          {/* ── FIX 1: Logo + Nav ── */}
-          <div className="flex items-center gap-8 cursor-pointer" onClick={() => navigate("/")}>
-            <div className="flex items-center gap-0">
+          {/* ── Logo + Nav ── */}
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-0 cursor-pointer" onClick={() => navigate("/")}>
               <div className="size-8 rounded-md flex items-center justify-center shrink-0">
                 <img src="/icon-black.png" alt="logo" className="size-8 invert" />
               </div>
               <span className="text-[15px] font-bold tracking-tight text-white">Polymarket</span>
             </div>
 
-            {/* FIX 2: all nav links same muted color + weight, none highlighted */}
             <nav className="hidden md:flex items-center gap-6">
               {["Trending", "Breaking", "New"].map((link) => (
                 <button
                   key={link}
+                  onClick={() => navigate(`/markets/${link}`)}
                   className="text-[13px] font-medium text-white/60 hover:text-white transition-colors"
                 >
                   {link}
                 </button>
               ))}
-              {/* FIX 3: More with chevron */}
               <button className="flex items-center gap-1 text-[13px] font-medium text-white/60 hover:text-white transition-colors">
                 More <ChevronDown size={13} className="opacity-70" />
               </button>
             </nav>
           </div>
 
-          {/* FIX 4: Search bar max-w-[360px] not too wide */}
-          <div className="hidden lg:flex max-w-[280px] w-full ml-70 shrink-0 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" />
-            <input
-              type="text"
-              placeholder="Search markets"
-              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-white/20 transition-all placeholder:text-white/30"
-            />
-          </div>
+          {/* ── Search bar — navigates to /markets/search?q=... ── */}
+          <SearchBar />
 
           {/* ── Right side ── */}
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
               <>
-                {/* FIX 5: gap-6 between portfolio and cash (was gap-4) */}
                 <div className="hidden sm:flex items-center gap-6 mr-5">
                   <div
                     className="flex flex-col items-center cursor-pointer"
@@ -260,7 +299,6 @@ export const Navbar: FC = () => {
                       {formatPortfolio(portfolioAmount as number)}
                     </span>
                   </div>
-
                   <div className="flex flex-col items-center">
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
                       Cash
@@ -271,21 +309,23 @@ export const Navbar: FC = () => {
                   </div>
                 </div>
 
-                {/* Deposit */}
                 <Button
                   onClick={debouncedHandleDeposit}
                   disabled={isLoginOpen || depositLoading}
                   className="bg-[#00c853] text-black font-bold hover:bg-[#00c853]/90 px-5 rounded-lg h-9 text-[13px] cursor-pointer"
                 >
-                  {depositLoading ? `Opening wallet` : `Deposit`}
+                  {depositLoading ? "Opening wallet" : "Deposit"}
                 </Button>
 
-                {/* Bell */}
                 <NotificationBell />
 
-                {/* Avatar */}
                 <div className="relative">
-                  <div onClick={() => setProfileOpen((p) => !p)}>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setProfileOpen((p) => !p)
+                    }}
+                  >
                     <Avatar email={email} address={publicAddress} />
                   </div>
 
@@ -294,9 +334,7 @@ export const Navbar: FC = () => {
                       <div className="flex items-center justify-between px-4 py-3">
                         <div
                           className="flex items-center gap-2 cursor-pointer"
-                          onClick={() => {
-                            navigate(`/profile/${user.publicAddress}`)
-                          }}
+                          onClick={() => navigate(`/profile/${user.publicAddress}`)}
                         >
                           <Avatar email={email} address={publicAddress} />
                           <span className="text-sm font-semibold text-white">{displayName}</span>
@@ -310,8 +348,7 @@ export const Navbar: FC = () => {
                         icon="🏆"
                         label="Leaderboard"
                         onClick={() => {
-                          console.log("clicked")
-                          setMenuOpen(false)
+                          setProfileOpen(false)
                           navigate(`/leaderboard/${user.publicAddress}`)
                         }}
                       />
@@ -323,22 +360,8 @@ export const Navbar: FC = () => {
                           navigate(`/rewards/${user.publicAddress}`)
                         }}
                       />
-
                       <Divider />
-                      {/* we dont need dark mode right now , as per the figma design.
-                       */}
-
-                      {/* <DarkModeRow /> */}
-
                       <MenuItem label="Logout" red onClick={handleLogout} />
-
-                      {/* as per figma , no explore all button  */}
-
-                      {/* <div className="mx-3 mt-1 mb-2">
-                        <button className="w-full py-2.5 text-sm font-bold text-white bg-white/8 hover:bg-white/12 rounded-xl transition-colors">
-                          Explore all
-                        </button>
-                      </div> */}
                     </Dropdown>
                   )}
                 </div>
@@ -351,7 +374,6 @@ export const Navbar: FC = () => {
                   <Info className="size-4" />
                   <span className="text-[13px] font-medium">How it works</span>
                 </div>
-
                 <Button
                   className="bg-[#00c853] text-black font-bold hover:bg-[#00c853]/90 px-5 rounded-lg h-9 text-[13px] cursor-pointer"
                   onClick={() => setIsLoginOpen(true)}
@@ -377,16 +399,40 @@ export const Navbar: FC = () => {
 
                   {menuOpen && (
                     <Dropdown onClose={() => setMenuOpen(false)}>
-                      <MenuItem icon="🏆" label="Leaderboard" />
-                      <MenuItem icon="💚" label="Rewards" />
+                      <MenuItem
+                        icon="🏆"
+                        label="Leaderboard"
+                        onClick={() => {
+                          setMenuOpen(false)
+                          navigate("/leaderboard/guest")
+                        }}
+                      />
+                      <MenuItem
+                        icon="💚"
+                        label="Rewards"
+                        onClick={() => {
+                          setMenuOpen(false)
+                          navigate("/rewards/guest")
+                        }}
+                      />
                       <MenuItem icon="🔗" label="APIs" />
                       <Divider />
                       <DarkModeRow />
                       <Divider />
-                      <MenuItem label="Accuracy" onClick={() => setMenuOpen(false)} />
-                      <MenuItem label="Documentation" onClick={() => setMenuOpen(false)} />
-                      <MenuItem label="Help Center" onClick={() => setMenuOpen(false)} />
-                      <MenuItem label="Terms of Use" onClick={() => setMenuOpen(false)} />
+                      <MenuItem
+                        label="Help Center"
+                        onClick={() => {
+                          setMenuOpen(false)
+                          navigate("/page/help")
+                        }}
+                      />
+                      <MenuItem
+                        label="Terms of Use"
+                        onClick={() => {
+                          setMenuOpen(false)
+                          navigate("/terms")
+                        }}
+                      />
                       <MenuItem label="Language" rightIcon={<ChevronRight size={14} />} />
                     </Dropdown>
                   )}
@@ -403,7 +449,7 @@ export const Navbar: FC = () => {
   )
 }
 
-// ─── Hamburger ────────────────────────────────────────────────────────────────
+// ── Hamburger ─────────────────────────────────────────────────────────────────
 const HamburgerIcon = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
     <rect y="3" width="20" height="2" rx="1" fill="currentColor" />

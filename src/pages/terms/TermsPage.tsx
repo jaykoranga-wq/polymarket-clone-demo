@@ -22,6 +22,7 @@ const TermsPage = () => {
 
   // highlight active section on scroll
   useEffect(() => {
+    window.scrollTo(0, 0)
     const handleScroll = () => {
       for (const section of [...TERMS_SECTIONS].reverse()) {
         const el = document.getElementById(section.id)
@@ -32,7 +33,10 @@ const TermsPage = () => {
       }
     }
     window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      window.scroll(0, 0)
+    }
   }, [])
 
   const scrollTo = (id: string) => {

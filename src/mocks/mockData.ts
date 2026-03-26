@@ -24,8 +24,14 @@ export interface ApiMarketsResponse {
 }
 
 export interface ApiCategoriesResponse {
-  success: boolean
-  data: string[]
+  status: boolean
+  statusCode: number
+  message: string
+  type: string
+  data: {
+    data: Category[]
+    count: number
+  }
 }
 
 export interface ApiSingleMarketResponse {
@@ -552,6 +558,24 @@ const RAW_CATEGORIES: string[] = [
   "China",
 ]
 
+type Category = {
+  id: string
+  name: string
+  slug?: string
+  description?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+const MOCK_CATEGORY_OBJECTS: Category[] = RAW_CATEGORIES.map((name, index) => ({
+  id: String(index + 1),
+  name,
+  slug: name.toLowerCase().replace(/\s+/g, "-"),
+  description: `${name} related markets`,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+}))
+
 // ─── Mock API Functions ───────────────────────────────────────────────────────
 
 /** GET /api/markets */
@@ -582,13 +606,20 @@ export const fetchMarketById = async (id: string): Promise<ApiSingleMarketRespon
 /** GET /api/categories */
 export const fetchCategories = async (): Promise<ApiCategoriesResponse> => {
   await simulateDelay()
+
   return {
-    success: true,
-    data: RAW_CATEGORIES,
+    status: true,
+    statusCode: 200,
+    message: "Categories fetched successfully",
+    type: "success",
+    data: {
+      data: MOCK_CATEGORY_OBJECTS,
+      count: MOCK_CATEGORY_OBJECTS.length,
+    },
   }
 }
 
 // ─── Static exports ───────────────────────────────────────────────────────────
 
 export const MOCK_MARKETS: Market[] = RAW_MARKETS
-export const CATEGORIES: string[] = RAW_CATEGORIES
+export const CATEGORIES: Category[] = MOCK_CATEGORY_OBJECTS

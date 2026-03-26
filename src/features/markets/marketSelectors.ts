@@ -13,14 +13,18 @@ export const selectMarketsLoading = createSelector(
   [selectMarketsState],
   (marketsState) => marketsState.loading,
 )
-
-export const selectSelectedCategory = createSelector(
+export const selectSelectedCategoryName = createSelector(
   [selectMarketsState],
-  (marketsState) => marketsState.selectedCategory,
+  (marketsState) => marketsState.selectedCategoryName,
+)
+
+export const selectSelectedCategoryId = createSelector(
+  [selectMarketsState],
+  (marketsState) => marketsState.selectedCategoryId,
 )
 
 export const selectFilteredMarkets = createSelector(
-  [selectAllMarkets, selectSelectedCategory],
+  [selectAllMarkets, selectSelectedCategoryId],
   (markets, category) => {
     if (category === "All Markets") return markets
     return markets.filter((market) => market.category === category)

@@ -201,7 +201,13 @@ const EventPage = () => {
                 />
               )}
               {activeTab === "activity" && <ActivityTab marketId={market.id} />}
-              {activeTab === "orderbook" && <OrderBookTab marketId={market.id} />}
+              {activeTab === "orderbook" && (
+                <OrderBookTab
+                  marketId={market.id}
+                  yesTokenId={market?.yesTokenId as string}
+                  noTokenId={market.noTokenId as string}
+                />
+              )}
               {activeTab === "comments" && <CommentSection marketId={market.id} />}
             </div>
           </div>

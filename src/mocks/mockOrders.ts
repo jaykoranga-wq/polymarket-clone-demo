@@ -66,7 +66,7 @@ export const MOCK_ORDERS: UserOrder[] = [
     filledShares: 120,
     remainingShares: 180,
     usdcAmount: 165,
-    status: "partial",
+    status: "partially filled",
     createdAt: "2024-10-07T16:45:00.000Z",
     expiresAt: "2024-12-01T00:00:00.000Z",
   },
