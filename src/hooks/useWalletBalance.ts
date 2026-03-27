@@ -21,7 +21,10 @@ export const useWalletBalance = () => {
   const dispatch = useDispatch()
   const loginMethod = useSelector((s: RootState) => s.auth.loginMethod)
   const address = useSelector((s: RootState) => s.auth.publicAddress)
-  const { data: lockedData } = useGetLockedBalanceQuery()
+  const token = useSelector((s: RootState) => s.auth.token)
+  const { data: lockedData } = useGetLockedBalanceQuery(undefined, {
+    skip: !token,
+  })
 
   useEffect(() => {
     if (!address) return
