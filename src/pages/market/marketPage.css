@@ -1,0 +1,61 @@
+/* marketPage.css */
+
+/* ── Wrapper ─────────────────────────────────────────────────────────────── */
+.mp-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 20px 80px;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.mp-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  padding-top: 16px;
+  margin-left: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.mp-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--foreground, #e8eaf0);
+}
+
+.mp-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground, #5a6478);
+}
+
+/* ── Grid — horizontal rows, smaller cards ───────────────────────────────── */
+.mp-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+/* ── Scale down cards rendered inside this page ─────────────────────────── */
+/* This shrinks whatever card component you drop in without editing the card */
+.mp-list > * {
+  transform-origin: top left;
+  font-size: 0.88em; /* makes text inside cards slightly smaller */
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.mp-empty {
+  text-align: center;
+  padding: 80px 0;
+  font-size: 14px;
+  color: var(--muted-foreground, #5a6478);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .mp-list {
+    grid-template-columns: 1fr;
+  }
+}
