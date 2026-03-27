@@ -9,10 +9,10 @@ const initialState: AuthState = {
   email: null,
   publicAddress: null,
   loading: false,
-  cashAmount: 0,
-  reservedAmount: 0,
-  availableAmount: 0,
-  portfolioAmount: 0,
+  cashAmount: "0",
+  reservedAmount: "0",
+  availableAmount: "0",
+  portfolioAmount: "0",
   loginMethod: null,
   token: null,
   cashLoading: false,
@@ -67,34 +67,42 @@ const authSlice = createSlice({
     setTempToken(state, action: PayloadAction<{ token: string | null }>) {
       state.token = action.payload.token
     },
-    setCashAmount(state, action: PayloadAction<{ cashAmount: number }>) {
+    setCashAmount(state, action: PayloadAction<{ cashAmount: string }>) {
       state.cashAmount = action.payload.cashAmount
       // recalculate available whenever total cash changes
-      state.availableAmount = action.payload.cashAmount - state.reservedAmount
+      const cash = BigInt(action.payload.cashAmount)
+      const reserved = BigInt(state.reservedAmount)
+      state.availableAmount = (cash - reserved).toString()
     },
     setCashLoading: (state, action: PayloadAction<boolean>) => {
       state.cashLoading = action.payload
     },
     clearWalletBalance: (state) => {
-      state.cashAmount = 0
-      state.reservedAmount = 0
-      state.availableAmount = 0
+      state.cashAmount = "0"
+      state.reservedAmount = "0"
+      state.availableAmount = "0"
       state.cashLoading = false
     },
     // ── Reserved balance reducers ──────────────────────────────────────────
     // Called after a new order is signed — locks the USDC until filled/cancelled
-    reserveAmount: (state, action: PayloadAction<number>) => {
-      state.reservedAmount = (state.reservedAmount ?? 0) + action.payload
-      state.availableAmount = (state.cashAmount ?? 0) - state.reservedAmount
+    reserveAmount: (state, action: PayloadAction<string>) => {
+      const reserved = BigInt(state.reservedAmount ?? "0") + BigInt(action.payload)
+      state.reservedAmount = reserved.toString()
+      state.availableAmount = (BigInt(state.cashAmount ?? "0") - reserved).toString()
     },
     // Called when an order is cancelled — unlocks the USDC
-    releaseAmount: (state, action: PayloadAction<number>) => {
-      state.reservedAmount = Math.max(0, (state.reservedAmount ?? 0) - action.payload)
-      state.availableAmount = (state.cashAmount ?? 0) - state.reservedAmount
+    releaseAmount: (state, action: PayloadAction<string>) => {
+      const next = BigInt(state.reservedAmount ?? "0") - BigInt(action.payload)
+      state.reservedAmount = (next < 0n ? 0n : next).toString()
+      state.availableAmount = (
+        BigInt(state.cashAmount ?? "0") - BigInt(state.reservedAmount)
+      ).toString()
     },
     // Utility — recompute available from current cashAmount and reservedAmount
     recalculateAvailable: (state) => {
-      state.availableAmount = (state.cashAmount ?? 0) - (state.reservedAmount ?? 0)
+      const cash = BigInt(state.cashAmount ?? "0")
+      const reserved = BigInt(state.reservedAmount ?? "0")
+      state.availableAmount = (cash - reserved).toString()
     },
   },
 })

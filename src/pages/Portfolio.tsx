@@ -8,6 +8,7 @@ import {
   selectIsAuthenticated,
   selectPortfolioAmount,
 } from "@/features/auth/authSlice"
+import { formatCash, formatPortfolio } from "@/libs/formatCurrency"
 
 // ─── Mini Profit/Loss Bar Chart ───────────────────────────────────────────────
 // const PnlChart = () => {
@@ -182,7 +183,7 @@ const PortfolioPage = () => {
               {/* Portfolio value */}
               <div className="flex items-baseline gap-2 mb-0.5">
                 <span className="text-xl font-bold text-white">
-                  {hideBalance ? "••••" : `$${portfolioAmount}`}
+                  {hideBalance ? "••••" : formatPortfolio(portfolioAmount)}
                 </span>
               </div>
               <div className="text-[10px] text-white/30 mb-3">$0.00 (0%) past day</div>
@@ -193,7 +194,7 @@ const PortfolioPage = () => {
                   Available to trade
                 </span>
                 <span className="text-xs font-bold text-white">
-                  {hideBalance ? "••••" : `$${cashAmount}`}
+                  {hideBalance ? "••••" : formatCash(cashAmount)}
                 </span>
               </div>
 

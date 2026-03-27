@@ -317,16 +317,14 @@ export const Navbar: FC = () => {
                       Portfolio
                     </span>
                     <span className="text-primary font-sm font-bold">
-                      $ {formatPortfolio(portfolioAmount as number)}
+                      {formatPortfolio(portfolioAmount)}
                     </span>
                   </div>
                   <div className="flex flex-col ">
                     <span className="text-secondary uppercase tracking-wide leading-none ">
                       Cash
                     </span>
-                    <span className="text-primary font-sm font-bold">
-                      {formatCash(cashAmount as number)}
-                    </span>
+                    <span className="text-primary font-sm font-bold">{formatCash(cashAmount)}</span>
                   </div>
                 </div>
 
@@ -354,7 +352,10 @@ export const Navbar: FC = () => {
                 <div className="relative ">
                   <div
                     onMouseDown={(e) => e.stopPropagation()}
-                    onClick={() => setProfileOpen((p) => !p)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setProfileOpen((p) => !p)
+                    }}
                   >
                     <Avatar email={email} address={publicAddress} />
                   </div>

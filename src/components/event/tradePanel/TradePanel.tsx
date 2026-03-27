@@ -59,8 +59,8 @@ const TradePanel = ({
 
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const availableAmount = useAppSelector(selectAvailableAmount)
-  const balance = availableAmount ?? 0
-  const buttonState = !isAuthenticated ? "login" : balance <= 0 ? "deposit" : "trade"
+  const balance = availableAmount ?? "0"
+  const buttonState = !isAuthenticated ? "login" : BigInt(balance) <= 0n ? "deposit" : "trade"
 
   // ── Core state ──────────────────────────────────────────────────────────────
   const [action, setAction] = useState<Action>("Buy")
@@ -148,7 +148,9 @@ const TradePanel = ({
       "50%": 0.5,
       MAX: 1.0,
     }
-    setAmount(Math.floor(balance * (map[pct] ?? 0))) // ← balance not mockBalance
+    // Convert micro-USDC string to dollar number for the UI input
+    const balanceDollars = Number(BigInt(balance)) / 1_000_000
+    setAmount(Math.floor(balanceDollars * (map[pct] ?? 0)))
   }
 
   // ── Market Sell: pct of holdings ──

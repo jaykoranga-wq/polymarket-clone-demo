@@ -298,8 +298,9 @@ export const useTrade = () => {
         }),
       )
 
-      // Lock the USDC in the user's balance until this order is filled or cancelled
-      const usdcToReserve = order.amount ?? (computedShares * marketPriceCents) / 100
+      // Convert dollar amount → micro-USDC string for Redux (serializable)
+      const usdcDollars = order.amount ?? (computedShares * marketPriceCents) / 100
+      const usdcToReserve = BigInt(Math.round(usdcDollars * 1_000_000)).toString()
       dispatch(reserveAmount(usdcToReserve))
       console.log("Trade submitted ✅")
     } catch (err: unknown) {

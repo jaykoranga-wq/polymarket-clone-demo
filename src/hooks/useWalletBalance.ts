@@ -3,7 +3,8 @@ import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
 import type { RootState } from "@/app/store"
-import { setCashAmount, setCashLoading } from "@/features/auth/authSlice"
+import { useGetLockedBalanceQuery } from "@/features/api/auth/authApi"
+import { reserveAmount, setCashAmount, setCashLoading } from "@/features/auth/authSlice"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import { useMagic } from "@/features/auth/lib/magic"
 
@@ -20,10 +21,16 @@ export const useWalletBalance = () => {
   const dispatch = useDispatch()
   const loginMethod = useSelector((s: RootState) => s.auth.loginMethod)
   const address = useSelector((s: RootState) => s.auth.publicAddress)
+  const { data: lockedData } = useGetLockedBalanceQuery()
 
   useEffect(() => {
     if (!address) return
-
+    let lockedAmountBigint: bigint = 0n
+    if (lockedData) {
+      console.log(lockedData)
+      // lockedAmount comes from backend in micro-USDC (same units as on-chain)
+      lockedAmountBigint = BigInt(lockedData.data.lockedAmount)
+    }
     const fetchBalance = async () => {
       dispatch(setCashLoading(true))
       try {
@@ -39,25 +46,24 @@ export const useWalletBalance = () => {
 
         // ← USDC is an ERC-20 contract, not native token
         const usdc = new ethers.Contract(USDC_ADDRESS, USDC_ABI, provider)
-        const [raw, decimals] = await Promise.all([
-          usdc.getFunction("balanceOf")(address),
-          usdc.getFunction("decimals")(),
-        ])
+        // USDC has 6 decimals — hardcoded to avoid a second contract call
+        const raw: bigint = await usdc.getFunction("balanceOf")(address)
 
-        // USDC has 6 decimals (not 18 like POL)
-        // formatUnits handles it automatically
-        const balance = Number(ethers.formatUnits(raw, decimals))
+        // raw is already a bigint from ethers (micro-USDC, 6 decimals)
+        // store as string to keep Redux state serializable
+        dispatch(setCashAmount({ cashAmount: raw.toString() }))
 
-        console.log("USDC balance:", balance)
-        dispatch(setCashAmount({ cashAmount: balance }))
+        // Lock the backend-reported reserved balance in redux
+        console.log("locked balance (micro-USDC):", lockedAmountBigint)
+        dispatch(reserveAmount(lockedAmountBigint.toString()))
       } catch (err) {
         console.error("Balance fetch failed:", err)
-        dispatch(setCashAmount({ cashAmount: 0 }))
+        dispatch(setCashAmount({ cashAmount: "0" }))
       } finally {
         dispatch(setCashLoading(false))
       }
     }
 
     fetchBalance()
-  }, [address])
+  }, [address, lockedData])
 }
