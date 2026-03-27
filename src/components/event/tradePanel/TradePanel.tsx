@@ -126,6 +126,15 @@ const TradePanel = ({
     return () => document.removeEventListener("mousedown", h)
   }, [])
 
+  useEffect(() => {
+    const h = (e: MouseEvent) => {
+      if (expiryRef.current && !expiryRef.current.contains(e.target as Node))
+        setExpiryDropOpen(false)
+    }
+    document.addEventListener("mousedown", h)
+    return () => document.removeEventListener("mousedown", h)
+  }, [])
+
   // ── Market Buy: percentage presets ──
   const mockBalance = 1240.5
   const handlePctPreset = (pct: string) => {
@@ -139,14 +148,20 @@ const TradePanel = ({
       "50%": 0.5,
       MAX: 1.0,
     }
-    setAmount(parseFloat((mockBalance * (map[pct] ?? 0)).toFixed(2)))
+    setAmount(Math.floor(balance * (map[pct] ?? 0))) // ← balance not mockBalance
   }
 
   // ── Market Sell: pct of holdings ──
   const handleSellPct = (pct: string) => {
     setSellPct(pct)
-    const mockHoldings = 200
-    const map: Record<string, number> = { "25%": 0.25, "50%": 0.5, Max: 1 }
+    const mockHoldings = 200 // TODO: replace with Redux holdings
+    const map: Record<string, number> = {
+      MIN: 0.01,
+      "25%": 0.25,
+      "50%": 0.5,
+      MAX: 1,
+      Max: 1,
+    }
     setSellShares(parseFloat((mockHoldings * (map[pct] ?? 0)).toFixed(2)))
   }
 
@@ -275,7 +290,7 @@ const TradePanel = ({
             </div>
 
             {/* YES / NO */}
-            <div className="flex justify-between gap-2 items-center mb-3">
+            {/* <div className="flex justify-between gap-2 items-center mb-3">
               <button
                 className={`flex-1 bg-option-yes h-12.5 border rounded-sm border-yes/20 text-primary font-bold hover:bg-primary hover:text-background transition-all active:scale-95${outcome === labelA ? " active" : ""}`}
                 onClick={() => handleOutcome(labelA)}
@@ -288,7 +303,7 @@ const TradePanel = ({
               >
                 {labelB}
               </button>
-            </div>
+            </div> */}
 
             {/* Amount input box */}
             <div className="flex items-center bg-white/5 border border-white/10 rounded-md py-3 px-4 mb-3 ">
@@ -329,7 +344,7 @@ const TradePanel = ({
         {orderType === "Market" && action === "Sell" && (
           <>
             <div className=" flex justify-between gap-2 items-center mb-3">
-              <button
+              {/* <button
                 className={`w-full flex-1 bg-option-yes h-12.5 border rounded-sm border-yes/20 text-primary font-bold hover:bg-primary hover:text-background transition-all active:scale-95${outcome === labelA ? " active" : ""}`}
                 onClick={() => handleOutcome(labelA)}
               >
@@ -340,7 +355,7 @@ const TradePanel = ({
                 onClick={() => handleOutcome(labelB)}
               >
                 {labelB}
-              </button>
+              </button> */}
             </div>
             <div className="tp-field-row">
               <span className=" font-sm font-semibold text-white  ">Shares</span>
@@ -500,7 +515,7 @@ const TradePanel = ({
         ════════════════════════════════════════════════════ */}
         {orderType === "Limit" && action === "Sell" && (
           <>
-            <div className="flex justify-between gap-2 items-center mb-3">
+            {/* <div className="flex justify-between gap-2 items-center mb-3">
               <button
                 className={`w-full flex-1 bg-option-yes h-12.5 border rounded-sm border-yes/20 text-primary font-bold hover:bg-primary hover:text-background transition-all active:scale-95${outcome === labelA ? " active" : ""}`}
                 onClick={() => handleOutcome(labelA)}
@@ -513,7 +528,7 @@ const TradePanel = ({
               >
                 {labelB}
               </button>
-            </div>
+            </div> */}
 
             <div className="tp-field-row">
               <span className=" font-semibold text-white">Limit Price</span>
@@ -615,6 +630,7 @@ const TradePanel = ({
         {/* ── Place Order button ── */}
         <button
           className={`w-full p-3.5 rounded-2md font-deafult font-black cursor-pointer bg-primary text-black transition-all duration-300 shadow-[0px_4px_6px_-4px_#10D26033,0px_10px_15px_-3px_#10D26033] mb-3 flex items-center justify-center gap-2 ${action === "Sell" ? " sell" : ""}`}
+          disabled={approvalState !== "idle" || (buttonState === "trade" && tradeDisabled)}
           onClick={() => {
             if (buttonState === "login") {
               onLoginRequired?.()
