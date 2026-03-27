@@ -1,0 +1,22 @@
+export const NETWORK = {
+  chainId: 80002,
+  name: "Polygon Amoy",
+  rpcUrl: "https://rpc-amoy.polygon.technology",
+}
+
+export const ADDRESSES = {
+  USDC: "0xb157f0dD6859722AfE1A5b4D983b94db1468b15A",
+  ConditionalTokens: "0x7f77d4Fe4a700c29DD5f4A505C569922161b8916",
+  CTFExchange: "0x9f128e3230D7ab133d2DafBd8d9218A3f12003aF",
+}
+
+export const ERC20_ABI = [
+  "function balanceOf(address owner) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function allowance(address owner, address spender) view returns (uint256)", // ← add this
+]
+
+export const CTF_REDEEM_ABI = [
+  "function redeemPositions(address collateralToken , bytes32 conditionId, uint256[] indexSets)",
+]

@@ -1,44 +1,127 @@
+/* Tailwind */
 @import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
+/* Fonts */
+@font-face {
+  font-family: "Liberation Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://fonts.cdnfonts.com/s/277/LiberationSans-Regular.woff") format("woff");
+}
 
+@font-face {
+  font-family: "Liberation Sans";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://fonts.cdnfonts.com/s/277/LiberationSans-Italic.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Liberation Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://fonts.cdnfonts.com/s/277/LiberationSans-Bold.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Liberation Sans";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://fonts.cdnfonts.com/s/277/LiberationSans-BoldItalic.woff") format("woff");
+}
+
+/* ─── Theme — Tailwind v4 uses @theme instead of :root for design tokens ─── */
 @theme {
-  --color-background: oklch(1 0 0);
-  --color-foreground: oklch(0.145 0 0);
-  --color-card: oklch(1 0 0);
-  --color-card-foreground: oklch(0.145 0 0);
-  --color-popover: oklch(1 0 0);
-  --color-popover-foreground: oklch(0.145 0 0);
-  --color-primary: oklch(0.205 0 0);
-  --color-primary-foreground: oklch(0.985 0 0);
-  --color-secondary: oklch(0.97 0 0);
-  --color-secondary-foreground: oklch(0.205 0 0);
-  --color-muted: oklch(0.97 0 0);
-  --color-muted-foreground: oklch(0.556 0 0);
-  --color-accent: oklch(0.97 0 0);
-  --color-accent-foreground: oklch(0.205 0 0);
-  --color-destructive: oklch(0.577 0.245 27.325);
-  --color-destructive-foreground: oklch(0.577 0.245 27.325);
-  --color-border: oklch(0.922 0 0);
-  --color-input: oklch(0.922 0 0);
-  --color-ring: oklch(0.708 0 0);
-  --color-chart-1: oklch(0.646 0.222 41.116);
-  --color-chart-2: oklch(0.6 0.118 184.704);
-  --color-chart-3: oklch(0.398 0.07 227.392);
-  --color-chart-4: oklch(0.828 0.189 84.429);
-  --color-chart-5: oklch(0.769 0.188 70.08);
-  --color-sidebar: oklch(0.985 0 0);
-  --color-sidebar-foreground: oklch(0.145 0 0);
-  --color-sidebar-primary: oklch(0.205 0 0);
-  --color-sidebar-primary-foreground: oklch(0.985 0 0);
-  --color-sidebar-accent: oklch(0.97 0 0);
-  --color-sidebar-accent-foreground: oklch(0.205 0 0);
-  --color-sidebar-border: oklch(0.922 0 0);
-  --color-sidebar-ring: oklch(0.708 0 0);
+  /* Colors */
+  --color-background: #0a0c10;
+  --color-foreground: #ffffff;
+
+  --color-card: #121821;
+  --color-card-foreground: #ffffff;
+
+  --color-popover: #121821;
+  --color-popover-foreground: #ffffff;
+
+  --color-primary: #10d260;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #8b949e;
+  --color-secondary-foreground: #ffffff;
+
+  --color-muted: #1f2937;
+  --color-muted-foreground: #9ca3af;
+
+  --color-accent: #1f2937;
+  --color-accent-foreground: #ffffff;
+
+  --color-destructive: #ea3943;
+  --color-destructive-foreground: #ffffff;
+
+  --color-input: #1f2937;
+  --color-ring: #16c784;
+  --color-border: #1e232b;
+
+  /* Custom brand colors */
+  --color-green-text: #14e96c;
+  --color-option-yes: #162f2d;
+  --color-option-no: #411c29;
+  --color-yes: #059669;
+  --color-no: #e11d48;
+  --color-market-green: #16c784;
+  --color-market-red: #ea3943;
+  --color-market-blue: #3b82f6;
+
+  /* Radius */
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
+
+  /* Fonts */
+  --font-sans: "Inter", sans-serif;
+  --font-liberation: "Liberation Sans", sans-serif;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translate(-50%, 100%);
+    }
+
+    to {
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  --animate-fadeIn: fadeIn 0.2s ease-out;
+  --animate-slideUp: slideUp 0.3s ease-out;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer components {
+  .container {
+    @apply max-w-[1280px] min-[1680px]:max-w-[1400px] mx-auto px-[20px];
+  }
 }
 
 @layer base {
@@ -47,7 +130,104 @@
   *::after {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-white;
+  }
+}
+
+/* font sizes */
+.font-xxs {
+  font-size: 8px;
+}
+
+.font-xs {
+  font-size: 10px;
+}
+
+.font-base {
+  font-size: 12px;
+}
+
+.font-sm {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.font-default {
+  font-size: 16px;
+}
+
+.font-md {
+  font-size: 18px;
+}
+
+.font-lg {
+  font-size: 24px;
+}
+
+.font-xl {
+  font-size: 30px;
+  line-height: 37.5px;
+}
+
+.font-2xl {
+  font-size: 36px;
+  line-height: 40px;
+}
+
+/* ─── Border radius utilities ────────────────────────────────────────────────── */
+.rounded-2sm {
+  border-radius: 6px;
+}
+
+.rounded-2md {
+  border-radius: 10px;
+}
+
+@media only screen and (max-width: 1380px) {
+  .font-2xl {
+    font-size: 32px;
+    line-height: 36px;
+  }
+}
+
+@media only screen and (max-width: 880px) {
+  .font-2xl {
+    font-size: 28px;
+    line-height: 32px;
+  }
+
+  .font-xl {
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  .font-lg {
+    font-size: 20px;
+  }
+
+  .font-md {
+    font-size: 16px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .font-2xl {
+    font-size: 24px;
+    line-height: 28px;
+  }
+
+  .font-xl {
+    font-size: 20px;
+    line-height: 25px;
+  }
+
+  .font-lg {
+    font-size: 18px;
+  }
+
+  .font-md {
+    font-size: 15px;
   }
 }

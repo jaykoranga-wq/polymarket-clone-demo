@@ -1,7 +1,15 @@
 export const ROUTES = {
   HOME: "/",
-  LOGIN: "/login",
-  DASHBOARD: "/dashboard",
-} as const;
+  EVENT: "/event/:id",
+  PORTFOLIO: "/portfolio",
+  Markets: "/markets/:group",
+  MarketCategory: "/markets/category/:category",
+  MarketSearch: "/markets/search",
+  PROFILE: "/profile/:id",
+  REWARDS: "/rewards/:id",
+  LEADERBOARD: "/leaderboard/:id",
+  TERMS: "/terms",
+  STATIC_PAGE: "/page/:slug",
+} as const
 
-export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];
+export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES]

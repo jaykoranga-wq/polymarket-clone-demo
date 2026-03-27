@@ -1,0 +1,520 @@
+/* eventPage.css — Polymarket faithful dark slate */
+
+/* ── Variables ───────────────────────────────────────────────────────────── */
+:root {
+  --ep-bg: #0d0f13;
+  --ep-surface: #161a22;
+  --ep-surface2: #1c2130;
+  --ep-border: rgba(255, 255, 255, 0.07);
+  --ep-green: #00c853;
+  --ep-green-bg: rgba(0, 200, 83, 0.1);
+  --ep-red: #e53935;
+  --ep-red-bg: rgba(229, 57, 53, 0.1);
+  --ep-text: #ffffff;
+  --ep-muted: #6b7280;
+  --ep-muted2: #4b5563;
+  --ep-mono: "DM Mono", "Fira Mono", monospace;
+}
+
+/* ── Page wrapper ────────────────────────────────────────────────────────── */
+.ep {
+  min-height: 100vh;
+  background: var(--ep-bg);
+  color: var(--ep-text);
+  padding: 24px 0 80px;
+  font-family: "Inter", sans-serif;
+}
+
+/* ── Back button ─────────────────────────────────────────────────────────── */
+.ep-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ep-muted);
+  margin-bottom: 20px;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.ep-back:hover {
+  color: var(--ep-text);
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────────── */
+.ep-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ep-green);
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+.ep-breadcrumb-sep {
+  color: var(--ep-muted);
+}
+.ep-breadcrumb-curr {
+  color: var(--ep-muted);
+  font-weight: 500;
+}
+
+/* ── Title row ───────────────────────────────────────────────────────────── */
+.ep-title-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.ep-page-title {
+  flex: 1;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--ep-text);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+/* ── Header icon buttons ─────────────────────────────────────────────────── */
+.ep-header-icons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.ep-icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--ep-border);
+  background: var(--ep-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ep-muted);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.ep-icon-btn:hover {
+  background: var(--ep-surface2);
+  color: var(--ep-text);
+}
+
+/* ── Meta chips row ──────────────────────────────────────────────────────── */
+.ep-stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.ep-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--ep-muted);
+  font-weight: 500;
+}
+
+.ep-chip svg {
+  opacity: 0.6;
+}
+.ep-chip strong {
+  color: var(--ep-text);
+  font-weight: 600;
+}
+.ep-trending {
+  font-size: 12px;
+  color: var(--ep-green);
+  font-weight: 600;
+}
+
+/* ── Two-column layout ───────────────────────────────────────────────────── */
+.ep-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 28px;
+  align-items: flex-start;
+}
+@media (max-width: 960px) {
+  .ep-layout {
+    grid-template-columns: 1fr;
+  }
+  .ep-sticky {
+    position: static !important;
+  }
+  .ep-right {
+    width: 100% !important;
+  }
+}
+.ep-left {
+  min-width: 0;
+}
+.ep-right {
+  width: 380px;
+}
+.ep-sticky {
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.ep-sticky::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Chart card ──────────────────────────────────────────────────────────── */
+.ep-chart-card {
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 0;
+}
+.ep-chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.ep-price-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ep-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.ep-price-big {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--ep-text);
+  font-family: var(--ep-mono);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.ep-price-change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ep-green);
+}
+.ep-price-change.negative {
+  color: var(--ep-red);
+}
+
+/* ── Chart timeframe tabs ────────────────────────────────────────────────── */
+.ep-chart-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 4px;
+}
+.ep-chart-tab {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ep-muted);
+  border-radius: 7px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  letter-spacing: 0.02em;
+}
+.ep-chart-tab.active {
+  background: var(--ep-green);
+  color: #000;
+}
+.ep-chart-tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ep-text);
+}
+.ep-chart-empty {
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ep-muted);
+  font-size: 13px;
+}
+
+/* ── Bottom tabs (Market Rules / Activity / Order Book / Comments) ─────── */
+.ep-tabs-row {
+  display: flex;
+  border-bottom: 1px solid var(--ep-border);
+  margin-top: 16px;
+}
+.ep-tab {
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ep-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.ep-tab.active {
+  color: var(--ep-green);
+}
+.ep-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--ep-green);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 0 8px var(--ep-green);
+}
+.ep-tab:hover:not(.active) {
+  color: var(--ep-text);
+}
+
+/* ── Tab content ─────────────────────────────────────────────────────────── */
+.ep-tab-content {
+  padding: 24px 0;
+}
+
+/* ── Generic section ─────────────────────────────────────────────────────── */
+.ep-section {
+  margin-bottom: 16px;
+}
+
+.ep-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.ep-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ep-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ep-section-title-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--ep-muted2);
+  font-size: 9px;
+  color: var(--ep-muted);
+  margin-left: 5px;
+  cursor: help;
+  font-style: normal;
+}
+
+/* ── Rules ───────────────────────────────────────────────────────────────── */
+.ep-rules-text {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.6);
+}
+.ep-rules-toggle {
+  font-size: 12px;
+  color: var(--ep-green);
+  font-weight: 600;
+  margin-top: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  padding: 0;
+}
+.ep-rules-toggle:hover {
+  opacity: 0.75;
+}
+
+/* ── Meta grid ───────────────────────────────────────────────────────────── */
+.ep-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-border);
+  border-radius: 12px;
+}
+.ep-meta-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ep-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.ep-meta-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ep-text);
+}
+.ep-meta-value.mono {
+  font-family: var(--ep-mono);
+  font-size: 11px;
+}
+
+/* ── Order book ──────────────────────────────────────────────────────────── */
+.ep-ob-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ep-ob-col-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.ep-ob-col-label.yes {
+  color: var(--ep-green);
+  background: var(--ep-green-bg);
+}
+
+.ep-ob-col-label.no {
+  color: var(--ep-red);
+  background: var(--ep-red-bg);
+}
+.ep-ob-col-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ep-muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 8px 6px;
+}
+.ep-ob-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 5px 8px;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--ep-mono);
+  font-size: 12px;
+}
+
+.ep-ob-depth {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.ep-ob-row.yes .ep-ob-depth {
+  background: var(--ep-green);
+}
+
+.ep-ob-row.no .ep-ob-depth {
+  background: var(--ep-red);
+}
+.ep-ob-price {
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.ep-ob-price.yes {
+  color: var(--ep-green);
+}
+
+.ep-ob-price.no {
+  color: var(--ep-red);
+}
+
+.ep-ob-shares {
+  color: var(--ep-muted);
+  text-align: right;
+  position: relative;
+  z-index: 1;
+}
+.ep-ob-empty {
+  color: var(--ep-muted);
+  font-size: 13px;
+  padding: 20px 0;
+}
+
+/* ── Not found ───────────────────────────────────────────────────────────── */
+.ep-not-found {
+  padding: 80px 20px;
+  text-align: center;
+  color: var(--ep-muted);
+  font-size: 15px;
+}
+
+/* ── Chart legend (kept for backward compat, used in old layout) ─────────── */
+.ep-chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.ep-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ep-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.ep-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.ep-legend-dot.yes {
+  background: var(--ep-green);
+  box-shadow: 0 0 6px var(--ep-green);
+}
+
+/* ─── Not found ──────────────────────────────────────────────────────────────── */
+.ep-not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
