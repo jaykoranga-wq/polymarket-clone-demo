@@ -136,7 +136,7 @@ const MarketsPage = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background text-foreground md:mx-20">
+    <div className="container min-h-screen bg-background text-foreground mx-auto py-9 px-5 pb-20">
       <div className="mp-header">
         <div>
           <h1 className="mp-title">{title as string}</h1>

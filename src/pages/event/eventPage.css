@@ -506,7 +506,15 @@
   background: var(--ep-green);
   box-shadow: 0 0 6px var(--ep-green);
 }
-.ep-legend-dot.no {
-  background: var(--ep-red);
-  box-shadow: 0 0 6px var(--ep-red);
+
+/* ─── Not found ──────────────────────────────────────────────────────────────── */
+.ep-not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
 }

@@ -23,7 +23,7 @@ const FooterLinkBtn = ({ link }: { link: FooterLink }) => {
     <button
       key={link.label}
       onClick={handleClick}
-      className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-fit"
+      className="font-base font-medium text-white hover:text-primary/80 hover:cursor-pointer transition-colors text-left w-fit"
     >
       {link.label}
     </button>
@@ -56,7 +56,7 @@ export const Footer = () => {
           {/* Link groups — rendered from footerData.ts */}
           {FOOTER_GROUPS.map((group) => (
             <div key={group.heading} className="flex flex-col gap-3">
-              <span className="text-xs font-bold tracking-widest text-foreground uppercase">
+              <span className="font-sm font-bold tracking-widest text-white uppercase">
                 {group.heading}
               </span>
               {group.links.map((link) => (

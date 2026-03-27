@@ -58,7 +58,7 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
         </div>
         <h3
           onClick={handleNavigation}
-          className="font-default font-bold leading-tight align-center line-clamp-2 min-h-10 group-hover:text-primary transition-colors"
+          className="font-default font-bold leading-tight align-center capitalize line-clamp-2 min-h-10 group-hover:text-primary transition-colors"
         >
           {market.title}
         </h3>

@@ -104,10 +104,7 @@ const EventPage = () => {
   if (isLoading) return <EventPageSkeleton />
   if (!market)
     return (
-      <div
-        className="flex items-center justify-center h-[60vh] text-[#5a6478] text-[13px] tracking-[0.06em]"
-        style={{ fontFamily: "var(--mono)" }}
-      >
+      <div className="flex items-center justify-center h-[60vh] text-[#5a6478] text-[13px] tracking-[0.06em]">
         Market not found.
       </div>
     )

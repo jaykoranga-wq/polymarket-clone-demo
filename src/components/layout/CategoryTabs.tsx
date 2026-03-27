@@ -40,8 +40,8 @@ export const CategoryTabs: FC = () => {
                   )
                 }}
                 className={clsx(
-                  "relative h-full flex items-center text-[13px] font-medium transition-colors duration-200 whitespace-nowrap",
-                  isActive ? "text-[#f1f8f4]" : "text-white/50 hover:text-white",
+                  "relative h-full flex items-center font-base font-bold transition-colors duration-200 whitespace-nowrap py-2 px-3",
+                  isActive ? "text-[#f1f8f4]" : "text-secondary hover:text-white",
                 )}
               >
                 {category.name}

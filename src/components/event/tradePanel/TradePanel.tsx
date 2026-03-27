@@ -208,7 +208,7 @@ const TradePanel = ({
   return (
     <div className="border-white/10 tp ep bg-linear-to-b from-white/5 to-white/2">
       {/* ── Top: Place Bet + Buy/Sell + Order Type ── */}
-      <div className="tp-top">
+      <div className="tp-top gap-2">
         <div className="tp-top-left">
           <h2 className="tp-title">Place Bet</h2>
           <div className="tp-action-tabs">
@@ -284,7 +284,7 @@ const TradePanel = ({
             {/* Amount header */}
             <div className="tp-amount-header">
               <span className="font-base font-bold uppercase text-white">Amount</span>
-              <span className=" font-sm text-white">
+              <span className=" font-sm text-white text-nowrap">
                 Balance: ${mockBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </span>
             </div>
@@ -343,8 +343,8 @@ const TradePanel = ({
         ════════════════════════════════════════════════════ */}
         {orderType === "Market" && action === "Sell" && (
           <>
-            <div className=" flex justify-between gap-2 items-center mb-3">
-              {/* <button
+            {/* <div className=" flex justify-between gap-2 items-center mb-3">
+              <button
                 className={`w-full flex-1 bg-option-yes h-12.5 border rounded-sm border-yes/20 text-primary font-bold hover:bg-primary hover:text-background transition-all active:scale-95${outcome === labelA ? " active" : ""}`}
                 onClick={() => handleOutcome(labelA)}
               >
@@ -355,8 +355,8 @@ const TradePanel = ({
                 onClick={() => handleOutcome(labelB)}
               >
                 {labelB}
-              </button> */}
-            </div>
+              </button>
+            </div> */}
             <div className="tp-field-row">
               <span className=" font-sm font-semibold text-white  ">Shares</span>
               <input
@@ -391,7 +391,7 @@ const TradePanel = ({
         ════════════════════════════════════════════════════ */}
         {orderType === "Limit" && action === "Buy" && (
           <>
-            <div className="flex justify-between gap-2 items-center mb-3">
+            {/* <div className="flex justify-between gap-2 items-center mb-3">
               <button
                 className={`w-full flex-1 bg-option-yes h-12.5 border rounded-sm border-yes/20 text-primary font-bold hover:bg-primary hover:text-background transition-all active:scale-95${outcome === labelA ? " active" : ""}`}
                 onClick={() => handleOutcome(labelA)}
@@ -404,7 +404,7 @@ const TradePanel = ({
               >
                 {labelB}
               </button>
-            </div>
+            </div> */}
 
             <div className="tp-field-row">
               <span className="  font-semibold text-white">Limit Price</span>

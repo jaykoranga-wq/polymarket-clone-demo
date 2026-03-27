@@ -143,25 +143,22 @@ const SearchBar = () => {
   }
 
   return (
-    <form
-      onSubmit={handleSearch}
-      className="hidden lg:flex max-w-70 w-full ml-70 shrink-0 relative"
-    >
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30 pointer-events-none" />
+    <form onSubmit={handleSearch} className="hidden xl:flex w-70  max-w-md  relative">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Search markets"
-        className="w-full bg-white/5 border border-white/8 rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-white/20 transition-all placeholder:text-white/30"
+        className="w-full bg-slate border border-progress-bar rounded-2sm py-2.5 pl-8.5 pr-2.5 text-sm leading-4 text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all placeholder-[#6B7280] max-w-67.5 "
       />
       {/* clear button */}
       {query && (
         <button
           type="button"
           onClick={() => setQuery("")}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors "
         >
           <X size={14} />
         </button>
@@ -260,8 +257,8 @@ export const Navbar: FC = () => {
         onClose={() => setMetamaskDepositOpen(false)}
       />
 
-      <header className="sticky top-0 z-50 border-b border-white/6 bg-[#0d0f13] md:mx-20">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
+      <header className="sticky top-0 z-50  border-b border-border bg-background/80 backdrop-blur-md font-liberation md:px-20">
+        <div className=" container  flex h-14 items-center gap-4 justify-between">
           {/* ── Logo + Nav ── */}
           <div
             className="flex items-center gap-8 cursor-pointer"
