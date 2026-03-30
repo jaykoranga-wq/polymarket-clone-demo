@@ -137,8 +137,8 @@ const PortfolioPage = () => {
         onClose={isAuthenticated ? () => setLoginOpen(false) : handleLoginClose}
       />
 
-      <div className="min-h-screen bg-background text-white md:mx-20">
-        <div className="max-w-3xl mx-auto px-4 py-6">
+      <div className="min-h-screen bg-background text-white">
+        <div className="container py-6">
           {/* ── Top cards row ──────────────────────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
             {/* Portfolio + Cash card */}

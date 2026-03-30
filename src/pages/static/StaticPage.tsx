@@ -36,7 +36,7 @@ const StaticPage = () => {
   return (
     <div className="min-h-screen bg-[#0d0f13] text-white">
       {/* same width + padding as EventPage */}
-      <div className=" px-4 md:mx-20 py-12 pb-24">
+      <div className="container py-12 pb-24">
         {/* back button */}
         <button
           onClick={() => navigate(-1)}

@@ -13,10 +13,10 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
   const items = MOCK_ACTIVITY
 
   return (
-    <div className="ep-section">
-      <div className="ep-section-header">
-        <span className="ep-section-title">Recent Activity</span>
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{items.length} trades</span>
+    <div className="mb-4">
+      <div className="flex items-center justify-between mb-3.5">
+        <span className="font-base font-bold text-white uppercase ">Recent Activity</span>
+        <span className="font-base text-white/3">{items.length} trades</span>
       </div>
 
       {/* Column headers */}

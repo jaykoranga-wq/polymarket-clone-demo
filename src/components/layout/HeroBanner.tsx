@@ -49,7 +49,7 @@ export const HeroBanner: FC<HeroBannerProps> = ({
           <img
             src="/trending-slider.png"
             alt="Hero Visual"
-            className="h-full w-full object-contain opacity-50"
+            className="h-full w-full object-cover opacity-50"
           />
           <div className="absolute inset-0 bg-linear-to-l from-background/5 via-transparent to-transparent" />
         </div>

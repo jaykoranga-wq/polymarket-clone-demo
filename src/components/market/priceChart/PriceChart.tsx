@@ -61,9 +61,9 @@ export const PriceChart = memo(
         height,
         layout: {
           background: { type: ColorType.Solid, color: "transparent" },
-          textColor: "#5a6478",
-          fontFamily: "'DM Mono', 'Fira Mono', monospace",
-          fontSize: 10,
+          textColor: "white",
+          fontFamily: "'Inter', 'Fira Mono', monospace",
+          fontSize: 11,
         },
         grid: {
           vertLines: { color: "rgba(255,255,255,0.03)" },
@@ -147,24 +147,32 @@ export const PriceChart = memo(
     const pctFormatted = `${isPositive ? "+" : ""}${pctChange.toFixed(1)}%`
 
     return (
-      <div className="ep-chart-card">
+      <div className="bg-linear-to-b from-black/5 to black/2 border border-white/10 rounded-2xl mb-7.5  p-6">
         {/* ── Header: price + change + tabs ── */}
-        <div className="ep-chart-header">
-          <div>
-            <div className="ep-price-label">Yes Price Probability</div>
-            <div className="ep-price-big">${currentPrice.toFixed(2)}</div>
-            <div className={`ep-price-change${isPositive ? "" : " negative"}`}>
-              <span>{isPositive ? "↗" : "↘"}</span>
-              <span>{pctFormatted} (24h)</span>
+        <div className="flex items-center justify-between gap-0.5 pt-5 pb-2">
+          <div className="flex flex-col">
+            {/* text-muted-foreground font-sm */}
+            <span className="text-muted-foreground font-sm">Price History</span>
+            <div className="flex justify-between items-center mb-3">
+              <div className="flex items-center gap-3">
+                {/* text-white font-2xl font-black */}
+                <div className="text-white font-2xl font-black">${currentPrice.toFixed(2)}</div>
+                {/* text-primary flex items-center */}
+                <div className={`text-primary flex items-center${isPositive ? "" : " negative"}`}>
+                  <span>{isPositive ? "↗" : "↘"}</span>
+                  <span>{pctFormatted} (24h)</span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Timeframe tabs */}
-          <div className="ep-chart-tabs">
+          <div className="flex gap-2 p-1 rounded-2md m-0 bg-white/5">
             {TABS.map((t) => (
               <button
                 key={t}
-                className={`ep-chart-tab${tab === t ? " active" : ""}`}
+                className={`px-[11px] py-[5px] rounded-lg text-sm font-medium border-none cursor-pointer transition-all duration-120 hover:text-[#e2e8f0]
+                  ${tab === t ? " bg-primary text-black shadow-[0px_4px_6px_-4px_rgba(16,210,96,0.3),0px_10px_15px_-3px_rgba(16,210,96,0.3)]" : "bg-transparent text-white/60"}`}
                 onClick={() => onTabChange(t)}
               >
                 {t}

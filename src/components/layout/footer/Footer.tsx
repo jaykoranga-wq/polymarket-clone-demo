@@ -36,9 +36,9 @@ export const Footer = () => {
 
   return (
     <footer className="border-t border-[#3B82F638] bg-background mt-auto">
-      <div className="container mx-auto px-4 md:px-6 py-12 flex flex-col gap-12 justify-between">
+      <div className="container py-12 flex flex-col gap-12 justify-between">
         {/* ── Top section ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-16 ">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:pl-10">
           {/* Brand */}
           <div className="flex flex-col gap-4 sm:col-span-2 max-w-lg">
             <div
@@ -67,7 +67,7 @@ export const Footer = () => {
         </div>
 
         {/* ── Bottom bar ── */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:px-12">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <span className="font-xs font-bold text-white leading-4 uppercase tracking-widest">
             © {new Date().getFullYear()} Polymarket Simulation
           </span>

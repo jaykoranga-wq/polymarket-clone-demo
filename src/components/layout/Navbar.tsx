@@ -143,7 +143,7 @@ const SearchBar = () => {
   }
 
   return (
-    <form onSubmit={handleSearch} className="hidden xl:flex w-70  max-w-md  relative">
+    <form onSubmit={handleSearch} className="hidden xl:flex w-70   max-w-md  relative">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
       <input
         type="text"
@@ -257,7 +257,7 @@ export const Navbar: FC = () => {
         onClose={() => setMetamaskDepositOpen(false)}
       />
 
-      <header className="sticky top-0 z-50  border-b border-border bg-background/80 backdrop-blur-md font-liberation md:px-20">
+      <header className="sticky top-0 z-50  border-b border-border bg-background/80 backdrop-blur-md font-liberation">
         <div className=" container  flex h-14 items-center gap-4 justify-between">
           {/* ── Logo + Nav ── */}
           <div
