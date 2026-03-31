@@ -58,7 +58,7 @@ const Home: FC = () => {
             <h2 className=" font-bold uppercase tracking-[3px] text-white">
               LAST CHANCE TO MAKE YOUR PREDICTIONS
             </h2>
-            <span className="h2 font-bold uppercase text-muted-foreground hover:text-primary text-nowrap transition-colors cursor-pointer">
+            <span className="font-base font-bold uppercase text-muted-foreground hover:text-primary text-nowrap transition-colors cursor-pointer">
               View All &gt;
             </span>
           </div>
@@ -150,7 +150,7 @@ const Home: FC = () => {
                     className="size-full object-cover group-hover:grayscale transition-all duration-300"
                   />
                 </div>
-                <h3 className="font-default font-bold leading-tight align-center line-clamp-2 min-h-10 group-hover:text-primary transition-colors">
+                <h3 className="h3 font-bold leading-tight align-center line-clamp-2 min-h-10 group-hover:text-primary transition-colors">
                   Will the US confirm that aliens exist before 2027?
                 </h3>
               </div>
@@ -213,7 +213,7 @@ const Home: FC = () => {
                     className="size-full object-cover"
                   />
                 </div>
-                <h3 className="font-default font-bold leading-tight line-clamp-2 min-h-10">
+                <h3 className="h3 font-bold leading-tight line-clamp-2 min-h-10">
                   NBA Western Conference Champion
                 </h3>
               </div>
@@ -344,7 +344,7 @@ const Home: FC = () => {
                     className="size-full object-cover"
                   />
                 </div>
-                <h3 className="font-default font-bold leading-tight line-clamp-2 min-h-10">
+                <h3 className="h3 font-bold leading-tight line-clamp-2 min-h-10">
                   Democratic Presidential Nominee 2028
                 </h3>
               </div>
@@ -413,7 +413,7 @@ const Home: FC = () => {
                     className="size-full object-cover group-hover:grayscale transition-all duration-300"
                   />
                 </div>
-                <h3 className="font-default font-bold leading-tight align-center line-clamp-2 min-h-10 group-hover:text-primary transition-colors">
+                <h3 className="h3 font-bold leading-tight align-center line-clamp-2 min-h-10 group-hover:text-primary transition-colors">
                   Will Jesus Christ return before 2027?
                 </h3>
               </div>
@@ -476,7 +476,7 @@ const Home: FC = () => {
                     className="size-full object-cover"
                   />
                 </div>
-                <h3 className="font-default font-bold leading-tight line-clamp-2 min-h-10">
+                <h3 className="h3 font-bold leading-tight line-clamp-2 min-h-10">
                   Who will Trump nominate as Fed Chair?
                 </h3>
               </div>

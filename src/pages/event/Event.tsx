@@ -175,7 +175,7 @@ const EventPage = () => {
 
           {/* ── Meta chips — only once ── */}
           <button
-            className="flex items-center justify-center px-4 py-2 border-none rounded-lg font-bold text-sm mx-6 mb-4 w-fit cursor-pointer lg:hidden bg-primary text-black shadow-[0_4px_12px_rgba(34,197,94,0.2)] "
+            className="flex items-center justify-center px-4 py-2 border-none rounded-sm font-bold text-sm  mb-4 w-fit cursor-pointer lg:hidden bg-primary text-black shadow-[0_4px_12px_rgba(34,197,94,0.2)] "
             onClick={() => setIsMobileTradeOpen(true)}
           >
             {isResolved ? (
@@ -292,7 +292,7 @@ const EventPage = () => {
           />
           <div
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#11141b] border-t border-white/10 rounded-[20px] z-201 max-h-[90vh] w-auto overflow-y-auto"
-            style={{ animation: "slideUp 0.3s ease-out" }}
+            // style={{ animation: "slideUp 0.3s ease-out" }}
           >
             <div className="flex justify-between items-center px-6 pt-5 pb-2.5 ">
               <span className="font-bold text-lg">Place Bet</span>

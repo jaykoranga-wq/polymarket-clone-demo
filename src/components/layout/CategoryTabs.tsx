@@ -21,7 +21,7 @@ export const CategoryTabs: FC = () => {
   }, [data])
 
   return (
-    <div className="container border-b border-border/70 bg-background sticky top-14 z-40 md:px-25 font-liberation">
+    <div className="container border-b border-border/70 bg-background sticky top-14 z-40 md:px-15 font-liberation">
       <div className=" overflow-x-auto no-scrollbar">
         <div className="flex items-center  gap-2 mb-1 h-9">
           {allCategories.map((category) => {

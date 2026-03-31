@@ -16,7 +16,7 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
     <div className="mb-4">
       <div className="flex items-center justify-between mb-3.5">
         {/* <span className="font-base font-bold text-white uppercase ">Recent Activity</span> */}
-        <span className="font-sm text-white/50">{items.length} trades</span>
+        <span className="font-sm text-primary">{items.length} trades</span>
       </div>
 
       {/* Column headers */}

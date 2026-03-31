@@ -100,8 +100,8 @@ const PortfolioPage = () => {
 
             {/* action buttons */}
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              <ActionBtn onClick={handleDeposit} icon="↓" label="Deposit" />
-              <ActionBtn onClick={() => {}} icon="↑" label="Withdraw" variant="outline" />
+              <ActionBtn onClick={handleDeposit} icon={<IconDeposit />} label="Deposit" />
+              <ActionBtn onClick={() => {}} icon={<IconWithdraw />} label="Withdraw" />
               <button
                 style={{
                   width: 36,
@@ -109,15 +109,14 @@ const PortfolioPage = () => {
                   borderRadius: 10,
                   border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
                   background: PORTFOLIO_COLORS.CARD_BG,
-                  color: PORTFOLIO_COLORS.TEXT_MUTED,
-                  fontSize: 18,
+                  color: PORTFOLIO_COLORS.TEXT_PRIMARY,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
                 }}
               >
-                ···
+                <IconMore />
               </button>
             </div>
           </div>
@@ -276,7 +275,7 @@ const ActionBtn = ({
   variant = "solid",
 }: {
   onClick: () => void
-  icon: string
+  icon: React.ReactNode
   label: string
   variant?: "solid" | "outline"
 }) => (
@@ -302,6 +301,53 @@ const ActionBtn = ({
         variant === "solid" ? PORTFOLIO_COLORS.CARD_BG : "transparent")
     }
   >
-    <span style={{ fontSize: 14 }}>{icon}</span> {label}
+    <span style={{ display: "flex", alignItems: "center" }}>{icon}</span> {label}
   </button>
+)
+
+// ── Icons ───────────────────────────────────────────────────────────────────
+const IconDeposit = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M12 3V15M12 15L8 11M12 15L16 11"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+)
+
+const IconWithdraw = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M12 15V3M12 3L8 7M12 3L16 7"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+)
+
+const IconMore = () => (
+  <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="2" cy="2" r="1.5" fill="currentColor" />
+    <circle cx="2" cy="8" r="1.5" fill="currentColor" />
+    <circle cx="2" cy="14" r="1.5" fill="currentColor" />
+  </svg>
 )
