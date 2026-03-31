@@ -123,11 +123,12 @@
 
 @layer components {
   .container {
-    @apply mx-auto px-5 md:px-20 max-w-[1280px] min-[1680px]:max-w-[1450px];
+    @apply mx-auto px-5 md:px-15 max-w-[1280px] min-[1680px]:max-w-[1450px];
   }
 }
 
 @layer base {
+
   *,
   *::before,
   *::after {
@@ -177,6 +178,14 @@
 .font-2xl {
   font-size: 36px;
   line-height: 40px;
+}
+
+.h2 {
+  font-size: 16px;
+}
+
+.h3 {
+  font-size: 14px;
 }
 
 /* ─── Border radius utilities ────────────────────────────────────────────────── */
@@ -232,5 +241,13 @@
 
   .font-md {
     font-size: 15px;
+  }
+
+  .h2 {
+    font-size: 13px;
+  }
+
+  .h3 {
+    font-size: 12px;
   }
 }

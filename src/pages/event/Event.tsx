@@ -1,6 +1,6 @@
 import "./eventPage.css"
 
-import { TrendingUp } from "lucide-react"
+import { CheckCircle, TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import { useParams } from "react-router"
@@ -150,15 +150,8 @@ const EventPage = () => {
                   <IcoVolSm />${totalVolume.toLocaleString()} Vol
                 </div>
                 {isResolved && (
-                  <div
-                    className="ep-chip"
-                    style={{
-                      color: "#f59e0b",
-                      borderColor: "rgba(245,158,11,0.3)",
-                      background: "rgba(245,158,11,0.08)",
-                    }}
-                  >
-                    ✓ Resolved
+                  <div className="flex items-center gap-1 font-base font-medium text-primary ">
+                    <CheckCircle size={14} className="mr-1 text-primary" /> Resolved
                   </div>
                 )}
               </div>
@@ -182,16 +175,25 @@ const EventPage = () => {
 
           {/* ── Meta chips — only once ── */}
           <button
-            className="flex items-center justify-center px-4 py-2 bg-primary text-black border-none rounded-lg font-bold text-sm mx-6 mb-4 w-fit cursor-pointer shadow-[0_4px_12px_rgba(34,197,94,0.2)] lg:hidden"
+            className="flex items-center justify-center px-4 py-2 border-none rounded-lg font-bold text-sm mx-6 mb-4 w-fit cursor-pointer lg:hidden bg-primary text-black shadow-[0_4px_12px_rgba(34,197,94,0.2)] "
             onClick={() => setIsMobileTradeOpen(true)}
           >
-            <TrendingUp size={16} className="mr-2" />
-            Trade
+            {isResolved ? (
+              <>
+                <CheckCircle size={16} className="mr-2" />
+                Market Resolved
+              </>
+            ) : (
+              <>
+                <TrendingUp size={16} className="mr-2" />
+                Trade
+              </>
+            )}
           </button>
 
           {/* ── Two-column layout ── */}
           <div
-            className="grid items-start gap-6 max-[1479px]:gap-4"
+            className="grid ep-layout-inner items-start gap-5 max-[1479px]:gap-4"
             style={{
               gridTemplateColumns: "1fr 340px",
             }}
@@ -254,8 +256,8 @@ const EventPage = () => {
             {/* ══ END LEFT ══ */}
 
             {/* ══ RIGHT ══ */}
-            <div className="ep-right">
-              <div className="ep-sticky">
+            <div className="ep-right-col">
+              <div className="ep-sticky px-6">
                 {isResolved ? (
                   <MarketResolvedCard
                     winningOutcome="NO"
@@ -289,10 +291,10 @@ const EventPage = () => {
             onClick={() => setIsMobileTradeOpen(false)}
           />
           <div
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#11141b] border-t border-white/10 rounded-[20px] z-201 max-h-[90vh] max-w-[60vw] overflow-y-auto"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#11141b] border-t border-white/10 rounded-[20px] z-201 max-h-[90vh] w-auto overflow-y-auto"
             style={{ animation: "slideUp 0.3s ease-out" }}
           >
-            <div className="flex justify-between items-center px-6 pt-5 pb-2.5">
+            <div className="flex justify-between items-center px-6 pt-5 pb-2.5 ">
               <span className="font-bold text-lg">Place Bet</span>
               <button
                 className="bg-white/5 border-none text-[#888] w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer"
@@ -302,17 +304,23 @@ const EventPage = () => {
               </button>
             </div>
             <div className="px-2.5 pb-7.5">
-              <TradePanel
-                yesProbability={market.yesProbability}
-                noProbability={market.noProbability}
-                isCrypto={false}
-                onLoginRequired={() => setIsLoginOpen(true)}
-                onDepositRequired={() => magic?.wallet?.showUI()}
-                onTrade={(order) => {
-                  handleTrade(order)
-                  setIsMobileTradeOpen(false)
-                }}
-              />
+              {isResolved ? (
+                <div className="p-4">
+                  <MarketResolvedCard winningOutcome="NO" resolutionTime={market.resolutionTime} />
+                </div>
+              ) : (
+                <TradePanel
+                  yesProbability={market.yesProbability}
+                  noProbability={market.noProbability}
+                  isCrypto={false}
+                  onLoginRequired={() => setIsLoginOpen(true)}
+                  onDepositRequired={() => magic?.wallet?.showUI()}
+                  onTrade={(order) => {
+                    handleTrade(order)
+                    setIsMobileTradeOpen(false)
+                  }}
+                />
+              )}
             </div>
           </div>
 

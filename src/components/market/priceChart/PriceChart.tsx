@@ -149,7 +149,7 @@ export const PriceChart = memo(
     return (
       <div className="bg-linear-to-b from-black/5 to black/2 border border-white/10 rounded-2xl mb-7.5  p-6">
         {/* ── Header: price + change + tabs ── */}
-        <div className="flex items-center justify-between gap-0.5 pt-5 pb-2">
+        <div className="flex md:flex-row flex-col  md:items-center justify-between gap-0.5 pb-2">
           <div className="flex flex-col">
             {/* text-muted-foreground font-sm */}
             <span className="text-muted-foreground font-sm">Price History</span>
@@ -167,11 +167,11 @@ export const PriceChart = memo(
           </div>
 
           {/* Timeframe tabs */}
-          <div className="flex gap-2 p-1 rounded-2md m-0 bg-white/5">
+          <div className="flex gap-2 p-1 rounded-2md max-w-fit border border-white/10 m-0 bg-white/5">
             {TABS.map((t) => (
               <button
                 key={t}
-                className={`px-[11px] py-[5px] rounded-lg text-sm font-medium border-none cursor-pointer transition-all duration-120 hover:text-[#e2e8f0]
+                className={`px-[11px] py-[5px] rounded-md text-sm font-medium border-none cursor-pointer transition-all duration-120 hover:text-[#e2e8f0]
                   ${tab === t ? " bg-primary text-black shadow-[0px_4px_6px_-4px_rgba(16,210,96,0.3),0px_10px_15px_-3px_rgba(16,210,96,0.3)]" : "bg-transparent text-white/60"}`}
                 onClick={() => onTabChange(t)}
               >

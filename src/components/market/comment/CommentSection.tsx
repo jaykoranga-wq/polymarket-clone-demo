@@ -137,7 +137,7 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
             />
             <div className="flex justify-end gap-2">
               <button
-                className="py-1.5 px-3.5  font-base font-semibold text-white rounded-[8px] transition-all"
+                className="py-1.5 px-3.5  font-base font-semibold text-white rounded-md transition-all"
                 onClick={() => {
                   setShowReply(false)
                   setReplyText("")
@@ -146,7 +146,7 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
                 Cancel
               </button>
               <button
-                className="py-1.5 px-3.5 bg-primary font-base font-bold text-white rounded-[8px] transition-all"
+                className="py-1.5 px-3.5 bg-primary font-base font-bold text-white rounded-md transition-all"
                 disabled={!replyText.trim()}
                 onClick={() => {
                   setShowReply(false)
@@ -231,7 +231,7 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
     <div className="flex flex-col gap-5 mb-4">
       {/* Header */}
       <div className="flex items-center">
-        <div className=" flex gap-1 bg-white/4 rounded-[8px] p-1  ">
+        <div className=" flex gap-1 bg-white/4 rounded-md p-1  ">
           {(["top", "new"] as const).map((s) => (
             <button
               key={s}
@@ -258,13 +258,13 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
           {text.trim() && (
             <div className="flex justify-end gap-2">
               <button
-                className="py-1.5 px-3.5 font-base font-semi-bold text-white rounded-[8px] transition-all hover:bg-white/6"
+                className="py-1.5 px-3.5 font-base font-semi-bold text-white rounded-md transition-all hover:bg-white/6"
                 onClick={() => setText("")}
               >
                 Cancel
               </button>
               <button
-                className="py-1.5 px-4 font-base font-semibold bg-primary text-white rounded-[8px] transition-all "
+                className="py-1.5 px-4 font-base font-semibold bg-primary text-white rounded-md transition-all "
                 onClick={handlePost}
               >
                 Post

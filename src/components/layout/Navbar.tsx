@@ -37,7 +37,7 @@ const Avatar = ({ email, address }: { email: string | null; address: string | nu
       ? address.slice(2, 4).toUpperCase()
       : "??"
   return (
-    <div className="w-8 h-8 rounded-full bg-slate border border-border flex items-center justify-center">
+    <div className="w-8 h-8 rounded-full bg-primary/10 border border-border flex items-center justify-center">
       <div className="w-4 h-4  flex items-center justify-center text-muted-foreground font-base font-bold shrink-0 cursor-pointer">
         {initials}
       </div>

@@ -55,10 +55,10 @@ const Home: FC = () => {
         {/* ─── STATIC SECTION: LAST CHANCE TO MAKE YOUR PREDICTIONS ─── */}
         <section className="py-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-md font-bold uppercase tracking-[3px] text-white">
+            <h2 className=" font-bold uppercase tracking-[3px] text-white">
               LAST CHANCE TO MAKE YOUR PREDICTIONS
             </h2>
-            <span className="text-xs font-bold uppercase text-muted-foreground hover:text-primary transition-colors cursor-pointer">
+            <span className="h2 font-bold uppercase text-muted-foreground hover:text-primary text-nowrap transition-colors cursor-pointer">
               View All &gt;
             </span>
           </div>
@@ -81,7 +81,7 @@ const Home: FC = () => {
                     className="size-full object-cover"
                   />
                 </div>
-                <h3 className="font-default font-bold leading-tight line-clamp-2 min-h-10">
+                <h3 className="h3 font-bold leading-tight line-clamp-2 min-h-10">
                   US strikes Iran by...?
                 </h3>
               </div>

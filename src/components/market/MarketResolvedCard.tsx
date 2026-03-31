@@ -20,72 +20,33 @@ export const MarketResolvedCard = ({ winningOutcome, resolutionTime }: MarketRes
 
   return (
     <div
+      className="border border-white/7 rounded-2xl overflow-hidden"
       style={{
-        background: "#161a22",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 16,
-        overflow: "hidden",
+        background: bg,
       }}
     >
       {/* Header */}
-      <div
-        style={{
-          background: bg,
-          padding: "16px",
-          textAlign: "center",
-        }}
-      >
+      <div className="p-4 text-center">
         <div
+          className="font-base font-extrabold uppercase mb-1.5 text-nowrap"
           style={{
-            fontSize: 12,
-            fontWeight: 800,
             color: color,
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
-            marginBottom: 6,
           }}
         >
           Market Resolved
         </div>
 
-        <div
-          style={{
-            fontSize: 13,
-            color: "rgba(255,255,255,0.5)",
-          }}
-        >
-          {formatMarketDate(resolutionTime)}
-        </div>
+        <div className="font-sm text-white/50">{formatMarketDate(resolutionTime)}</div>
       </div>
 
       {/* Body */}
-      <div
-        style={{
-          padding: "20px",
-          textAlign: "center",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 16,
-            fontWeight: 700,
-            color: "#fff",
-            marginBottom: 10,
-          }}
-        >
-          Outcome:
-        </div>
+      <div className="p-5 text-center">
+        <div className="font-default fnt-bold  text-white mb-2.5">Outcome:</div>
 
         <div
+          className="inline-block py-2 px-3.5 border rounded-md text-black font-sm font-black tracking-wider"
           style={{
-            display: "inline-block",
-            padding: "8px 20px",
-            borderRadius: 20,
             background: color,
-            color: "#000",
-            fontWeight: 900,
-            fontSize: 14,
-            letterSpacing: "0.05em",
           }}
         >
           {winningOutcome}

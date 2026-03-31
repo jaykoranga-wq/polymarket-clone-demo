@@ -38,7 +38,7 @@ export const Footer = () => {
     <footer className="border-t border-[#3B82F638] bg-background mt-auto">
       <div className="container py-12 flex flex-col gap-12 justify-between">
         {/* ── Top section ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:pl-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 ">
           {/* Brand */}
           <div className="flex flex-col gap-4 sm:col-span-2 max-w-lg">
             <div

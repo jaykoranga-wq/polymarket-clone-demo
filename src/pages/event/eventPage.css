@@ -56,9 +56,11 @@
   margin-bottom: 10px;
   letter-spacing: 0.02em;
 }
+
 .ep-breadcrumb-sep {
   color: var(--ep-muted);
 }
+
 .ep-breadcrumb-curr {
   color: var(--ep-muted);
   font-weight: 500;
@@ -72,6 +74,7 @@
   gap: 16px;
   margin-bottom: 12px;
 }
+
 .ep-page-title {
   flex: 1;
   font-size: 28px;
@@ -90,6 +93,7 @@
   flex-shrink: 0;
   margin-top: 4px;
 }
+
 .ep-icon-btn {
   width: 40px;
   height: 40px;
@@ -132,10 +136,12 @@
 .ep-chip svg {
   opacity: 0.6;
 }
+
 .ep-chip strong {
   color: var(--ep-text);
   font-weight: 600;
 }
+
 .ep-trending {
   font-size: 12px;
   color: var(--ep-green);
@@ -149,23 +155,29 @@
   gap: 28px;
   align-items: flex-start;
 }
+
 @media (max-width: 960px) {
   .ep-layout {
     grid-template-columns: 1fr;
   }
+
   .ep-sticky {
     position: static !important;
   }
+
   .ep-right {
     width: 100% !important;
   }
 }
+
 .ep-left {
   min-width: 0;
 }
+
 .ep-right {
   width: 380px;
 }
+
 .ep-sticky {
   position: sticky;
   top: 80px;
@@ -173,6 +185,7 @@
   overflow-y: auto;
   scrollbar-width: none;
 }
+
 .ep-sticky::-webkit-scrollbar {
   display: none;
 }
@@ -185,12 +198,14 @@
   padding: 24px;
   margin-bottom: 0;
 }
+
 .ep-chart-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 20px;
 }
+
 .ep-price-label {
   font-size: 11px;
   font-weight: 700;
@@ -199,6 +214,7 @@
   letter-spacing: 0.1em;
   margin-bottom: 4px;
 }
+
 .ep-price-big {
   font-size: 32px;
   font-weight: 800;
@@ -208,6 +224,7 @@
   line-height: 1;
   margin-bottom: 6px;
 }
+
 .ep-price-change {
   display: flex;
   align-items: center;
@@ -216,6 +233,7 @@
   font-weight: 700;
   color: var(--ep-green);
 }
+
 .ep-price-change.negative {
   color: var(--ep-red);
 }
@@ -228,6 +246,7 @@
   border-radius: 10px;
   padding: 4px;
 }
+
 .ep-chart-tab {
   padding: 6px 14px;
   font-size: 12px;
@@ -242,14 +261,17 @@
     color 0.15s;
   letter-spacing: 0.02em;
 }
+
 .ep-chart-tab.active {
   background: var(--ep-green);
   color: #000;
 }
+
 .ep-chart-tab:hover:not(.active) {
   background: rgba(255, 255, 255, 0.06);
   color: var(--ep-text);
 }
+
 .ep-chart-empty {
   height: 220px;
   display: flex;
@@ -265,6 +287,7 @@
   border-bottom: 1px solid var(--ep-border);
   margin-top: 16px;
 }
+
 .ep-tab {
   padding: 12px 20px;
   font-size: 13px;
@@ -277,9 +300,11 @@
   transition: color 0.15s;
   white-space: nowrap;
 }
+
 .ep-tab.active {
   color: var(--ep-green);
 }
+
 .ep-tab.active::after {
   content: "";
   position: absolute;
@@ -291,6 +316,7 @@
   border-radius: 2px 2px 0 0;
   box-shadow: 0 0 8px var(--ep-green);
 }
+
 .ep-tab:hover:not(.active) {
   color: var(--ep-text);
 }
@@ -341,6 +367,7 @@
   line-height: 1.7;
   color: rgba(255, 255, 255, 0.6);
 }
+
 .ep-rules-toggle {
   font-size: 12px;
   color: var(--ep-green);
@@ -352,6 +379,7 @@
   transition: opacity 0.15s;
   padding: 0;
 }
+
 .ep-rules-toggle:hover {
   opacity: 0.75;
 }
@@ -360,13 +388,14 @@
 .ep-meta-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 12px;
+  gap: 18px 12px;
   margin-top: 20px;
   padding: 16px;
   background: var(--ep-surface);
   border: 1px solid var(--ep-border);
   border-radius: 12px;
 }
+
 .ep-meta-label {
   font-size: 10px;
   font-weight: 700;
@@ -375,11 +404,13 @@
   letter-spacing: 0.1em;
   margin-bottom: 4px;
 }
+
 .ep-meta-value {
   font-size: 13px;
   font-weight: 600;
   color: var(--ep-text);
 }
+
 .ep-meta-value.mono {
   font-family: var(--ep-mono);
   font-size: 11px;
@@ -412,6 +443,7 @@
   color: var(--ep-red);
   background: var(--ep-red-bg);
 }
+
 .ep-ob-col-head {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -422,6 +454,7 @@
   letter-spacing: 0.08em;
   padding: 0 8px 6px;
 }
+
 .ep-ob-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -447,6 +480,7 @@
 .ep-ob-row.no .ep-ob-depth {
   background: var(--ep-red);
 }
+
 .ep-ob-price {
   font-weight: 700;
   position: relative;
@@ -467,6 +501,7 @@
   position: relative;
   z-index: 1;
 }
+
 .ep-ob-empty {
   color: var(--ep-muted);
   font-size: 13px;
@@ -487,6 +522,7 @@
   gap: 16px;
   margin-bottom: 10px;
 }
+
 .ep-legend-item {
   display: flex;
   align-items: center;
@@ -497,11 +533,13 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+
 .ep-legend-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
 }
+
 .ep-legend-dot.yes {
   background: var(--ep-green);
   box-shadow: 0 0 6px var(--ep-green);

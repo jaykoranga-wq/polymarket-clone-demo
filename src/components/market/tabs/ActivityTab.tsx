@@ -15,17 +15,15 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-3.5">
-        <span className="font-base font-bold text-white uppercase ">Recent Activity</span>
-        <span className="font-base text-white/3">{items.length} trades</span>
+        {/* <span className="font-base font-bold text-white uppercase ">Recent Activity</span> */}
+        <span className="font-sm text-white/50">{items.length} trades</span>
       </div>
 
       {/* Column headers */}
       <div
-        className="grid text-[10px] font-bold uppercase tracking-widest pb-2 border-b mb-1"
+        className="grid font-xs text-white font-bold uppercase tracking-widest pb-2 border-b border-white/6 mb-1"
         style={{
           gridTemplateColumns: "1fr 56px 56px 72px 88px",
-          color: "rgba(255,255,255,0.3)",
-          borderColor: "rgba(255,255,255,0.06)",
         }}
       >
         <span>User</span>
@@ -40,23 +38,15 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
         {items.map((item) => (
           <div
             key={item.id}
-            className="grid items-center py-2.5 transition-colors hover:bg-white/[0.02] rounded-lg px-1"
+            className="grid items-center border-b border-b-white/4 py-2.5 transition-colors hover:bg-white/2 rounded-lg px-1"
             style={{
               gridTemplateColumns: "1fr 56px 56px 72px 88px",
-              borderBottom: "1px solid rgba(255,255,255,0.04)",
             }}
           >
             {/* User + time */}
             <div className="flex flex-col min-w-0">
-              <span
-                className="text-[12px] font-medium"
-                style={{ color: "rgba(255,255,255,0.7)", fontFamily: "monospace" }}
-              >
-                {item.user}
-              </span>
-              <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.25)" }}>
-                {formatMarketDate(item.timestamp)}
-              </span>
+              <span className="font-base font-medium text-white">{item.user}</span>
+              <span className="font-xs text-white/25">{formatMarketDate(item.timestamp)}</span>
             </div>
 
             {/* Action */}
