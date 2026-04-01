@@ -24,6 +24,29 @@ export const CategoryTabs: FC = () => {
     <div className="container border-b border-border/70 bg-background sticky top-14 z-40 md:px-15 font-liberation">
       <div className=" overflow-x-auto no-scrollbar">
         <div className="flex items-center  gap-2 mb-1 h-9">
+          {
+            <button
+              key={`allmarkets`}
+              onClick={() => {
+                dispatch(setSelectedCategoryById("allmarkets"))
+                dispatch(setSelectedCategoryByName("All Markets"))
+                navigate(
+                  ROUTES.MarketCategory.replace(":category", encodeURIComponent("All%20Markets")),
+                )
+              }}
+              className={clsx(
+                "relative h-full flex items-center font-base font-bold transition-colors duration-200 whitespace-nowrap py-2 px-3",
+                decodeURIComponent(activeCategoryName as string) === "All Markets"
+                  ? "text-[#f1f8f4]"
+                  : "text-secondary hover:text-white",
+              )}
+            >
+              {"ALL MARKETS"}
+              {decodeURIComponent(activeCategoryName as string) === "All Markets" && (
+                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00c853] shadow-[0_0_8px_rgba(0,200,83,0.5)]" />
+              )}
+            </button>
+          }
           {allCategories.map((category) => {
             const isActive = activeCategoryName
               ? decodeURIComponent(activeCategoryName) === category.name
@@ -44,7 +67,7 @@ export const CategoryTabs: FC = () => {
                   isActive ? "text-[#f1f8f4]" : "text-secondary hover:text-white",
                 )}
               >
-                {category.name}
+                {category.name.toUpperCase()}
                 {isActive && (
                   <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00c853] shadow-[0_0_8px_rgba(0,200,83,0.5)]" />
                 )}

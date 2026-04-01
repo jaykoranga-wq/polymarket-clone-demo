@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
+import { ChevronDown, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
 import { type FC, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router"
@@ -26,6 +26,7 @@ import { formatCash, formatPortfolio } from "@/libs/formatCurrency"
 import { setMetaMaskLoggedOut } from "@/routes/utils"
 
 import { MetaMaskDepositModal } from "../deposit/MetaMaskDepositModal"
+import { NotificationBell } from "../navbar/NotificationBell"
 import { AuthLoader } from "../ui/AuthLoader"
 import { CategoryTabs } from "./CategoryTabs"
 
@@ -271,17 +272,40 @@ export const Navbar: FC = () => {
             </div>
 
             <nav className="hidden lg:flex items-center gap-6 py-1.5 px-3 text-sm font-bold  ">
-              <button className="text-secondary transition-colors hover:text-white">
+              <button
+                className="text-secondary transition-colors hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate("/markets/trending")
+                }}
+              >
                 Trending
               </button>
-              <button className="text-secondary transition-colors hover:text-white">
+              <button
+                className="text-secondary transition-colors hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate("/markets/category/Breaking")
+                }}
+              >
                 Breaking
               </button>
-              <button className="text-secondary transition-colors hover:text-white">New</button>
-              <div className="relative">
+              <button
+                className="text-secondary transition-colors hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate("/markets/new_market")
+                }}
+              >
+                New
+              </button>
+              <div className="relative" onClick={(e) => e.stopPropagation()}>
                 <button
                   onMouseDown={(e) => e.stopPropagation()}
-                  onClick={() => setMoreOpen((p) => !p)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setMoreOpen((p) => !p)
+                  }}
                   className="flex items-center gap-1 text-secondary transition-colors hover:text-white ml-0"
                 >
                   More{" "}
@@ -293,9 +317,20 @@ export const Navbar: FC = () => {
 
                 {moreOpen && (
                   <Dropdown onClose={() => setMoreOpen(false)} className="left-0 mt-2 w-48">
-                    <MenuItem label="Option 1" onClick={() => setMoreOpen(false)} />
-                    <MenuItem label="Option 2" onClick={() => setMoreOpen(false)} />
-                    <MenuItem label="Option 3" onClick={() => setMoreOpen(false)} />
+                    <MenuItem
+                      label="Hollywood"
+                      onClick={() => {
+                        setMoreOpen(false)
+                        navigate("/markets/category/Hollywood")
+                      }}
+                    />
+                    <MenuItem
+                      label="Awards"
+                      onClick={() => {
+                        setMoreOpen(false)
+                        navigate("/markets/category/Awards")
+                      }}
+                    />
                   </Dropdown>
                 )}
               </div>
@@ -339,14 +374,15 @@ export const Navbar: FC = () => {
                   {depositLoading ? "Opening wallet" : "Deposit"}
                 </Button>
 
-                {/* Bell */}
+                {/* Bell
                 <Button
                   variant="ghost"
                   size="icon"
                   className="text-muted-foreground hover:text-white h-9 w-9 flex items-center justify-center p-0"
                 >
                   <Bell width={16} height={20} className="shrink-0" />
-                </Button>
+                </Button> */}
+                <NotificationBell />
 
                 {/* Profile avatar + dropdown */}
                 <div className="relative ">
