@@ -6,7 +6,8 @@ import { useSelector } from "react-redux"
 import { useNavigate } from "react-router"
 
 import { LoginModal } from "@/components/auth/LoginModal"
-import { selectIsAuthenticated } from "@/features/auth/authSlice"
+import { WithdrawModal } from "@/components/withdrawl/withdrawModal"
+import { selectAvailableAmount, selectIsAuthenticated } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
 import { MOCK_PORTFOLIO_CHART, MOCK_PORTFOLIO_STATS } from "@/mocks/mockPortfolio"
 
@@ -26,12 +27,17 @@ const TABS: { key: PortfolioTab; label: string }[] = [
 // ─── PortfolioPage ────────────────────────────────────────────────────────────
 const PortfolioPage = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated)
+  const availableAmountRaw = useSelector(selectAvailableAmount)
   const { magic } = useMagic()
   const navigate = useNavigate()
 
   const [loginOpen, setLoginOpen] = useState(() => localStorage.getItem("isSignedIn") !== "true")
   const [activeTab, setActiveTab] = useState<PortfolioTab>(PORTFOLIO_TABS.POSITIONS)
   const [search, setSearch] = useState("")
+  const [withdrawOpen, setWithdrawOpen] = useState(false)
+
+  // micro-USDC (6 decimals string) → plain USDC number
+  const availableBalance = Number(BigInt(availableAmountRaw ?? "0")) / 1_000_000
 
   const handleLoginClose = () => {
     setLoginOpen(false)
@@ -54,6 +60,11 @@ const PortfolioPage = () => {
       <LoginModal
         open={loginOpen}
         onClose={isAuthenticated ? () => setLoginOpen(false) : handleLoginClose}
+      />
+      <WithdrawModal
+        open={withdrawOpen}
+        onClose={() => setWithdrawOpen(false)}
+        availableBalance={availableBalance}
       />
 
       <div
@@ -101,7 +112,11 @@ const PortfolioPage = () => {
             {/* action buttons */}
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <ActionBtn onClick={handleDeposit} icon={<IconDeposit />} label="Deposit" />
-              <ActionBtn onClick={() => {}} icon={<IconWithdraw />} label="Withdraw" />
+              <ActionBtn
+                onClick={() => setWithdrawOpen(true)}
+                icon={<IconWithdraw />}
+                label="Withdraw"
+              />
               <button
                 style={{
                   width: 36,
@@ -131,7 +146,7 @@ const PortfolioPage = () => {
               activePositions={stats.activePositions}
               potentialValue={stats.potentialValue}
               onDeposit={handleDeposit}
-              onWithdraw={() => {}}
+              onWithdraw={() => setWithdrawOpen(true)}
             />
           </div>
 
