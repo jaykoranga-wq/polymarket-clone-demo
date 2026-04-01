@@ -1,6 +1,7 @@
 // src/pages/portfolio/PortfolioPage.tsx
 // Main portfolio page — clean orchestration only, all UI in sub-components
 
+import { Filter, Search } from "lucide-react"
 import { useState } from "react"
 import { useSelector } from "react-redux"
 import { useNavigate } from "react-router"
@@ -68,76 +69,39 @@ const PortfolioPage = () => {
       />
 
       <div
+        className="container font-inter "
         style={{
-          minHeight: "100vh",
           background: PORTFOLIO_COLORS.PAGE_BG,
           color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-          fontFamily: "Inter, sans-serif",
         }}
       >
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px 80px" }}>
+        <div
+          className="mt-7.5 mb-18 "
+          //  style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px 80px" }}
+        >
           {/* ── Page header ── */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              marginBottom: 28,
-            }}
-          >
+          <div className="flex items-start justify-between mb-7">
             <div>
-              <h1
-                style={{
-                  fontSize: 32,
-                  fontWeight: 800,
-                  color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-                  margin: 0,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                Portfolio
-              </h1>
-              <p
-                style={{
-                  fontSize: 14,
-                  color: PORTFOLIO_COLORS.TEXT_MUTED,
-                  margin: "6px 0 0",
-                  fontWeight: 400,
-                }}
-              >
-                Track your positions and performance
-              </p>
+              <h1 className="font-xxl font-extrabold text-white">Portfolio</h1>
+              <p className="font-sm mt-1.5 text-white/60 ">Track your positions and performance</p>
             </div>
 
             {/* action buttons */}
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <div className="flex gap-2.5 items-center">
               <ActionBtn onClick={handleDeposit} icon={<IconDeposit />} label="Deposit" />
               <ActionBtn
                 onClick={() => setWithdrawOpen(true)}
                 icon={<IconWithdraw />}
                 label="Withdraw"
               />
-              <button
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-                  background: PORTFOLIO_COLORS.CARD_BG,
-                  color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                }}
-              >
+              <button className="w-9 h-9 border rounded-2md border-white/10 bg-white/5 text-white flex items-center justify-center cursor-pointer transition-all">
                 <IconMore />
               </button>
             </div>
           </div>
 
           {/* ── Stats cards ── */}
-          <div style={{ marginBottom: 16 }}>
+          <div className="mb-6">
             <StatsCards
               totalValue={stats.totalValue}
               available={stats.available}
@@ -151,7 +115,7 @@ const PortfolioPage = () => {
           </div>
 
           {/* ── Portfolio value chart ── */}
-          <div style={{ marginBottom: 16 }}>
+          <div className="mb-6">
             <PortfolioChart
               data={MOCK_PORTFOLIO_CHART}
               portfolioValue={stats.portfolioValue}
@@ -160,7 +124,50 @@ const PortfolioPage = () => {
             />
           </div>
 
-          {/* ── Tabs + table ── */}
+          {/* tab bar + search */}
+
+          <div className="flex items-center justify-between  flex-wrap pb-4 pt-0 gap-3">
+            {/* tabs */}
+            <div className="flex gap-4 bg-white/5 border border-white/10 rounded-2md p-1">
+              {TABS.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => {
+                    setActiveTab(t.key)
+                    setSearch("")
+                  }}
+                  className="py-1.5 px-4.5 rounded-sm font-sm  font-semibold transition-all cursor-pointer whitespace-nowrap"
+                  style={{
+                    background: activeTab === t.key ? PORTFOLIO_COLORS.GREEN : "transparent",
+                    color: activeTab === t.key ? "#000" : PORTFOLIO_COLORS.TEXT_MUTED,
+                  }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* filter + search */}
+            <div className="flex gap-2.5 items-center">
+              <button className="flex items-center gap-1.5 py-1.5 px-4 rounded-md bg-white/5 border border-white/10 text-white text-sm font-semibold cursor-pointer">
+                <Filter size={14} className="text-white" /> Filter
+              </button>
+              <div className="relative ">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-sm text-white/40">
+                  <Search size={14} />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search positions..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pt-1.5 pr-3.5 pb-1.5 pl-8  bg-white/5 border border-white/10  rounded-md placeholder:text-white/40 text-white font-sm outline-none max-w-50"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ──  table ── */}
           <div
             style={{
               background: PORTFOLIO_COLORS.CARD_BG,
@@ -169,104 +176,6 @@ const PortfolioPage = () => {
               overflow: "hidden",
             }}
           >
-            {/* tab bar + search */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "16px 16px 0",
-                borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-                flexWrap: "wrap",
-                gap: 12,
-              }}
-            >
-              {/* tabs */}
-              <div
-                style={{
-                  display: "flex",
-                  gap: 4,
-                  background: "rgba(255,255,255,0.04)",
-                  borderRadius: 10,
-                  padding: 4,
-                }}
-              >
-                {TABS.map((t) => (
-                  <button
-                    key={t.key}
-                    onClick={() => {
-                      setActiveTab(t.key)
-                      setSearch("")
-                    }}
-                    style={{
-                      padding: "7px 18px",
-                      borderRadius: 7,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      background: activeTab === t.key ? PORTFOLIO_COLORS.GREEN : "transparent",
-                      color: activeTab === t.key ? "#000" : PORTFOLIO_COLORS.TEXT_MUTED,
-                      transition: "all 0.15s",
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* filter + search */}
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "7px 14px",
-                    borderRadius: 8,
-                    border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-                    background: PORTFOLIO_COLORS.SURFACE,
-                    color: PORTFOLIO_COLORS.TEXT_MUTED,
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  ⚙ Filter
-                </button>
-                <div style={{ position: "relative" }}>
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: 10,
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      color: PORTFOLIO_COLORS.TEXT_MUTED_2,
-                      fontSize: 14,
-                    }}
-                  >
-                    🔍
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Search positions..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    style={{
-                      background: PORTFOLIO_COLORS.SURFACE,
-                      border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-                      borderRadius: 8,
-                      padding: "7px 14px 7px 32px",
-                      fontSize: 13,
-                      color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-                      outline: "none",
-                      width: 200,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
             {/* tab content */}
             <div style={{ padding: "16px 0 0" }}>
               {activeTab === PORTFOLIO_TABS.POSITIONS && <PositionsTab search={search} />}
@@ -296,20 +205,7 @@ const ActionBtn = ({
 }) => (
   <button
     onClick={onClick}
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-      padding: "8px 18px",
-      borderRadius: 10,
-      fontSize: 13,
-      fontWeight: 700,
-      border: `1px solid ${variant === "solid" ? PORTFOLIO_COLORS.CARD_BORDER : PORTFOLIO_COLORS.CARD_BORDER}`,
-      background: variant === "solid" ? PORTFOLIO_COLORS.CARD_BG : "transparent",
-      color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-      cursor: "pointer",
-      transition: "background 0.15s",
-    }}
+    className="flex items-center gap-1.5 py-1.5 px-4.5 rounded-2md font-sm font-bold border border-white/10 bg-white/5 text-white cursor-pointer transition-all "
     onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
     onMouseLeave={(e) =>
       (e.currentTarget.style.background =

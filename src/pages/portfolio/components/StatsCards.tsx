@@ -1,5 +1,7 @@
 // src/pages/portfolio/components/StatsCards.tsx
 
+import { Activity, Award, DollarSign, TrendingUp } from "lucide-react"
+
 import { formatCash } from "@/libs/formatCurrency"
 
 import { PORTFOLIO_COLORS } from "../portfolioConstants"
@@ -16,34 +18,16 @@ interface StatCardProps {
 
 const StatCard = ({ label, value, subValue, subColor, icon, iconBg, cardBg }: StatCardProps) => (
   <div
-    style={{
-      flex: 1,
-      background: cardBg ?? PORTFOLIO_COLORS.CARD_BG,
-      border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-      borderRadius: 16,
-      padding: "20px 24px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 12,
-      minWidth: 0,
-    }}
+    className="flex-1 border border-white/10 rounded-2xl py-5 px-6 flex flex-col gap-3"
+    style={{ background: cardBg }}
   >
     {/* label + icon row */}
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <span style={{ fontSize: 13, color: PORTFOLIO_COLORS.TEXT_MUTED, fontWeight: 500 }}>
-        {label}
-      </span>
+    <div className="flex items-center justify-between">
+      <span className="font-sm text-white/40 font-medium">{label}</span>
       <div
+        className="w-9 h-9 rounded-2md flex items-center justify-center font-default shrink-0"
         style={{
-          width: 36,
-          height: 36,
-          borderRadius: 10,
           background: iconBg,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 16,
-          flexShrink: 0,
         }}
       >
         {icon}
@@ -51,25 +35,13 @@ const StatCard = ({ label, value, subValue, subColor, icon, iconBg, cardBg }: St
     </div>
 
     {/* value */}
-    <div>
-      <div
-        style={{
-          fontSize: 28,
-          fontWeight: 800,
-          color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-          letterSpacing: "-0.02em",
-          lineHeight: 1,
-        }}
-      >
-        {value}
-      </div>
+    <div className="flex flex-col gap-1">
+      <div className="font-lg font-bold text-white leading-tight">{value}</div>
       {subValue && (
         <div
+          className="font-sm font-semibold"
           style={{
-            fontSize: 13,
-            fontWeight: 600,
             color: subColor ?? PORTFOLIO_COLORS.TEXT_MUTED,
-            marginTop: 6,
           }}
         >
           {subValue}
@@ -101,35 +73,42 @@ export const StatsCards = ({
   const pnlPositive = pastMonthPnl >= 0
 
   return (
-    <div style={{ display: "flex", gap: 12 }}>
+    <div className="flex gap-3 ">
       <StatCard
         label="Total Value"
         value={formatCash(totalValue)}
-        icon="$"
-        iconBg="rgba(59,130,246,0.2)"
+        icon={<DollarSign size={18} color="#2D7FF9" />}
+        iconBg="#2D7FF920"
+        cardBg="bg-linear-to-b from-white/5 to-white/2"
       />
       <StatCard
         label="Available"
         value={formatCash(available)}
-        icon="⚡"
-        iconBg="rgba(139,92,246,0.2)"
+        icon={<Activity size={18} color="#7B61FF" />}
+        iconBg="#7B61FF20"
+        cardBg="bg-linear-to-b from-white/5 to-white/2"
       />
       <StatCard
         label="Past Month P/L"
         value={`${pnlPositive ? "+" : ""}${formatCash(pastMonthPnl)}`}
         subValue={`${pnlPositive ? "+" : ""}${pastMonthPct.toFixed(2)}%`}
-        subColor={pnlPositive ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.RED}
-        icon="↗"
-        iconBg={pnlPositive ? "rgba(0,200,83,0.2)" : "rgba(229,57,53,0.2)"}
-        cardBg={pnlPositive ? PORTFOLIO_COLORS.GREEN_CARD_BG : "rgba(229,57,53,0.04)"}
+        subColor={pnlPositive ? "#18C964" : PORTFOLIO_COLORS.RED}
+        icon={<TrendingUp size={18} color={pnlPositive ? "#18C964" : "#e53935"} />}
+        iconBg={pnlPositive ? "#18C96433" : "rgba(229, 57, 53, 0.15)"}
+        cardBg={
+          pnlPositive
+            ? "linear-gradient(135deg, rgba(24, 201, 100, 0.1) 0%, rgba(24, 201, 100, 0.05) 100%)"
+            : "bg-linear-to-b from-white/5 to-white/2"
+        }
       />
       <StatCard
         label="Active Positions"
         value={String(activePositions)}
         subValue={`${formatCash(potentialValue)} potential`}
         subColor={PORTFOLIO_COLORS.TEXT_MUTED}
-        icon="◈"
-        iconBg="rgba(59,130,246,0.2)"
+        icon={<Award size={18} color="#2D7FF9" />}
+        iconBg="#2D7FF920"
+        cardBg="bg-linear-to-b from-white/5 to-white/2"
       />
     </div>
   )
