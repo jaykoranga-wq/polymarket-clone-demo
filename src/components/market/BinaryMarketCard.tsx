@@ -58,7 +58,7 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
         </div>
         <h3
           onClick={handleNavigation}
-          className="h3 font-bold leading-tight align-center capitalize line-clamp-2 min-h-10 group-hover:text-primary transition-colors"
+          className="h3 font-bold leading-tight align-center capitalize  group-hover:text-primary transition-colors"
         >
           {market.title}
         </h3>
@@ -76,7 +76,7 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
           <Button
             onClick={handleNavigation}
             variant="outline"
-            className="flex-1 bg-option-no h-9.5 border-no/20 text-no font-bold hover:bg-no hover:text-background transition-all active:scale-95"
+            className="flex-1 bg-option-no h-9.5  border-no/20 text-no font-bold hover:bg-no hover:text-background transition-all active:scale-95"
           >
             No {market.noProbability}%
           </Button>

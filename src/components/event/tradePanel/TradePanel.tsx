@@ -136,7 +136,6 @@ const TradePanel = ({
   }, [])
 
   // ── Market Buy: percentage presets ──
-  const mockBalance = 1240.5
   const handlePctPreset = (pct: string) => {
     setActivePct(pct)
     const map: Record<string, number> = {
@@ -208,10 +207,10 @@ const TradePanel = ({
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="border-white/10 tp ep bg-linear-to-b from-white/5 to-white/2">
+    <div className="border border-white/10  bg-linear-to-b from-white/5 to-white/2  font-inter rounded-2xl w-full overflow-hidden ">
       {/* ── Top: Place Bet + Buy/Sell + Order Type ── */}
-      <div className="tp-top gap-2">
-        <div className="tp-top-left">
+      <div className="flex items-end justify-between p-6 pt-4.5 gap-2">
+        <div className="flex flex-col gap-2.5">
           <h2 className="tp-title">Place Bet</h2>
           <div className="tp-action-tabs">
             {(["Buy", "Sell"] as Action[]).map((a) => (
@@ -252,22 +251,22 @@ const TradePanel = ({
 
       <div className="tp-body">
         {/* ── Balance row ── */}
-        {isAuthenticated && (
+        {/* {isAuthenticated && (
           <div className="tp-balance-row">
             Balance: <strong>{formatCash(balance)}</strong>
           </div>
-        )}
+        )} */}
 
         {/* ── YES / NO outcome buttons ── */}
-        <div className="tp-outcome">
+        <div className="flex justify-between gap-2 items-center mb-3">
           <button
-            className={`tp-outcome-btn yes${outcome === labelA ? " active" : ""}`}
+            className={`flex-1 bg-option-yes h-12.5 border rounded-sm border-yes/20 text-primary font-bold hover:bg-primary hover:text-background transition-all active:scale-95${outcome === labelA ? " active" : ""}`}
             onClick={() => handleOutcome(labelA)}
           >
             {labelA} {priceA}¢
           </button>
           <button
-            className={`tp-outcome-btn no${outcome === labelB ? " active" : ""}`}
+            className={`flex-1 bg-option-no h-12.5 border rounded-sm border-no/20 text-no font-bold hover:bg-no hover:text-background transition-all active:scale-95${outcome === labelB ? " active" : ""}`}
             onClick={() => handleOutcome(labelB)}
           >
             {labelB} {priceB}¢
@@ -287,7 +286,7 @@ const TradePanel = ({
             <div className="tp-amount-header">
               <span className="font-base font-bold uppercase text-white">Amount</span>
               <span className=" font-sm text-white text-nowrap">
-                Balance: ${mockBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                Balance: {formatCash(balance)}
               </span>
             </div>
 

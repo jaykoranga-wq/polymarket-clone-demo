@@ -19,7 +19,7 @@ export const MarketResolvedCard = ({ winningOutcome, resolutionTime }: MarketRes
 
   return (
     <div
-      className="border border-primary/50 rounded-2xl overflow-hidden  bg-linear-to-b from primary/10 to bg-primary/5 "
+      className="border  border-primary/50 rounded-2xl overflow-hidden  bg-linear-to-b from primary/10 to bg-primary/5 "
       // style={{
       //   background: bg,
       // }}

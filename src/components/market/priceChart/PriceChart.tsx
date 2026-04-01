@@ -147,7 +147,7 @@ export const PriceChart = memo(
     const pctFormatted = `${isPositive ? "+" : ""}${pctChange.toFixed(1)}%`
 
     return (
-      <div className="bg-linear-to-b from-black/5 to black/2 border border-white/10 rounded-2xl mb-7.5  p-6">
+      <div className="bg-linear-to-b from-white/5 to-white/2 border border-white/10 rounded-2xl mb-7.5  p-6">
         {/* ── Header: price + change + tabs ── */}
         <div className="flex md:flex-row flex-col  md:items-center justify-between gap-0.5 pb-2">
           <div className="flex flex-col">

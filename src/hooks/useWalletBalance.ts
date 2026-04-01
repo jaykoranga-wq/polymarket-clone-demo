@@ -68,5 +68,5 @@ export const useWalletBalance = () => {
     }
 
     fetchBalance()
-  }, [address, lockedData])
+  }, [address, lockedData, dispatch, loginMethod, magic?.rpcProvider])
 }

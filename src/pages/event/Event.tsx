@@ -54,7 +54,6 @@ const EventPage = () => {
   // ── Chart state ────────────────────────────────────────────────────────────
   const yesProbability = (market?.yesProbability ?? 50) / 100
   const { tab, history, changeTab, lastPrice, pctChange, isPositive } = usePriceChart({
-    marketId: id ?? "",
     startPrice: yesProbability,
   })
 
@@ -257,7 +256,7 @@ const EventPage = () => {
 
             {/* ══ RIGHT ══ */}
             <div className="ep-right-col">
-              <div className="ep-sticky px-6">
+              <div className="ep-sticky ">
                 {isResolved ? (
                   <MarketResolvedCard
                     winningOutcome="NO"

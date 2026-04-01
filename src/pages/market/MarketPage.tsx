@@ -116,7 +116,6 @@ const MarketsPage = () => {
     newMarkets,
     allMarkets,
     group,
-    category,
     isApiCategory,
     categoryName,
   ])

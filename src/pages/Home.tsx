@@ -93,10 +93,10 @@ const Home: FC = () => {
                   <div className="flex justify-end items-center gap-3">
                     <span className="font-bold text-sm">2%</span>
                     <div className="flex gap-2">
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                         Yes
                       </button>
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
                         No
                       </button>
                     </div>
@@ -109,10 +109,10 @@ const Home: FC = () => {
                   <div className="flex justify-end items-center gap-3">
                     <span className="font-bold text-sm">7%</span>
                     <div className="flex gap-2">
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                         Yes
                       </button>
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
                         No
                       </button>
                     </div>
@@ -156,10 +156,10 @@ const Home: FC = () => {
               </div>
               <div className="mt-auto space-y-2.5">
                 <div className="flex gap-2">
-                  <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-[12px] font-bold ring-offset-background disabled:pointer-events-none disabled:opacity-50 border  flex-1 bg-option-yes h-9.5 border-yes/20 text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                  <button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm font-base font-bold ring-offset-background disabled:pointer-events-none disabled:opacity-50 border  flex-1 bg-option-yes h-9.5 border-yes/20 text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                     Yes 40%
                   </button>
-                  <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-[12px] font-bold ring-offset-background disabled:pointer-events-none disabled:opacity-50 border  flex-1 bg-option-no h-9.5 border-no/20 text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                  <button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm font-base font-bold ring-offset-background disabled:pointer-events-none disabled:opacity-50 border  flex-1 bg-option-no h-9.5 border-no/20 text-no hover:bg-no hover:text-background transition-all active:scale-95">
                     No 60%
                   </button>
                 </div>
@@ -225,10 +225,10 @@ const Home: FC = () => {
                   <div className="flex justify-end items-center gap-3">
                     <span className="font-bold text-sm">2%</span>
                     <div className="flex gap-2">
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                         Yes
                       </button>
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
                         No
                       </button>
                     </div>
@@ -241,10 +241,10 @@ const Home: FC = () => {
                   <div className="flex justify-end items-center gap-3">
                     <span className="font-bold text-sm">7%</span>
                     <div className="flex gap-2">
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                         Yes
                       </button>
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
                         No
                       </button>
                     </div>
@@ -303,10 +303,10 @@ const Home: FC = () => {
                 </div>
               </div>
               <div className="flex gap-2 mb-4">
-                <button className="flex-1 h-9.5 rounded-md text-[12px] font-bold border border-yes/20 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                <button className="flex-1 h-9.5 rounded-sm font-base font-bold border border-yes/20 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                   Nets
                 </button>
-                <button className="flex-1 h-9.5 rounded-md text-[12px] font-bold border border-no/20 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                <button className="flex-1 h-9.5 rounded-sm font-base font-bold border border-no/20 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
                   Cavaliers
                 </button>
               </div>
@@ -324,10 +324,9 @@ const Home: FC = () => {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Row 2 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {/* Row 2 */}
+
             {/* Card 5 — Democratic Presidential Nominee (multi-option) */}
             <div
               style={{
@@ -356,10 +355,10 @@ const Home: FC = () => {
                   <div className="flex justify-end items-center gap-3">
                     <span className="font-bold text-sm">2%</span>
                     <div className="flex gap-2">
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                         Yes
                       </button>
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
                         No
                       </button>
                     </div>
@@ -372,10 +371,10 @@ const Home: FC = () => {
                   <div className="flex justify-end items-center gap-3">
                     <span className="font-bold text-sm">7%</span>
                     <div className="flex gap-2">
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                         Yes
                       </button>
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
                         No
                       </button>
                     </div>
@@ -419,10 +418,10 @@ const Home: FC = () => {
               </div>
               <div className="mt-auto space-y-2.5">
                 <div className="flex gap-2">
-                  <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-[12px] font-bold ring-offset-background disabled:pointer-events-none disabled:opacity-50 border border-input flex-1 bg-option-yes h-9.5 text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                  <button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm font-base font-bold ring-offset-background disabled:pointer-events-none disabled:opacity-50 border border-yes/20 flex-1 bg-option-yes h-9.5 text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                     Yes 40%
                   </button>
-                  <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-[12px] font-bold ring-offset-background disabled:pointer-events-none disabled:opacity-50 border border-input flex-1 bg-option-no h-9.5 text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                  <button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm font-base font-bold ring-offset-background disabled:pointer-events-none disabled:opacity-50 border border-no/20 flex-1 bg-option-no h-9.5 text-no hover:bg-no hover:text-background transition-all active:scale-95">
                     No 60%
                   </button>
                 </div>
@@ -488,10 +487,10 @@ const Home: FC = () => {
                   <div className="flex justify-end items-center gap-3">
                     <span className="font-bold text-sm">2%</span>
                     <div className="flex gap-2">
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center  rounded-sm font-base font-bold ring-offset-background border border-yes/20 px-4 py-2 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                         Yes
                       </button>
-                      <button className="inline-flex items-center justify-center rounded-md text-[12px] font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                      <button className="inline-flex items-center justify-center rounded-sm font-base font-bold ring-offset-background border border-no/20 px-4 py-2 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
                         No
                       </button>
                     </div>
@@ -566,10 +565,10 @@ const Home: FC = () => {
                 </div>
               </div>
               <div className="flex gap-2 mb-4">
-                <button className="flex-1 h-9.5 rounded-md text-[12px] font-bold border border-yes/20 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
+                <button className="flex-1 h-9.5 rounded-sm font-base font-bold border border-yes/20 bg-option-yes text-primary hover:bg-primary hover:text-background transition-all active:scale-95">
                   Nets
                 </button>
-                <button className="flex-1 h-9.5 rounded-md text-[12px] font-bold border border-no/20 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
+                <button className="flex-1 h-9.5 rounded-sm font-base font-bold border border-no/20 bg-option-no text-no hover:bg-no hover:text-background transition-all active:scale-95">
                   Cavaliers
                 </button>
               </div>

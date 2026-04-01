@@ -5,11 +5,10 @@ import { useCallback, useState } from "react"
 import { type ChartTab, generateMockPriceHistory, type PricePoint } from "@/mocks/mockPriceHistory"
 
 interface UsePriceChartOptions {
-  marketId: string
   startPrice?: number // initial yes probability 0–1, e.g. 0.65
 }
 
-export const usePriceChart = ({ marketId, startPrice = 0.5 }: UsePriceChartOptions) => {
+export const usePriceChart = ({ startPrice = 0.5 }: UsePriceChartOptions) => {
   const [tab, setTab] = useState<ChartTab>("1M")
   const [history, setHistory] = useState<PricePoint[]>(() =>
     generateMockPriceHistory("1M", startPrice),
@@ -23,7 +22,7 @@ export const usePriceChart = ({ marketId, startPrice = 0.5 }: UsePriceChartOptio
       setHistory(generateMockPriceHistory(newTab, startPrice))
       // future: dispatch(fetchPriceHistory({ marketId, range: newTab }))
     },
-    [marketId, startPrice],
+    [startPrice],
   )
 
   // called by socket — updates chart WITHOUT full rerender
