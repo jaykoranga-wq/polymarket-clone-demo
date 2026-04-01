@@ -125,11 +125,11 @@ const EventPage = () => {
         <Toaster richColors position="top-center" />
         <div className="container">
           {/* ── Breadcrumb ── */}
-          <div className="flex items-center space-x-2 font-sm  mt-2">
+          <div className="flex items-start space-x-2 font-sm  mt-2">
             <span className="text-gray-400 capitalize">{market.category}</span>
             <span className=" text-gray-500">›</span>
             <span className="text-white capitalize font-medium">
-              {market.title.length > 50 ? market.title.slice(0, 50) + "…" : market.title}
+              {market.title.length > 50 ? market.title : market.title}
             </span>
           </div>
 
@@ -255,8 +255,8 @@ const EventPage = () => {
             {/* ══ END LEFT ══ */}
 
             {/* ══ RIGHT ══ */}
-            <div className="ep-right-col">
-              <div className="ep-sticky ">
+            <div className="max-lg:hidden">
+              <div className="position-static ">
                 {isResolved ? (
                   <MarketResolvedCard
                     winningOutcome="NO"

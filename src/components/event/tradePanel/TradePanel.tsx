@@ -207,7 +207,7 @@ const TradePanel = ({
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="border border-white/10  bg-linear-to-b from-white/5 to-white/2  font-inter rounded-2xl w-full overflow-hidden ">
+    <div className="border border-white/10  bg-linear-to-b from-white/5 to-white/2  font-inter rounded-2xl max-w-[436px] min-w-[313px] overflow-hidden ">
       {/* ── Top: Place Bet + Buy/Sell + Order Type ── */}
       <div className="flex items-end justify-between p-6 pt-4.5 gap-2">
         <div className="flex flex-col gap-2.5">
@@ -409,7 +409,7 @@ const TradePanel = ({
 
             <div className="tp-field-row">
               <span className="  font-semibold text-white">Limit Price</span>
-              <div className="flex items-center gap-2.5 py-3 px-2 rounded-md w-45/100 bg-white/5 border border-white/10">
+              <div className="flex items-center gap-2.5 py-3 px-2 rounded-md w-45/100 justify-between bg-white/5 border border-white/10">
                 <button
                   className="tp-stepper-btn"
                   onClick={() => setLimitCents((p) => Math.max(1, p - 1))}
@@ -533,7 +533,7 @@ const TradePanel = ({
 
             <div className="tp-field-row">
               <span className=" font-semibold text-white">Limit Price</span>
-              <div className="flex items-center gap-2.5 py-3 px-2 rounded-md w-45/100 bg-white/5 border border-white/10">
+              <div className="flex items-center gap-2.5 py-3 px-2 rounded-md justify-between w-45/100 bg-white/5 border border-white/10">
                 <button
                   className="tp-stepper-btn"
                   onClick={() => setLimitCents((p) => Math.max(1, p - 1))}

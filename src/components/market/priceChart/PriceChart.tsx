@@ -13,6 +13,8 @@ import {
   createChart,
   type IChartApi,
   type ISeriesApi,
+  type OhlcData,
+  type SingleValueData,
 } from "lightweight-charts"
 import { memo, useEffect, useRef } from "react"
 
@@ -51,6 +53,7 @@ export const PriceChart = memo(
     const containerRef = useRef<HTMLDivElement>(null)
     const chartRef = useRef<IChartApi | null>(null)
     const seriesRef = useRef<ISeriesApi<"Area"> | null>(null)
+    const tooltipRef = useRef<HTMLDivElement>(null)
 
     // ── Create chart once on mount ─────────────────────────────────────────────
     useEffect(() => {
@@ -62,7 +65,7 @@ export const PriceChart = memo(
         layout: {
           background: { type: ColorType.Solid, color: "transparent" },
           textColor: "white",
-          fontFamily: "'Inter', 'Fira Mono', monospace",
+          fontFamily: "'Inter', sans-serif",
           fontSize: 11,
         },
         grid: {
@@ -72,13 +75,15 @@ export const PriceChart = memo(
         crosshair: {
           vertLine: {
             color: "#00c853",
-            labelBackgroundColor: "#161a22",
             width: 1,
-            style: 1,
+            style: 0, // Solid
+            labelVisible: false,
           },
           horzLine: {
             color: "#00c853",
-            labelBackgroundColor: "#161a22",
+            width: 1,
+            style: 0, // Solid
+            labelVisible: false,
           },
         },
         timeScale: {
@@ -110,6 +115,70 @@ export const PriceChart = memo(
 
       seriesRef.current = series
 
+      // ── Tooltip logic ────────────────────────────────────────────────────────
+      chart.subscribeCrosshairMove((param) => {
+        if (!tooltipRef.current || !containerRef.current) return
+
+        if (
+          param.point === undefined ||
+          !param.time ||
+          param.point.x < 0 ||
+          param.point.x > containerRef.current.clientWidth ||
+          param.point.y < 0 ||
+          param.point.y > height
+        ) {
+          tooltipRef.current.style.display = "none"
+        } else {
+          const data = param.seriesData.get(series)
+          if (!data) {
+            tooltipRef.current.style.display = "none"
+            return
+          }
+
+          tooltipRef.current.style.display = "block"
+          const price = "value" in data ? (data as SingleValueData).value : (data as OhlcData).close
+          const coordinate = series.priceToCoordinate(price)
+
+          // Tooltip content
+          const priceEl = tooltipRef.current.querySelector(".tt-price")
+          const dateEl = tooltipRef.current.querySelector(".tt-date")
+
+          if (priceEl) priceEl.textContent = `$${price.toFixed(2)}`
+          if (dateEl) {
+            const date = new Date((param.time as number) * 1000)
+            const formattedDate = date.toLocaleString("en-US", {
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
+            // Ensure format "MMM DD, HH:mm"
+            dateEl.textContent = formattedDate.replace(",", "")
+            // Actually to match "Oct 24, 14:20" exactly with comma and space
+            dateEl.textContent = `${date.toLocaleString("en-US", { month: "short", day: "numeric" })}, ${date.toLocaleString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })}`
+          }
+
+          // Positioning
+          const tooltipWidth = 120
+          const tooltipHeight = 70
+          const margin = 15
+
+          let left = param.point.x + margin
+          if (left > containerRef.current.clientWidth - tooltipWidth) {
+            left = param.point.x - tooltipWidth - margin
+          }
+
+          let top = coordinate! - tooltipHeight - margin
+          if (top < 0) {
+            top = coordinate! + margin
+          }
+
+          tooltipRef.current.style.left = `${left}px`
+          tooltipRef.current.style.top = `${top}px`
+        }
+      })
+
       // resize observer — chart fills container on window resize
       const observer = new ResizeObserver(() => {
         if (containerRef.current) chart.applyOptions({ width: containerRef.current.clientWidth })
@@ -138,26 +207,17 @@ export const PriceChart = memo(
       chartRef.current?.timeScale().fitContent()
     }, [history])
 
-    // ── Socket-ready: appendTick calls this externally ─────────────────────────
-    // Expose series update method via ref for socket hook to call directly
-    // This is what prevents full React rerender on every socket tick
-    // Usage in parent: chartRef.current?.update(tick)
-    // (see useMarketSocket.ts when implementing sockets)
-
     const pctFormatted = `${isPositive ? "+" : ""}${pctChange.toFixed(1)}%`
 
     return (
-      <div className="bg-linear-to-b from-white/5 to-white/2 border border-white/10 rounded-2xl mb-7.5  p-6">
+      <div className="bg-linear-to-b from-white/5 to-white/2 border border-white/10 rounded-2xl mb-7.5 p-6 relative">
         {/* ── Header: price + change + tabs ── */}
-        <div className="flex md:flex-row flex-col  md:items-center justify-between gap-0.5 pb-2">
+        <div className="flex md:flex-row flex-col md:items-center justify-between gap-0.5 pb-2">
           <div className="flex flex-col">
-            {/* text-muted-foreground font-sm */}
             <span className="text-muted-foreground font-sm">Price History</span>
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-3">
-                {/* text-white font-2xl font-black */}
                 <div className="text-white font-2xl font-black">${currentPrice.toFixed(2)}</div>
-                {/* text-primary flex items-center */}
                 <div className={`text-primary flex items-center${isPositive ? "" : " negative"}`}>
                   <span>{isPositive ? "↗" : "↘"}</span>
                   <span>{pctFormatted} (24h)</span>
@@ -185,7 +245,21 @@ export const PriceChart = memo(
         {history.length === 0 ? (
           <div className="ep-chart-empty">No price history yet</div>
         ) : (
-          <div ref={containerRef} style={{ width: "100%", minHeight: height }} />
+          <div className="relative overflow-hidden">
+            <div ref={containerRef} style={{ width: "100%", minHeight: height }} />
+            {/* Custom Tooltip */}
+            <div
+              ref={tooltipRef}
+              className="absolute z-50 pointer-events-none bg-[#102218] border border-[#00c853] rounded-md p-2.5 shadow-2xl space-y-0.5"
+              style={{ display: "none", width: "120px" }}
+            >
+              <div className="font-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Current Price
+              </div>
+              <div className="tt-price font-sm font-black text-white leading-tight">$0.00</div>
+              <div className="tt-date font-xs text-secondary">Date here</div>
+            </div>
+          </div>
         )}
       </div>
     )
