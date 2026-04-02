@@ -41,7 +41,7 @@ function getAvatarColor(author: string): string {
 
 const Avatar = ({ author, size = 32 }: { author: string; size?: number }) => (
   <div
-    className="cs-avatar"
+    className="rounded-sm flex items-center justify-center text-white font-bold shrink-0"
     style={{
       width: size,
       height: size,
@@ -64,8 +64,12 @@ const LikeBtn = ({
   liked: boolean
   onToggle: () => void
 }) => (
-  <button className={`cs-like-btn${liked ? " liked" : ""}`} onClick={onToggle}>
+  <button
+    className={`flex items-center gap-1 font-base font-semibold text-muted-foreground transition-all hover:text-white ${liked ? " text-primary" : ""}`}
+    onClick={onToggle}
+  >
     <svg
+      className="w-3.5 h-3.5"
       viewBox="0 0 24 24"
       fill={liked ? "currentColor" : "none"}
       stroke="currentColor"
@@ -95,24 +99,27 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
   }
 
   return (
-    <div className={`cs-comment${depth > 0 ? " cs-reply" : ""}`}>
+    <div className={`flex gap-2.5 py-4  ${depth > 0 ? " pt-3 mt-1" : ""}`}>
       <Avatar author={comment.author} size={depth > 0 ? 28 : 34} />
 
-      <div className="cs-comment-body">
+      <div className="flex-1 flex flex-col gap-1.5 ">
         {/* Header */}
-        <div className="cs-comment-header">
-          <span className="cs-author">{comment.author}</span>
-          <span className="cs-time">{timeAgo(comment.timestamp)}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-base font-bold text-tab-text">{comment.author}</span>
+          <span className="font-base text-muted-foreground">{timeAgo(comment.timestamp)}</span>
         </div>
 
         {/* Content */}
-        <p className="cs-content">{comment.content}</p>
+        <p className="font-base text-tab-text">{comment.content}</p>
 
         {/* Actions */}
-        <div className="cs-actions">
+        <div className="flex items-center gap-3 mt-0.5">
           <LikeBtn count={likes} liked={liked} onToggle={handleLike} />
           {depth === 0 && (
-            <button className="cs-reply-btn" onClick={() => setShowReply((p) => !p)}>
+            <button
+              className="font-base font-semibold text-muted-foreground transition-all"
+              onClick={() => setShowReply((p) => !p)}
+            >
               Reply
             </button>
           )}
@@ -120,17 +127,17 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
 
         {/* Reply input */}
         {showReply && (
-          <div className="cs-reply-input-wrap">
+          <div className="flex flex-col gap-2 mt-2">
             <input
-              className="cs-input"
+              className="width-full bg-slate border rounded-[6px] border-white/8 py-2.5 px-3.5 font-sm text-tab-text outline-none transition-all placeholder:text-muted-foreground focus:border-white/18 focus:bg-white/6"
               placeholder="Write a reply..."
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               autoFocus
             />
-            <div className="cs-reply-actions">
+            <div className="flex justify-end gap-2">
               <button
-                className="cs-cancel-btn"
+                className="py-1.5 px-3.5  font-base font-semibold text-white rounded-md transition-all"
                 onClick={() => {
                   setShowReply(false)
                   setReplyText("")
@@ -139,7 +146,7 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
                 Cancel
               </button>
               <button
-                className="cs-post-btn"
+                className="py-1.5 px-3.5 bg-primary font-base font-bold text-white rounded-md transition-all"
                 disabled={!replyText.trim()}
                 onClick={() => {
                   setShowReply(false)
@@ -154,8 +161,12 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
 
         {/* Toggle replies */}
         {hasReplies && (
-          <button className="cs-toggle-replies" onClick={() => setShowReplies((p) => !p)}>
+          <button
+            className="flex items-center gap-1 font-base font-semibold text-primary mt-1 transition-all duration-75"
+            onClick={() => setShowReplies((p) => !p)}
+          >
             <svg
+              className="w-3.5 h-3.5"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -217,17 +228,14 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
   }
 
   return (
-    <div className="cs-wrap ep-section">
+    <div className="flex flex-col gap-5 mb-4">
       {/* Header */}
-      <div className="cs-header">
-        <span className="ep-section-title">
-          Comments <span className="cs-count">{comments.length}</span>
-        </span>
-        <div className="cs-sort-tabs">
+      <div className="flex items-center">
+        <div className=" flex gap-1 bg-white/4 rounded-md p-1  ">
           {(["top", "new"] as const).map((s) => (
             <button
               key={s}
-              className={`cs-sort-tab${sortBy === s ? " active" : ""}`}
+              className={`py-1 px-3.5 font-base font-semibold  rounded-[6px] transition-all duration-200 ease-in-out capitalize${sortBy === s ? " bg-primary text-black" : ""}`}
               onClick={() => setSortBy(s)}
             >
               {s === "top" ? "Top" : "New"}
@@ -237,22 +245,28 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
       </div>
 
       {/* Compose */}
-      <div className="cs-compose">
-        <Avatar author="You" size={34} />
-        <div className="cs-compose-right">
+      <div className="flex  gap-2.5">
+        {/* <Avatar author="You" size={41} /> */}
+        <div className="flex flex-col flex-1 gap-2">
           <input
-            className="cs-input"
-            placeholder="Share your analysis..."
+            className="width-full bg-slate border min-h-18  rounded-[6px] border-white/8 py-2.5 px-3.5 font-sm text-white outline-none transition-all placeholder:text-tab-text focus:border-white/18 focus:bg-white/6 "
+            placeholder="Enter comment"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handlePost()}
           />
           {text.trim() && (
-            <div className="cs-reply-actions">
-              <button className="cs-cancel-btn" onClick={() => setText("")}>
+            <div className="flex justify-end gap-2">
+              <button
+                className="py-1.5 px-3.5 font-base font-semi-bold text-white rounded-md transition-all hover:bg-white/6"
+                onClick={() => setText("")}
+              >
                 Cancel
               </button>
-              <button className="cs-post-btn" onClick={handlePost}>
+              <button
+                className="py-1.5 px-4 font-base font-semibold bg-primary text-white rounded-md transition-all "
+                onClick={handlePost}
+              >
                 Post
               </button>
             </div>
@@ -261,7 +275,7 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
       </div>
 
       {/* Comments list */}
-      <div className="cs-list">
+      <div className="flex flex-col">
         {sorted.map((c) => (
           <CommentItem key={c.id} comment={c} />
         ))}

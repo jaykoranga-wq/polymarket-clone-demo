@@ -1,4 +1,15 @@
-import { api } from "@/features/api/api"
+import { secondApi } from "../secondApi"
+
+export interface GetLockedBalanceResponse {
+  statusCode: number
+  status: boolean
+  message: string
+  type: string
+  data: {
+    lockedAmount: string // USDC amount as string
+    tokenId?: string // present only if tokenId was passed
+  }
+}
 
 type LoginResponse = {
   status: boolean
@@ -49,7 +60,7 @@ type ProfileResponse = {
   }
 }
 
-const authApi = api.injectEndpoints({
+const authApi = secondApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, { didToken: string }>({
       query: ({ didToken }) => ({
@@ -89,6 +100,15 @@ const authApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+
+    // GET /v1/user/locked-balance
+    getLockedBalance: builder.query<GetLockedBalanceResponse, { tokenId?: string } | void>({
+      query: (params) => {
+        const tokenId = (params as { tokenId?: string })?.tokenId
+        const url = "/v1/user/locked-balance"
+        return tokenId ? `${url}?tokenId=${tokenId}` : url
+      },
+    }),
   }),
 })
 export const {
@@ -97,4 +117,5 @@ export const {
   useLoginWalletMutation,
   useVerifyWalletMutation,
   useProfileQuery,
+  useGetLockedBalanceQuery,
 } = authApi

@@ -1,5 +1,6 @@
 import "./eventPage.css"
 
+import { CheckCircle, TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import { useParams } from "react-router"
@@ -9,6 +10,7 @@ import { LoginModal } from "@/components/auth/LoginModal"
 import { IcoBookmarkSm, IcoClockSm, IcoShareSm, IcoVolSm } from "@/components/custom/EventPageIcons"
 import TradePanel from "@/components/event/tradePanel/TradePanel"
 import { CommentSection } from "@/components/market/comment/CommentSection"
+import { MarketResolvedCard } from "@/components/market/MarketResolvedCard"
 import { PriceChart } from "@/components/market/priceChart/PriceChart"
 import { ShareModal } from "@/components/market/ShareModal"
 import { ActivityTab, MarketRulesTab, OrderBookTab } from "@/components/market/tabs"
@@ -33,12 +35,12 @@ const TABS: { key: TabKey; label: string }[] = [
 // ─── EventPage ────────────────────────────────────────────────────────────────
 const EventPage = () => {
   const { id } = useParams()
-
   const { magic } = useMagic()
 
   const [activeTab, setActiveTab] = useState<TabKey>("rules")
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
+  const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false)
 
   const { executeTrade, tradeError, approvalState } = useTrade()
 
@@ -46,19 +48,21 @@ const EventPage = () => {
   const { data: apiMarket, isLoading, isError } = useGetMarketByIdQuery(id ?? "")
 
   // ── Fallback: Redux selectedMarket set when card was clicked ───────────────
-  // This allows mock markets (IDs unknown to the API) to still render correctly.
   const reduxMarket = useSelector(selectSelectedMarket)
-
-  // Prefer API result; fall back to Redux only when API errors/404s
   const market = apiMarket ?? (isError ? reduxMarket : null)
 
   // ── Chart state ────────────────────────────────────────────────────────────
   const yesProbability = (market?.yesProbability ?? 50) / 100
   const { tab, history, changeTab, lastPrice, pctChange, isPositive } = usePriceChart({
-    marketId: id ?? "",
     startPrice: yesProbability,
   })
 
+  // ── Resolution check ───────────────────────────────────────────────────────
+  const isResolved = market?.resolutionTime
+    ? new Date(market.resolutionTime).getTime() <= new Date().getTime()
+    : false
+
+  // ── Trade handler ──────────────────────────────────────────────────────────
   const handleTrade = (params: TradePanelOrder) => {
     if (
       !market?.id ||
@@ -82,10 +86,7 @@ const EventPage = () => {
     } satisfies TradeOrder)
   }
 
-  // save as bookmark.
-  const saveAsBookmark = () => {
-    toast.success("Saved")
-  }
+  const saveAsBookmark = () => toast.success("Saved")
 
   useEffect(() => {
     if (tradeError) {
@@ -99,11 +100,12 @@ const EventPage = () => {
     }
   }, [tradeError])
 
+  // ── Loading / not found ────────────────────────────────────────────────────
   if (isLoading) return <EventPageSkeleton />
   if (!market)
     return (
-      <div className="ep">
-        <div className="ep-not-found">Market not found.</div>
+      <div className="flex items-center justify-center h-[60vh] text-[#5a6478] text-[13px] tracking-[0.06em]">
+        Market not found.
       </div>
     )
 
@@ -111,125 +113,222 @@ const EventPage = () => {
 
   return (
     <>
-      <div className="ep md:px-20 px-4 md:mx-20">
+      <div className="min-h-screen bg-background text-white selection:bg-primary/30 my-7.5 overflow-x-hidden">
         <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <ShareModal
           open={shareOpen}
-          onClose={() => {
-            setShareOpen(false)
-          }}
+          onClose={() => setShareOpen(false)}
           title={market.title}
-          probability={market.yesProbability ?? 100}
+          probability={market.yesProbability ?? 50}
           outcome="Yes"
         />
         <Toaster richColors position="top-center" />
-
-        {/* ── Breadcrumb ── */}
-        <div className="ep-breadcrumb">
-          <span>{market.category}</span>
-          <span className="ep-breadcrumb-sep">›</span>
-          <span className="ep-breadcrumb-curr">
-            {market.title.length > 50 ? market.title.slice(0, 50) + "…" : market.title}
-          </span>
-        </div>
-
-        {/* ── Title + icons ── */}
-        <div className="ep-title-row">
-          <h1 className="ep-page-title">{market.title}</h1>
-          <div className="ep-header-icons">
-            <button
-              className="ep-icon-btn sm"
-              onClick={() => {
-                setShareOpen(true)
-              }}
-            >
-              <IcoShareSm />
-            </button>
-            <button className="ep-icon-btn sm" onClick={saveAsBookmark}>
-              <IcoBookmarkSm />
-            </button>
+        <div className="container">
+          {/* ── Breadcrumb ── */}
+          <div className="flex items-start space-x-2 font-sm  mt-2">
+            <span className="text-gray-400 capitalize">{market.category}</span>
+            <span className=" text-gray-500">›</span>
+            <span className="text-white capitalize font-medium">
+              {market.title.length > 50 ? market.title : market.title}
+            </span>
           </div>
-        </div>
 
-        {/* ── Meta chips ── */}
-        <div className="ep-stats">
-          <div className="ep-chip">
-            <IcoClockSm />
-            Ends <strong>{formatMarketDate(market.resolutionTime)}</strong>
-          </div>
-          <div className="ep-chip">
-            <IcoVolSm />
-            <strong>${totalVolume.toLocaleString()}</strong> Vol
-          </div>
-        </div>
+          {/* ── Title + icon buttons ── */}
+          <div className="flex justify-between gap-5 items-end  pt-1 mb-7.5 max-lg:flex-col max-lg:items-start max-lg:py-2.5 max-lg:gap-4">
+            <div className="flex flex-col items-start gap-3.5">
+              <h1 className="font-2xl max-lg:text-[28px] font-black leading-tight capitalize text-white m-0">
+                {market.title}
+              </h1>
 
-        {/* ── Two-column layout ── */}
-        <div className="ep-layout">
-          {/* ══ LEFT ══ */}
-          <div className="ep-left">
-            {/* Chart */}
-            <PriceChart
-              history={history}
-              tab={tab}
-              onTabChange={changeTab}
-              currentPrice={lastPrice}
-              pctChange={pctChange}
-              isPositive={isPositive}
-            />
-
-            {/* Tab bar */}
-            <div className="ep-tabs-row">
-              {TABS.map((t) => (
-                <button
-                  key={t.key}
-                  className={`ep-tab${activeTab === t.key ? " active" : ""}`}
-                  onClick={() => setActiveTab(t.key)}
-                >
-                  {t.label}
-                </button>
-              ))}
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-[5px] text-sm text-white whitespace-nowrap [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-white [&_svg]:[stroke:2.5px]">
+                  <IcoClockSm />
+                  Ends {formatMarketDate(market.resolutionTime)}
+                </div>
+                <div className="flex items-center gap-[5px] text-sm text-white whitespace-nowrap [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-white [&_svg]:[stroke:2.5px]">
+                  <IcoVolSm />${totalVolume.toLocaleString()} Vol
+                </div>
+                {isResolved && (
+                  <div className="flex items-center gap-1 font-base font-medium text-primary ">
+                    <CheckCircle size={14} className="mr-1 text-primary" /> Resolved
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Tab content */}
-            <div className="ep-tab-content">
-              {activeTab === "rules" && (
-                <MarketRulesTab
-                  description={market.description}
-                  volume={totalVolume}
-                  resolutionTime={market.resolutionTime}
-                  createdAt={market.createdAt}
-                />
-              )}
-              {activeTab === "activity" && <ActivityTab marketId={market.id} />}
-              {activeTab === "orderbook" && (
-                <OrderBookTab
-                  marketId={market.id}
-                  yesTokenId={market?.yesTokenId as string}
-                  noTokenId={market.noTokenId as string}
-                />
-              )}
-              {activeTab === "comments" && <CommentSection marketId={market.id} />}
+            <div className="flex gap-3 pt-0.5 shrink-0">
+              <button
+                className="w-9 h-9 rounded-[6px] border border-[#2A2A2A] text-[#CBD5E1] flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-[#e2e8f0] hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
+                onClick={() => setShareOpen(true)}
+              >
+                <IcoShareSm />
+              </button>
+              <button
+                className="w-9 h-9 rounded-[6px] border border-[#2A2A2A] text-[#CBD5E1] flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-[#e2e8f0] hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
+                onClick={saveAsBookmark}
+              >
+                <IcoBookmarkSm />
+              </button>
             </div>
           </div>
-          {/* ══ END LEFT ══ */}
 
-          {/* ══ RIGHT ══ */}
-          <div className="ep-right">
-            <div className="ep-sticky">
-              <TradePanel
-                yesProbability={market.yesProbability ?? 50}
-                noProbability={market.noProbability ?? 50}
-                isCrypto={false}
-                onLoginRequired={() => setIsLoginOpen(true)}
-                onDepositRequired={() => magic?.wallet?.showUI()}
-                onTrade={handleTrade}
-                approvalState={approvalState}
+          {/* ── Meta chips — only once ── */}
+          <button
+            className="flex items-center justify-center px-4 py-2 border-none rounded-sm font-bold text-sm  mb-4 w-fit cursor-pointer lg:hidden bg-primary text-black shadow-[0_4px_12px_rgba(34,197,94,0.2)] "
+            onClick={() => setIsMobileTradeOpen(true)}
+          >
+            {isResolved ? (
+              <>
+                <CheckCircle size={16} className="mr-2" />
+                Market Resolved
+              </>
+            ) : (
+              <>
+                <TrendingUp size={16} className="mr-2" />
+                Trade
+              </>
+            )}
+          </button>
+
+          {/* ── Two-column layout ── */}
+          <div
+            className="grid ep-layout-inner items-start gap-5 max-[1479px]:gap-4"
+            style={{
+              gridTemplateColumns: "1fr 340px",
+            }}
+          >
+            <style>{`
+              @media (max-width: 1479px) {
+                .ep-layout-inner { grid-template-columns: 1fr 300px !important; gap: 16px !important; }
+              }
+              @media (max-width: 1023px) {
+                .ep-layout-inner { grid-template-columns: 1fr !important; }
+                .ep-right-col { display: none !important; }
+              }
+            `}</style>
+            {/* ══ LEFT ══ */}
+            <div className="min-w-0">
+              {/* Chart */}
+              <PriceChart
+                history={history}
+                tab={tab}
+                onTabChange={changeTab}
+                currentPrice={lastPrice}
+                pctChange={pctChange}
+                isPositive={isPositive}
               />
+
+              {/* Tab bar */}
+              <div className="flex gap-6  border-b border-secondary/10 mb-2 max-lg:gap-4  max-lg:overflow-x-auto max-lg:[scrollbar-width:none] max-lg:[-ms-overflow-style:none] max-lg:[&::-webkit-scrollbar]:hidden">
+                {TABS.map((t) => (
+                  <button
+                    key={t.key}
+                    className={`py-3 px-0.5 text-sm font-medium bg-transparent  border-none cursor-pointer transition-all duration-200 relative hover:text-tabs max-lg:whitespace-nowrap max-lg:py-2.5 max-lg:px-1 ${activeTab === t.key ? " text-primary after:absolute after:-bottom-px after:left-0 after:right-0 after:h-0.5 after:bg-primary after:shadow-[0_0_10px_rgba(16,210,96,0.4)] after:content-['']" : "text-tabs"}`}
+                    onClick={() => setActiveTab(t.key)}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Tab content */}
+              <div className="py-4">
+                {activeTab === "rules" && (
+                  <MarketRulesTab
+                    description={market.description}
+                    volume={totalVolume}
+                    resolutionTime={market.resolutionTime}
+                    createdAt={market.createdAt}
+                  />
+                )}
+                {activeTab === "activity" && <ActivityTab marketId={market.id} />}
+                {activeTab === "orderbook" && (
+                  <OrderBookTab
+                    marketId={market.id}
+                    yesTokenId={market.yesTokenId as string}
+                    noTokenId={market.noTokenId as string}
+                  />
+                )}
+                {activeTab === "comments" && <CommentSection marketId={market.id} />}
+              </div>
             </div>
+            {/* ══ END LEFT ══ */}
+
+            {/* ══ RIGHT ══ */}
+            <div className="max-lg:hidden">
+              <div className="position-static ">
+                {isResolved ? (
+                  <MarketResolvedCard
+                    winningOutcome="NO"
+                    // winningOutcome={market.winningOutcome as "YES" | "NO"}
+                    resolutionTime={market.resolutionTime}
+                  />
+                ) : (
+                  <TradePanel
+                    yesProbability={market.yesProbability ?? 50}
+                    noProbability={market.noProbability ?? 50}
+                    isCrypto={false}
+                    onLoginRequired={() => setIsLoginOpen(true)}
+                    onDepositRequired={() => magic?.wallet?.showUI()}
+                    onTrade={handleTrade}
+                    approvalState={approvalState}
+                  />
+                )}
+              </div>
+            </div>
+            {/* ══ END RIGHT ══ */}
           </div>
-          {/* ══ END RIGHT ══ */}
         </div>
       </div>
+
+      {/* ── Mobile Trade Drawer ── */}
+      {isMobileTradeOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-200"
+            style={{ animation: "fadeIn 0.2s ease-out" }}
+            onClick={() => setIsMobileTradeOpen(false)}
+          />
+          <div
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#11141b] border-t border-white/10 rounded-[20px] z-201 max-h-[90vh] w-auto overflow-y-auto"
+            // style={{ animation: "slideUp 0.3s ease-out" }}
+          >
+            <div className="flex justify-between items-center px-6 pt-5 pb-2.5 ">
+              <span className="font-bold text-lg">Place Bet</span>
+              <button
+                className="bg-white/5 border-none text-[#888] w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer"
+                onClick={() => setIsMobileTradeOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="px-2.5 pb-7.5">
+              {isResolved ? (
+                <div className="p-4">
+                  <MarketResolvedCard winningOutcome="NO" resolutionTime={market.resolutionTime} />
+                </div>
+              ) : (
+                <TradePanel
+                  yesProbability={market.yesProbability}
+                  noProbability={market.noProbability}
+                  isCrypto={false}
+                  onLoginRequired={() => setIsLoginOpen(true)}
+                  onDepositRequired={() => magic?.wallet?.showUI()}
+                  onTrade={(order) => {
+                    handleTrade(order)
+                    setIsMobileTradeOpen(false)
+                  }}
+                />
+              )}
+            </div>
+          </div>
+
+          <style>{`
+            @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
+            @keyframes slideUp { from { transform: translate(-50%, 100%) } to { transform: translate(-50%, -50%) } }
+          `}</style>
+        </>
+      )}
     </>
   )
 }

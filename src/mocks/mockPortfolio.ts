@@ -53,6 +53,10 @@ export interface PortfolioOrder {
   status: OrderStatus
   createdAt: string // ISO
   expiresAt?: string
+  token: {
+    id: string
+    title: string
+  }
 }
 
 export interface HistoryItem {
@@ -251,6 +255,10 @@ export const MOCK_PORTFOLIO_ORDERS: PortfolioOrder[] = [
     status: ORDER_STATUS.PENDING,
     createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
+    token: {
+      id: "12322ddd",
+      title: "yes",
+    },
   },
   {
     id: "ord-002",
@@ -264,6 +272,10 @@ export const MOCK_PORTFOLIO_ORDERS: PortfolioOrder[] = [
     filled: 200,
     status: ORDER_STATUS.PARTIAL,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    token: {
+      id: "12322d654d",
+      title: "no",
+    },
   },
   {
     id: "ord-003",
@@ -277,6 +289,10 @@ export const MOCK_PORTFOLIO_ORDERS: PortfolioOrder[] = [
     filled: 0,
     status: ORDER_STATUS.PENDING,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+    token: {
+      id: "1232ggdd",
+      title: "yes",
+    },
   },
 ]
 

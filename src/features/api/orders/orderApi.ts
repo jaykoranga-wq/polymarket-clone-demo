@@ -24,12 +24,12 @@ export const orderApi = secondApi.injectEndpoints({
 
     // GET /v1/user/orders
     getOrders: builder.query<GetOrdersResponse, GetOrdersParams>({
-      query: ({ status, limit = 10, page, offset }) => {
+      query: ({ status, limit = 10, page, skip }) => {
         const params = new URLSearchParams()
         if (status !== undefined) params.set("status", String(status))
         if (limit !== undefined) params.set("limit", String(limit))
         if (page !== undefined) params.set("page", String(page)) // future
-        if (offset !== undefined) params.set("offset", String(offset)) // future
+        if (skip !== undefined) params.set("skip", String(skip))
         return `/v1/user/orders?${params.toString()}`
       },
       // cache each unique param combination separately

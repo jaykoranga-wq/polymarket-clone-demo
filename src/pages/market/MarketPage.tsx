@@ -116,7 +116,6 @@ const MarketsPage = () => {
     newMarkets,
     allMarkets,
     group,
-    category,
     isApiCategory,
     categoryName,
   ])
@@ -136,10 +135,10 @@ const MarketsPage = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background text-foreground md:mx-20">
-      <div className="mp-header">
+    <div className="container  bg-background text-foreground mx-auto py-9  pb-20">
+      <div className="flex items-baseline gap-3 pb-4 pt-4 ml-1 mb-6 capitalize  border-b border-b-white/7 ">
         <div>
-          <h1 className="mp-title">{title as string}</h1>
+          <h1 className="text-lg md:text-xl  font-bold text-white">{title as string}</h1>
           {isSearch && (
             <p className="text-[13px] text-white/40 mt-1">
               Search results for markets matching your query

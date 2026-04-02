@@ -1,11 +1,14 @@
-import { Bookmark, Bot, ImageIcon, RefreshCw } from "lucide-react"
+import { Bookmark, Gift, RefreshCcw } from "lucide-react"
 import type { FC } from "react"
 import { useNavigate } from "react-router"
 
 import { useAppDispatch } from "@/app/hooks"
-import { IcoVolSm } from "@/components/custom/EventPageIcons"
+import { IcoAI } from "@/components/custom/IcoAI"
+import { Button } from "@/components/ui/button"
 import { setSelectedMarket } from "@/features/markets/marketSlice"
 import type { Market } from "@/features/markets/types"
+
+import { PercentageBar } from "./PercentageBar"
 
 interface MarketCardProps {
   market: Market
@@ -33,19 +36,14 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
 
   return (
     <div
-      className="flex flex-col gap-3 rounded-2xl p-4  "
       style={{
-        background: "black",
-        border: "1px solid rgba(255,255,255,0.07)",
-        fontFamily: "Inter, sans-serif",
+        background:
+          "linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)",
       }}
+      className="group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer"
     >
-      {/* ── Title row: thumbnail + title ── */}
-      <div className="flex items-start gap-3">
-        <div
-          className="shrink-0 rounded-lg overflow-hidden"
-          style={{ width: 44, height: 44, border: "1px solid rgba(255,255,255,0.08)" }}
-        >
+      <div className="flex gap-4 items-center max-h-10 mb-2">
+        <div className="size-10 min-w-10 rounded-md overflow-hidden border border-white ">
           <img
             src={
               market.image?.length
@@ -55,118 +53,51 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
                 : "/fallbackImg.jpg"
             }
             alt={market.title}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            className="size-full object-cover group-hover:grayscale transition-all duration-300"
           />
         </div>
         <h3
           onClick={handleNavigation}
-          className="line-clamp-3 leading-snug cursor-pointer w-full object-contain"
-          style={{ fontSize: 14, fontWeight: 700, color: "#ffffff", flex: 1 }}
+          className="h3 font-bold leading-tight align-center capitalize line-clamp-2 overflow-hidden  group-hover:text-primary transition-colors"
         >
           {market.title}
         </h3>
       </div>
 
-      {/* ── YES / NO buttons ── */}
-      <div className="flex gap-2">
-        <button
-          onClick={handleNavigation}
-          className="flex-1 py-3 rounded-[10px] transition-opacity hover:opacity-90 cursor-pointer"
-          style={{
-            background: "rgba(0,200,83,0.15)",
-            color: "#00c853",
-            fontWeight: 800,
-            fontSize: 14,
-          }}
-        >
-          Yes
-        </button>
-        <button
-          onClick={handleNavigation}
-          className="flex-1 py-3 rounded-[10px] transition-opacity hover:opacity-90 cursor-pointer"
-          style={{
-            background: "rgba(229,57,53,0.15)",
-            color: "#e53935",
-            fontWeight: 800,
-            fontSize: 14,
-          }}
-        >
-          No
-        </button>
-      </div>
-
-      {/* ── Probability bar + labels ── */}
-      <div className="flex flex-col gap-1">
-        {/* bar */}
-        <div
-          className="w-full overflow-hidden"
-          style={{ height: 4, borderRadius: 99, background: "rgba(255,255,255,0.06)" }}
-        >
-          <div
-            style={{
-              height: "100%",
-              width: `${yesP}%`,
-              background: "#00c853",
-              borderRadius: 99,
-              transition: "width 0.4s ease",
-            }}
-          />
-        </div>
-        {/* pct labels */}
-        <div className="flex justify-between">
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#00c853" }}>{yesP}%</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#e53935" }}>{noP}%</span>
-        </div>
-      </div>
-
-      {/* ── Footer row ── */}
-      <div
-        className="flex items-center justify-between pt-1"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
-      >
-        {/* left: vol + frequency */}
-        <div className="flex items-center gap-3">
-          <span
-            className="flex items-center gap-1"
-            style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}
+      <div className="mt-auto space-y-2.5">
+        <div className="flex gap-2">
+          <Button
+            onClick={handleNavigation}
+            variant="outline"
+            className="flex-1 bg-option-yes h-9.5 border-yes/20 text-primary font-bold hover:bg-primary hover:text-background transition-all active:scale-95"
           >
-            <IcoVolSm size={13} />
-            {volumeLabel} Vol.
-          </span>
-          {market.frequency && (
-            <span
-              className="flex items-center gap-1"
-              style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}
-            >
-              <RefreshCw size={11} />
-              {market.frequency}
+            Yes {market.yesProbability}%
+          </Button>
+          <Button
+            onClick={handleNavigation}
+            variant="outline"
+            className="flex-1 bg-option-no h-9.5  border-no/20 text-no font-bold hover:bg-no hover:text-background transition-all active:scale-95"
+          >
+            No {market.noProbability}%
+          </Button>
+        </div>
+
+        <PercentageBar yesPercentage={yesP} noPercentage={noP} />
+
+        <div className="flex items-center justify-between font-xs text-white font-bold  tracking-widest pt-4 border-t border-card-divider">
+          <div className="flex items-center gap-3">
+            <span className="flex font-base font-medium items-center gap-1">
+              {volumeLabel} Vol.
             </span>
-          )}
-        </div>
-
-        {/* right: action icons */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={(e) => e.stopPropagation()}
-            style={{ color: "rgba(255,255,255,0.3)" }}
-            className="hover:text-white transition-colors"
-          >
-            <Bot size={14} />
-          </button>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            style={{ color: "rgba(255,255,255,0.3)" }}
-            className="hover:text-white transition-colors"
-          >
-            <ImageIcon size={14} />
-          </button>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            style={{ color: "rgba(255,255,255,0.3)" }}
-            className="hover:text-white transition-colors"
-          >
-            <Bookmark size={14} />
-          </button>
+            <span className="flex  font-base  font-normal items-center gap-1">
+              <RefreshCcw className="size-3.5" /> {market.frequency}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <IcoAI size={14} className="hover:text-white transition-colors" />
+            <Gift className="size-3.5 hover:text-white transition-colors" />
+            <Bookmark className="size-3.5 hover:text-white transition-colors" />
+          </div>
         </div>
       </div>
     </div>

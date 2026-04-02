@@ -17,13 +17,13 @@ export interface StaticPageData {
 export const STATIC_PAGES: Record<string, StaticPageData> = {
   "how-it-works": {
     title: "How It Works",
-    subtitle: "Learn how prediction markets work on Polymarket",
+    subtitle: "Learn how prediction markets work on OutcomeX",
     sections: [
       {
         heading: "What is a Prediction Market?",
         content: [
           "A prediction market is a platform where people can trade on the outcomes of future events. Prices reflect the collective wisdom of all traders — the higher the price of a YES share, the more likely the crowd thinks the event will happen.",
-          "On Polymarket, every market resolves to either YES or NO. If you believe an event will happen, you buy YES shares. If you believe it won't, you buy NO shares. When the market resolves, winning shares pay out $1.00 each and losing shares pay $0.00.",
+          "On OutcomeX, every market resolves to either YES or NO. If you believe an event will happen, you buy YES shares. If you believe it won't, you buy NO shares. When the market resolves, winning shares pay out $1.00 each and losing shares pay $0.00.",
         ],
       },
       {
@@ -43,7 +43,7 @@ export const STATIC_PAGES: Record<string, StaticPageData> = {
       {
         heading: "Fees",
         content: [
-          "Polymarket charges a 2% fee on all trades. This fee is built into the order and collected automatically by the smart contract at the time of the trade.",
+          "OutcomeX charges a 2% fee on all trades. This fee is built into the order and collected automatically by the smart contract at the time of the trade.",
           "There are no additional fees for depositing, withdrawing, or redeeming resolved positions.",
         ],
       },
@@ -57,7 +57,7 @@ export const STATIC_PAGES: Record<string, StaticPageData> = {
       {
         heading: "Market Creation",
         content: [
-          "Markets on Polymarket are created around specific, verifiable questions with clear resolution criteria. Each market must have a defined resolution date and a primary resolution source.",
+          "Markets on OutcomeX are created around specific, verifiable questions with clear resolution criteria. Each market must have a defined resolution date and a primary resolution source.",
           "Markets must be binary — they resolve either YES or NO. Multi-outcome markets are not supported on this platform.",
         ],
       },
@@ -78,7 +78,7 @@ export const STATIC_PAGES: Record<string, StaticPageData> = {
       {
         heading: "Disputes",
         content: [
-          "If you believe a market has been resolved incorrectly, you may submit a dispute within 48 hours of resolution. Disputes are reviewed by the Polymarket team and resolved based on the stated resolution criteria.",
+          "If you believe a market has been resolved incorrectly, you may submit a dispute within 48 hours of resolution. Disputes are reviewed by the OutcomeX team and resolved based on the stated resolution criteria.",
           "All resolution decisions are final once the dispute period has passed and funds have been distributed.",
         ],
       },
@@ -92,7 +92,7 @@ export const STATIC_PAGES: Record<string, StaticPageData> = {
       {
         heading: "How Rewards Work",
         content: [
-          "The Polymarket Rewards Program lets you earn XP (experience points) by trading, achieving milestones, and maintaining accuracy. XP contributes to your level and leaderboard ranking.",
+          "The OutcomeX Rewards Program lets you earn XP (experience points) by trading, achieving milestones, and maintaining accuracy. XP contributes to your level and leaderboard ranking.",
           "Rewards are automatically tracked and updated in real time. You can view your current progress in the Rewards section of your profile.",
         ],
       },
@@ -120,7 +120,7 @@ export const STATIC_PAGES: Record<string, StaticPageData> = {
       {
         heading: "Getting Started",
         content: [
-          "To start trading on Polymarket, connect a wallet using MetaMask or sign in with your email via Magic Link. You will need USDC on the Polygon network to place trades.",
+          "To start trading on OutcomeX, connect a wallet using MetaMask or sign in with your email via Magic Link. You will need USDC on the Polygon network to place trades.",
           "If you don't have USDC, you can deposit funds directly through the Deposit button in the top navigation bar. Magic wallet users can purchase USDC with a credit card. MetaMask users should transfer USDC from an exchange.",
         ],
       },
@@ -148,8 +148,8 @@ export const STATIC_PAGES: Record<string, StaticPageData> = {
       {
         heading: "Contact Support",
         content: [
-          "For issues not covered here, join our Discord community where the team and community members can help. You can also reach us at support@polymarket.com.",
-          "For urgent issues related to funds or security, email security@polymarket.com directly.",
+          "For issues not covered here, join our Discord community where the team and community members can help. You can also reach us at support@OutcomeX.com.",
+          "For urgent issues related to funds or security, email security@OutcomeX.com directly.",
         ],
       },
     ],

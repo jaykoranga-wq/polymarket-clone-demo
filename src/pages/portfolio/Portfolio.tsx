@@ -6,7 +6,14 @@ import { useSelector } from "react-redux"
 import { useNavigate } from "react-router"
 
 import { LoginModal } from "@/components/auth/LoginModal"
-import { selectIsAuthenticated } from "@/features/auth/authSlice"
+import { MetaMaskDepositModal } from "@/components/deposit/MetaMaskDepositModal"
+import { WithdrawModal } from "@/components/withdrawl/withdrawModal"
+import {
+  selectAvailableAmount,
+  selectIsAuthenticated,
+  selectLoginMethod,
+} from "@/features/auth/authSlice"
+import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import { useMagic } from "@/features/auth/lib/magic"
 import { MOCK_PORTFOLIO_CHART, MOCK_PORTFOLIO_STATS } from "@/mocks/mockPortfolio"
 
@@ -26,12 +33,19 @@ const TABS: { key: PortfolioTab; label: string }[] = [
 // ─── PortfolioPage ────────────────────────────────────────────────────────────
 const PortfolioPage = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated)
+  const availableAmountRaw = useSelector(selectAvailableAmount)
+  const loginMethod = useSelector(selectLoginMethod)
   const { magic } = useMagic()
   const navigate = useNavigate()
 
   const [loginOpen, setLoginOpen] = useState(() => localStorage.getItem("isSignedIn") !== "true")
   const [activeTab, setActiveTab] = useState<PortfolioTab>(PORTFOLIO_TABS.POSITIONS)
   const [search, setSearch] = useState("")
+  const [withdrawOpen, setWithdrawOpen] = useState(false)
+  const [metamaskDepositOpen, setMetamaskDepositOpen] = useState(false)
+
+  // micro-USDC (6 decimals string) → plain USDC number
+  const availableBalance = Number(BigInt(availableAmountRaw ?? "0")) / 1_000_000
 
   const handleLoginClose = () => {
     setLoginOpen(false)
@@ -43,6 +57,10 @@ const PortfolioPage = () => {
       setLoginOpen(true)
       return
     }
+    if (loginMethod === LOGIN_METHODS.MetaMask) {
+      setMetamaskDepositOpen(true)
+      return
+    }
     await magic?.wallet.showUI()
   }
 
@@ -51,79 +69,55 @@ const PortfolioPage = () => {
 
   return (
     <>
+      <MetaMaskDepositModal
+        open={metamaskDepositOpen}
+        onClose={() => setMetamaskDepositOpen(false)}
+      />
       <LoginModal
         open={loginOpen}
         onClose={isAuthenticated ? () => setLoginOpen(false) : handleLoginClose}
       />
+      <WithdrawModal
+        open={withdrawOpen}
+        onClose={() => setWithdrawOpen(false)}
+        availableBalance={availableBalance}
+      />
 
       <div
+        className="container font-inter "
         style={{
-          minHeight: "100vh",
           background: PORTFOLIO_COLORS.PAGE_BG,
           color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-          fontFamily: "Inter, sans-serif",
         }}
       >
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px 80px" }}>
+        <div
+          className="mt-7.5 mb-18 "
+          //  style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px 80px" }}
+        >
           {/* ── Page header ── */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              marginBottom: 28,
-            }}
-          >
+          <div className="flex flex-col md:flex-row items-start gap-4 md:items-center justify-between mb-7">
             <div>
-              <h1
-                style={{
-                  fontSize: 32,
-                  fontWeight: 800,
-                  color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-                  margin: 0,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                Portfolio
-              </h1>
-              <p
-                style={{
-                  fontSize: 14,
-                  color: PORTFOLIO_COLORS.TEXT_MUTED,
-                  margin: "6px 0 0",
-                  fontWeight: 400,
-                }}
-              >
+              <h1 className="font-xxl font-bold text-white">Portfolio</h1>
+              <p className="font-default mt-1.5 text-white/60 ">
                 Track your positions and performance
               </p>
             </div>
 
             {/* action buttons */}
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              <ActionBtn onClick={handleDeposit} icon="↓" label="Deposit" />
-              <ActionBtn onClick={() => {}} icon="↑" label="Withdraw" variant="outline" />
-              <button
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-                  background: PORTFOLIO_COLORS.CARD_BG,
-                  color: PORTFOLIO_COLORS.TEXT_MUTED,
-                  fontSize: 18,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                }}
-              >
-                ···
-              </button>
+            <div className="flex gap-2.5 items-center">
+              <ActionBtn onClick={handleDeposit} icon={<IconDeposit />} label="Deposit" />
+              <ActionBtn
+                onClick={() => setWithdrawOpen(true)}
+                icon={<IconWithdraw />}
+                label="Withdraw"
+              />
+              {/* <button className="w-9 h-9 border rounded-2md border-white/10 bg-white/5 font-sm font-medium text-white flex items-center justify-center cursor-pointer transition-all [&_svg]:[stroke:2.5px]">
+                <IconMore /> */}
             </div>
           </div>
 
           {/* ── Stats cards ── */}
-          <div style={{ marginBottom: 16 }}>
+          <div className="mb-6">
             <StatsCards
               totalValue={stats.totalValue}
               available={stats.available}
@@ -132,12 +126,12 @@ const PortfolioPage = () => {
               activePositions={stats.activePositions}
               potentialValue={stats.potentialValue}
               onDeposit={handleDeposit}
-              onWithdraw={() => {}}
+              onWithdraw={() => setWithdrawOpen(true)}
             />
           </div>
 
           {/* ── Portfolio value chart ── */}
-          <div style={{ marginBottom: 16 }}>
+          <div className="mb-6">
             <PortfolioChart
               data={MOCK_PORTFOLIO_CHART}
               portfolioValue={stats.portfolioValue}
@@ -146,64 +140,32 @@ const PortfolioPage = () => {
             />
           </div>
 
-          {/* ── Tabs + table ── */}
-          <div
-            style={{
-              background: PORTFOLIO_COLORS.CARD_BG,
-              border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-              borderRadius: 16,
-              overflow: "hidden",
-            }}
-          >
-            {/* tab bar + search */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "16px 16px 0",
-                borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-                flexWrap: "wrap",
-                gap: 12,
-              }}
-            >
-              {/* tabs */}
-              <div
-                style={{
-                  display: "flex",
-                  gap: 4,
-                  background: "rgba(255,255,255,0.04)",
-                  borderRadius: 10,
-                  padding: 4,
-                }}
-              >
-                {TABS.map((t) => (
-                  <button
-                    key={t.key}
-                    onClick={() => {
-                      setActiveTab(t.key)
-                      setSearch("")
-                    }}
-                    style={{
-                      padding: "7px 18px",
-                      borderRadius: 7,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      background: activeTab === t.key ? PORTFOLIO_COLORS.GREEN : "transparent",
-                      color: activeTab === t.key ? "#000" : PORTFOLIO_COLORS.TEXT_MUTED,
-                      transition: "all 0.15s",
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
+          {/* tab bar + search */}
 
-              {/* filter + search */}
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div className="flex items-center justify-between  flex-wrap pb-4 pt-0 gap-4">
+            {/* tabs */}
+            <div className="flex gap-4 bg-white/5 border border-white/10 rounded-2md p-1">
+              {TABS.map((t) => (
                 <button
+                  key={t.key}
+                  onClick={() => {
+                    setActiveTab(t.key)
+                    setSearch("")
+                  }}
+                  className="py-1.5 px-4.5 rounded-sm font-sm  font-semibold transition-all cursor-pointer whitespace-nowrap"
+                  style={{
+                    background: activeTab === t.key ? PORTFOLIO_COLORS.GREEN : "transparent",
+                    color: activeTab === t.key ? "#000" : PORTFOLIO_COLORS.TEXT_MUTED,
+                  }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* filter + search */}
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              {/* <button
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -219,8 +181,8 @@ const PortfolioPage = () => {
                   }}
                 >
                   ⚙ Filter
-                </button>
-                <div style={{ position: "relative" }}>
+                </button> */}
+              {/* <div style={{ position: "relative" }}>
                   <span
                     style={{
                       position: "absolute",
@@ -249,12 +211,14 @@ const PortfolioPage = () => {
                       width: 200,
                     }}
                   />
-                </div>
-              </div>
+                </div> */}
             </div>
+          </div>
 
+          {/* ──  table ── */}
+          <div className="bg-linear-to-b from-white/5 to-white/2 border border-white/10 rounded-2xl overflow-x-auto no-scrollbar ">
             {/* tab content */}
-            <div style={{ padding: "16px 0 0" }}>
+            <div className="min-w-[900px] pt-4">
               {activeTab === PORTFOLIO_TABS.POSITIONS && <PositionsTab search={search} />}
               {activeTab === PORTFOLIO_TABS.ORDERS && <PortfolioOrdersTab search={search} />}
               {activeTab === PORTFOLIO_TABS.HISTORY && <HistoryTab search={search} />}
@@ -276,32 +240,66 @@ const ActionBtn = ({
   variant = "solid",
 }: {
   onClick: () => void
-  icon: string
+  icon: React.ReactNode
   label: string
   variant?: "solid" | "outline"
 }) => (
   <button
     onClick={onClick}
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-      padding: "8px 18px",
-      borderRadius: 10,
-      fontSize: 13,
-      fontWeight: 700,
-      border: `1px solid ${variant === "solid" ? PORTFOLIO_COLORS.CARD_BORDER : PORTFOLIO_COLORS.CARD_BORDER}`,
-      background: variant === "solid" ? PORTFOLIO_COLORS.CARD_BG : "transparent",
-      color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-      cursor: "pointer",
-      transition: "background 0.15s",
-    }}
+    className="flex items-center gap-1.5 py-1.5 px-4.5 rounded-2md font-sm font-medium border border-white/10 bg-white/5 text-white cursor-pointer transition-all "
     onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
     onMouseLeave={(e) =>
       (e.currentTarget.style.background =
         variant === "solid" ? PORTFOLIO_COLORS.CARD_BG : "transparent")
     }
   >
-    <span style={{ fontSize: 14 }}>{icon}</span> {label}
+    <span style={{ display: "flex", alignItems: "center" }}>{icon}</span> {label}
   </button>
 )
+
+// ── Icons ───────────────────────────────────────────────────────────────────
+const IconDeposit = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M12 3V15M12 15L8 11M12 15L16 11"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+)
+
+const IconWithdraw = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M12 15V3M12 3L8 7M12 3L16 7"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+)
+
+// const IconMore = () => (
+//   <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+//     <circle cx="2" cy="2" r="1.5" fill="currentColor" />
+//     <circle cx="2" cy="8" r="1.5" fill="currentColor" />
+//     <circle cx="2" cy="14" r="1.5" fill="currentColor" />
+//   </svg>
+// )

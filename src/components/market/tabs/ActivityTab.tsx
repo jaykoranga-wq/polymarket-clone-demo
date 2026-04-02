@@ -13,91 +13,83 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
   const items = MOCK_ACTIVITY
 
   return (
-    <div className="ep-section">
-      <div className="ep-section-header">
-        <span className="ep-section-title">Recent Activity</span>
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{items.length} trades</span>
+    <div className="mb-4">
+      <div className="flex items-center justify-between mb-3.5">
+        {/* <span className="font-base font-bold text-white uppercase ">Recent Activity</span> */}
+        <span className="font-sm text-primary">{items.length} trades</span>
       </div>
 
-      {/* Column headers */}
-      <div
-        className="grid text-[10px] font-bold uppercase tracking-widest pb-2 border-b mb-1"
-        style={{
-          gridTemplateColumns: "1fr 56px 56px 72px 88px",
-          color: "rgba(255,255,255,0.3)",
-          borderColor: "rgba(255,255,255,0.06)",
-        }}
-      >
-        <span>User</span>
-        <span className="text-center">Action</span>
-        <span className="text-center">Outcome</span>
-        <span className="text-right">Shares</span>
-        <span className="text-right">Amount</span>
-      </div>
-
-      {/* Rows */}
-      <div className="flex flex-col">
-        {items.map((item) => (
+      {/* Scrollable table container */}
+      <div className="overflow-x-auto no-scrollbar -mx-1 px-1">
+        <div className="min-w-sm">
+          {/* Column headers */}
           <div
-            key={item.id}
-            className="grid items-center py-2.5 transition-colors hover:bg-white/[0.02] rounded-lg px-1"
+            className="grid font-base text-white/60 font-medium uppercase tracking-widest pb-2 border-b border-white/6 mb-1 px-1"
             style={{
-              gridTemplateColumns: "1fr 56px 56px 72px 88px",
-              borderBottom: "1px solid rgba(255,255,255,0.04)",
+              gridTemplateColumns: "repeat(5, 1fr)",
             }}
           >
-            {/* User + time */}
-            <div className="flex flex-col min-w-0">
-              <span
-                className="text-[12px] font-medium"
-                style={{ color: "rgba(255,255,255,0.7)", fontFamily: "monospace" }}
-              >
-                {item.user}
-              </span>
-              <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.25)" }}>
-                {formatMarketDate(item.timestamp)}
-              </span>
-            </div>
+            <span>User</span>
+            <span className="text-center">Action</span>
+            <span className="text-center">Outcome</span>
+            <span className="text-center">Shares</span>
+            <span className="text-right">Amount</span>
+          </div>
 
-            {/* Action */}
-            <span
-              className="text-[11px] font-bold text-center"
-              style={{ color: item.action === "Buy" ? "#00c853" : "#e53935" }}
-            >
-              {item.action}
-            </span>
-
-            {/* Outcome badge */}
-            <div className="flex justify-center">
-              <span
-                className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+          {/* Rows */}
+          <div className="flex flex-col">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className="grid items-center border-b border-b-white/4 py-2.5 transition-colors hover:bg-white/2 rounded-lg px-1"
                 style={{
-                  background:
-                    item.outcome === "Yes" ? "rgba(0,200,83,0.12)" : "rgba(229,57,53,0.12)",
-                  color: item.outcome === "Yes" ? "#00c853" : "#e53935",
+                  gridTemplateColumns: "repeat(5, 1fr)",
                 }}
               >
-                {item.outcome}
-              </span>
-            </div>
+                {/* User + time */}
+                <div className="flex flex-col min-w-0">
+                  <span className="font-default font-medium text-white">{item.user}</span>
+                  <span className="font-base text-white/40">
+                    {formatMarketDate(item.timestamp)}
+                  </span>
+                </div>
 
-            {/* Shares */}
-            <span
-              className="text-[12px] text-right font-medium"
-              style={{ color: "rgba(255,255,255,0.6)" }}
-            >
-              {item.shares.toLocaleString()}
-            </span>
+                {/* Action */}
+                <span
+                  className="font-sm font-medium text-center"
+                  style={{ color: item.action === "Buy" ? "#18C964" : "#FF5A5F95" }}
+                >
+                  {item.action}
+                </span>
 
-            {/* USDC */}
-            <span
-              className="text-[12px] text-right font-medium"
-              style={{ color: "rgba(255,255,255,0.6)" }}
-            >
-              ${item.usdcAmount.toFixed(2)}
-            </span>
+                {/* Outcome badge */}
+                <div className="flex justify-center">
+                  <span
+                    className="font-base font-semibold px-1.5 py-0.5 rounded-full"
+                    style={{
+                      background: item.outcome === "Yes" ? "#18C96433" : "#FF5A5F33",
+                      color: item.outcome === "Yes" ? "#18C964" : "#FF5A5F",
+                    }}
+                  >
+                    {item.outcome}
+                  </span>
+                </div>
+
+                {/* Shares */}
+                <span className="font-sm text-center font-medium text-white/80">
+                  {item.shares.toLocaleString()}
+                </span>
+
+                {/* Amount */}
+                <div className="flex justify-end pr-1">
+                  <span className="font-sm font-medium text-white">
+                    ${item.usdcAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   )

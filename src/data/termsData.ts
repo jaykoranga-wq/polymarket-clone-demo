@@ -6,7 +6,7 @@ export const TERMS_META = {
   lastUpdated: "March 20, 2026",
   effectiveDate: "January 1, 2026",
   version: "1.0",
-  contactEmail: "legal@polymarket.com",
+  contactEmail: "legal@OutcomeX.com",
 }
 
 export interface TermsSection {
@@ -20,7 +20,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
     id: "acceptance",
     title: "1. Acceptance of Terms",
     content: [
-      'By accessing or using Polymarket (the "Platform"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, you may not access or use the Platform.',
+      'By accessing or using OutcomeX (the "Platform"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, you may not access or use the Platform.',
       'We reserve the right to modify these Terms at any time. We will notify users of any material changes by updating the "Last Updated" date at the top of this page. Your continued use of the Platform after any changes constitutes your acceptance of the new Terms.',
       "These Terms apply to all visitors, users, and others who access or use the Platform.",
     ],
@@ -38,7 +38,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
     id: "platform",
     title: "3. Platform Description",
     content: [
-      "Polymarket is a decentralized prediction market platform that allows users to trade on the outcomes of real-world events using cryptocurrency. All trades are executed via smart contracts on the Polygon blockchain.",
+      "OutcomeX is a decentralized prediction market platform that allows users to trade on the outcomes of real-world events using cryptocurrency. All trades are executed via smart contracts on the Polygon blockchain.",
       'The Platform is provided on an "as is" and "as available" basis. We do not guarantee the accuracy, completeness, or timeliness of any information on the Platform, including market prices and probabilities.',
       "Markets on the Platform are resolved based on publicly available information and the decisions of designated resolvers. Resolution decisions are final and binding.",
     ],
@@ -76,7 +76,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
     id: "intellectual",
     title: "7. Intellectual Property",
     content: [
-      "The Platform and its original content, features, and functionality are owned by Polymarket and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.",
+      "The Platform and its original content, features, and functionality are owned by OutcomeX and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.",
       "You are granted a limited, non-exclusive, non-transferable license to access and use the Platform for your personal, non-commercial use. You may not reproduce, distribute, modify, or create derivative works of any content without our express written permission.",
     ],
   },
@@ -92,7 +92,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
     id: "liability",
     title: "9. Limitation of Liability",
     content: [
-      "To the maximum extent permitted by applicable law, Polymarket and its affiliates, officers, employees, agents, partners, and licensors shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or goodwill.",
+      "To the maximum extent permitted by applicable law, OutcomeX and its affiliates, officers, employees, agents, partners, and licensors shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or goodwill.",
       "Our total liability to you for any claims arising from these Terms or your use of the Platform shall not exceed the total fees paid by you to the Platform in the twelve months preceding the claim.",
       "Some jurisdictions do not allow the exclusion of certain warranties or limitations on liability, so the above limitations may not apply to you.",
     ],
@@ -102,8 +102,8 @@ export const TERMS_SECTIONS: TermsSection[] = [
     title: "10. Dispute Resolution",
     content: [
       "Any disputes arising out of or relating to these Terms or the Platform shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.",
-      "You waive any right to participate in a class action lawsuit or class-wide arbitration against Polymarket.",
-      "These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which Polymarket is incorporated, without regard to its conflict of law provisions.",
+      "You waive any right to participate in a class action lawsuit or class-wide arbitration against OutcomeX.",
+      "These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which OutcomeX is incorporated, without regard to its conflict of law provisions.",
     ],
   },
   {

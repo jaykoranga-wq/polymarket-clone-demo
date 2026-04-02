@@ -23,12 +23,12 @@ export const PORTFOLIO_COLORS = {
   GREEN_CARD_BG: "rgba(0,200,83,0.06)",
   RED: "#e53935",
   RED_DIM: "rgba(229,57,53,0.12)",
-  CARD_BG: "#111720",
-  CARD_BORDER: "rgba(255,255,255,0.07)",
+  CARD_BG: "rgba(255,255,255,0.05)",
+  CARD_BORDER: "rgba(255,255,255,0.10)",
   TEXT_PRIMARY: "#ffffff",
   TEXT_MUTED: "rgba(255,255,255,0.4)",
   TEXT_MUTED_2: "rgba(255,255,255,0.25)",
-  PAGE_BG: "#0d0f13",
+  PAGE_BG: "#0A0C10",
   SURFACE: "#161a22",
 } as const
 

@@ -18,4 +18,8 @@ export interface UserOrder {
   status: OrderStatus
   createdAt: string // ISO string
   expiresAt?: string // ISO string if expiration was set
+  token: {
+    id: string
+    title: string
+  }
 }

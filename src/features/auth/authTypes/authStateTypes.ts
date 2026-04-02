@@ -5,10 +5,10 @@ export interface AuthState {
   email: string | null
   publicAddress: string | null // for wallet later
   loading: true | false
-  portfolioAmount?: number
-  cashAmount?: number
-  reservedAmount: number // USDC locked in pending/partial orders
-  availableAmount: number // cashAmount - reservedAmount (always derived)
+  portfolioAmount?: string
+  cashAmount?: string
+  reservedAmount: string // micro-USDC integer as string (e.g. "12345678" = 12.345678 USDC)
+  availableAmount: string // cashAmount - reservedAmount, always derived
   loginMethod: LoginMethod
   token: string | null
   cashLoading: boolean

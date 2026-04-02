@@ -1,12 +1,72 @@
 // src/pages/portfolio/components/tabs/PositionsTab.tsx
 
+import { useState } from "react"
+
+import { useGetOrdersQuery } from "@/features/api/orders/orderApi"
+import {
+  type ApiOrder,
+  ORDER_STATUS_PARAM,
+  ORDER_TYPE_PARAM,
+} from "@/features/api/orders/orderApiTypes"
 import { useRedeem } from "@/hooks/useRedeem"
 import { MOCK_POSITIONS, type Position } from "@/mocks/mockPortfolio"
 
 import { PORTFOLIO_COLORS, POSITION_SIDE } from "../../portfolioConstants"
+import { Pagination } from "./OrdersAndHistoryTabs"
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const PAGE_SIZE = 10
 
 // ── Column layout ─────────────────────────────────────────────────────────────
 const COL = "1fr 80px 80px 80px 80px 110px 150px"
+
+// ── Map filled orders → Position (aggregate by market + side) ─────────────────
+const aggregateFilledOrders = (orders: ApiOrder[]): Position[] => {
+  const map = new Map<string, Position>()
+
+  for (const o of orders) {
+    const side = o.type === ORDER_TYPE_PARAM.BUY ? "YES" : "NO"
+    const key = `${o.market.id}-${side}`
+    const filledShares = Math.max(0, Number(o.shares) - Number(o.remainingShares))
+    if (filledShares === 0) continue
+
+    const priceCents = Math.round(Number(o.price) / 10000) // e.g. 500000 → 50¢
+    const invested = (filledShares * priceCents) / 100 // USDC
+
+    const existing = map.get(key)
+    if (existing) {
+      const newShares = existing.shares + filledShares
+      existing.avgPrice =
+        (existing.avgPrice * existing.shares + priceCents * filledShares) / newShares
+      existing.shares = newShares
+      existing.invested += invested
+      existing.value = existing.invested // use cost basis as value (no live price)
+    } else {
+      map.set(key, {
+        id: key,
+        marketId: o.market.id,
+        marketTitle: o.market.title,
+        category: "",
+        side: side as Position["side"],
+        shares: filledShares,
+        avgPrice: priceCents,
+        nowPrice: priceCents, // live price unavailable; show avg as placeholder
+        invested,
+        value: invested,
+        // blockchain fields — not available from orders API
+        conditionId: "",
+        yesTokenId: "",
+        noTokenId: "",
+        collateralToken: "",
+        isResolved: false,
+        winningOutcome: null,
+        isRedeemed: false,
+      })
+    }
+  }
+
+  return Array.from(map.values())
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const canRedeem = (pos: Position): boolean =>
@@ -18,12 +78,8 @@ const isLost = (pos: Position): boolean =>
 // ── Sub-components ────────────────────────────────────────────────────────────
 const ColHeader = ({ children, align = "left" }: { children: React.ReactNode; align?: string }) => (
   <div
+    className="font-base font-medium uppercase text-white/60 tracking-widest "
     style={{
-      fontSize: 10,
-      fontWeight: 700,
-      textTransform: "uppercase",
-      letterSpacing: "0.1em",
-      color: PORTFOLIO_COLORS.TEXT_MUTED_2,
       textAlign: align as React.CSSProperties["textAlign"],
     }}
   >
@@ -49,14 +105,10 @@ const CategoryTag = ({ label, highlight }: { label: string; highlight?: boolean 
 
 const SidePill = ({ side }: { side: string }) => (
   <span
+    className="font-base font-semibold py-1 px-2.5 rounded-full "
     style={{
-      fontSize: 11,
-      fontWeight: 800,
-      padding: "4px 10px",
-      borderRadius: 20,
       background: side === POSITION_SIDE.YES ? "rgba(0,200,83,0.15)" : "rgba(229,57,53,0.15)",
       color: side === POSITION_SIDE.YES ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.RED,
-      letterSpacing: "0.02em",
     }}
   >
     {side}
@@ -73,7 +125,6 @@ const RedeemButton = ({
   onRedeem: (p: Position) => void
   isLoading: boolean
 }) => {
-  // already redeemed
   if (position.isRedeemed) {
     return (
       <span
@@ -91,7 +142,6 @@ const RedeemButton = ({
     )
   }
 
-  // lost position
   if (isLost(position)) {
     return (
       <span
@@ -107,7 +157,6 @@ const RedeemButton = ({
     )
   }
 
-  // can redeem
   if (canRedeem(position)) {
     return (
       <button
@@ -156,7 +205,6 @@ const RedeemButton = ({
     )
   }
 
-  // active market — no action
   return null
 }
 
@@ -167,28 +215,22 @@ const PnlDisplay = ({ position }: { position: Position }) => {
   const positive = pnl >= 0
 
   return (
-    <div style={{ textAlign: "right" }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: PORTFOLIO_COLORS.TEXT_PRIMARY }}>
+    <div className="text-right">
+      <div className="font-sm font-semibold text-white">
         {position.isResolved && isLost(position) ? (
-          <span style={{ color: PORTFOLIO_COLORS.TEXT_MUTED_2 }}>$0.00</span>
+          <span className="text-white/40">$0.00</span>
         ) : (
           `$${position.value.toFixed(2)}`
         )}
       </div>
       <div
+        className="flex items-center justify-end gap-0.5 font-base flex-nowrap font-medium"
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          gap: 3,
-          fontSize: 11,
-          fontWeight: 600,
           color: positive ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.RED,
-          marginTop: 2,
         }}
       >
         <span>{positive ? "↗" : "↘"}</span>
-        <span>
+        <span className="text-nowrap">
           {positive ? "+" : ""}${Math.abs(pnl).toFixed(2)} ({positive ? "+" : ""}
           {pct.toFixed(1)}%)
         </span>
@@ -196,6 +238,42 @@ const PnlDisplay = ({ position }: { position: Position }) => {
     </div>
   )
 }
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+const shimmer: React.CSSProperties = {
+  background:
+    "linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)",
+  backgroundSize: "200% 100%",
+  animation: "pos-shimmer 1.6s ease-in-out infinite",
+  borderRadius: 6,
+}
+
+const PositionsSkeleton = () => (
+  <>
+    <style>{`@keyframes pos-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div
+        key={i}
+        style={{
+          display: "grid",
+          gridTemplateColumns: COL,
+          gap: 8,
+          padding: "16px",
+          borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
+          alignItems: "center",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ ...shimmer, height: 14, width: "65%" }} />
+          <div style={{ ...shimmer, height: 10, width: "25%" }} />
+        </div>
+        {[50, 60, 55, 60, 50, 70].map((w, j) => (
+          <div key={j} style={{ ...shimmer, height: 12, width: `${w}%`, marginLeft: "auto" }} />
+        ))}
+      </div>
+    ))}
+  </>
+)
 
 // ── Position row ──────────────────────────────────────────────────────────────
 const PositionRow = ({
@@ -213,16 +291,9 @@ const PositionRow = ({
 
   return (
     <div
+      className="grid gap-2 py-4 px-6 bordeer-b border-b-white/10  items-center transition-all cursor-pointer"
       style={{
-        display: "grid",
-        gridTemplateColumns: COL,
-        gap: 8,
-        padding: "16px",
-        borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-        alignItems: "center",
-        transition: "background 0.15s",
-        cursor: "pointer",
-        // resolved won = subtle green tint
+        gridTemplateColumns: "repeat(7, 1fr)",
         background: canRedeem(position) ? "rgba(0,200,83,0.03)" : "transparent",
       }}
       onMouseEnter={(e) =>
@@ -239,31 +310,28 @@ const PositionRow = ({
       {/* market title + tags */}
       <div style={{ minWidth: 0 }}>
         <div
-          style={{
-            fontSize: 14,
-            fontWeight: 600,
-            color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-            marginBottom: 6,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
+          className="font-default font-medium text-white mb-1.5  truncate whitespace-nowrap"
+          // style={{
+          //   fontSize: 14,
+          //   fontWeight: 600,
+          //   color: PORTFOLIO_COLORS.TEXT_PRIMARY,
+          //   marginBottom: 6,
+          //   overflow: "hidden",
+          //   textOverflow: "ellipsis",
+          //   whiteSpace: "nowrap",
+          // }}
         >
           {position.marketTitle}
         </div>
-        <div style={{ display: "flex", gap: 4, flexWrap: "wrap", alignItems: "center" }}>
-          <CategoryTag label={position.category} />
+        <div className="flex gap-1 flex-wrap items-center">
+          {position.category && <CategoryTag label={position.category} />}
           {position.tags?.map((tag) => (
             <CategoryTag key={tag} label={tag} highlight />
           ))}
-          {/* resolved badge */}
           {position.isResolved && (
             <span
+              className="font-base align-center text-nowrap font-medium py-0.5 px-1.5 rounded-full"
               style={{
-                fontSize: 10,
-                fontWeight: 700,
-                padding: "2px 7px",
-                borderRadius: 6,
                 background: canRedeem(position)
                   ? "rgba(0,200,83,0.12)"
                   : isLost(position)
@@ -287,29 +355,20 @@ const PositionRow = ({
       </div>
 
       {/* side */}
-      <div style={{ display: "flex", justifyContent: "center" }}>
+      <div className="flex justify-center">
         <SidePill side={position.side} />
       </div>
 
       {/* shares */}
-      <div
-        style={{
-          fontSize: 14,
-          fontWeight: 600,
-          color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-          textAlign: "right",
-        }}
-      >
+      <div className="font-sm font-medium text-center text-white">
         {position.shares.toLocaleString()}
       </div>
 
       {/* avg price */}
-      <div style={{ fontSize: 14, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
-        {position.avgPrice.toFixed(2)}¢
-      </div>
+      <div className="font-sm text-white/80 text-center">{position.avgPrice.toFixed(2)}¢</div>
 
       {/* now price */}
-      <div style={{ fontSize: 14, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
+      <div className="font-sm text-white/80 text-center">
         {position.isResolved ? (
           <span style={{ color: PORTFOLIO_COLORS.TEXT_MUTED_2 }}>Resolved</span>
         ) : (
@@ -318,12 +377,10 @@ const PositionRow = ({
       </div>
 
       {/* invested */}
-      <div style={{ fontSize: 14, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
-        ${position.invested.toFixed(2)}
-      </div>
+      <div className="font-sm text-white text-center">${position.invested.toFixed(2)}</div>
 
       {/* value + redeem */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+      <div className="flex flex-col items-end gap-1.5">
         <PnlDisplay position={position} />
         <RedeemButton position={position} onRedeem={onRedeem} isLoading={thisIsRedeeming} />
       </div>
@@ -349,46 +406,58 @@ const EmptyState = ({ label }: { label: string }) => (
 // ── PositionsTab ──────────────────────────────────────────────────────────────
 interface PositionsTabProps {
   search: string
-  // TODO: positions: Position[] ← from useGetPositionsQuery()
 }
 
 export const PositionsTab = ({ search }: PositionsTabProps) => {
-  // TODO: replace with API data
-  const positions = MOCK_POSITIONS.filter((p) =>
+  const [page, setPage] = useState(1)
+  const skip = (page - 1) * PAGE_SIZE
+
+  const { data, isLoading } = useGetOrdersQuery({
+    status: ORDER_STATUS_PARAM.FILLED,
+    limit: PAGE_SIZE,
+    skip,
+  })
+
+  const apiPositions = aggregateFilledOrders(data?.data.data ?? [])
+  const totalApiCount = data?.data.count ?? 0
+  const totalPages = Math.max(Math.ceil(totalApiCount / PAGE_SIZE), 1)
+
+  // combine mock + API positions, then filter by search
+  const combined = [...MOCK_POSITIONS, ...apiPositions].filter((p) =>
     p.marketTitle.toLowerCase().includes(search.toLowerCase()),
   )
 
   const { redeem, redeemingId, isRedeeming } = useRedeem()
 
+  if (isLoading) return <PositionsSkeleton />
+
   return (
     <>
-      {/* spin keyframe */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pos-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+      `}</style>
 
       {/* column headers */}
       <div
+        className="grid gap-4 py-4 px-6 border-b border-b-white/10 items-center "
         style={{
-          display: "grid",
-          gridTemplateColumns: COL,
-          gap: 8,
-          padding: "0 16px 12px",
-          borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-          alignItems: "center",
+          gridTemplateColumns: "repeat(7, 1fr)",
         }}
       >
         <ColHeader>Market</ColHeader>
         <ColHeader align="center">Side</ColHeader>
-        <ColHeader align="right">Shares</ColHeader>
-        <ColHeader align="right">Avg</ColHeader>
-        <ColHeader align="right">Now</ColHeader>
-        <ColHeader align="right">Invested</ColHeader>
+        <ColHeader align="center">Shares</ColHeader>
+        <ColHeader align="center">Avg</ColHeader>
+        <ColHeader align="center">Now</ColHeader>
+        <ColHeader align="center">Invested</ColHeader>
         <ColHeader align="right">Value</ColHeader>
       </div>
 
-      {positions.length === 0 ? (
+      {combined.length === 0 ? (
         <EmptyState label="No positions found." />
       ) : (
-        positions.map((pos) => (
+        combined.map((pos) => (
           <PositionRow
             key={pos.id}
             position={pos}
@@ -398,6 +467,8 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
           />
         ))
       )}
+
+      <Pagination page={page} totalPages={totalPages} onPage={setPage} />
     </>
   )
 }

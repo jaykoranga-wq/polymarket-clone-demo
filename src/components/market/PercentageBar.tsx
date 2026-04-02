@@ -12,28 +12,23 @@ export const PercentageBar: FC<PercentageBarProps> = ({
   hideLabels,
 }) => {
   return (
-    <div className="w-full flex flex-col gap-1">
-      {/* bar */}
-      <div
-        className="w-full overflow-hidden"
-        style={{ height: 4, borderRadius: 99, background: "rgba(255,255,255,0.06)" }}
-      >
+    <div className="w-full space-y-2">
+      <div className="flex h-1 w-full overflow-hidden rounded-full bg-muted/30">
         <div
-          style={{
-            height: "100%",
-            width: `${yesPercentage}%`,
-            background: "#00c853",
-            borderRadius: 99,
-            transition: "width 0.4s ease",
-          }}
+          className="h-full bg-yes transition-all duration-500 ease-out shadow-[0_0_8px_rgba(22,199,132,0.6)]"
+          style={{ width: `${yesPercentage}%` }}
+        />
+        <div
+          className="h-full bg-progress-bar transition-all duration-500 ease-out shadow-[0_0_8px_rgba(234,57,67,0.6)]"
+          style={{ width: `${noPercentage}%` }}
         />
       </div>
 
       {/* labels */}
       {!hideLabels && (
-        <div className="flex justify-between">
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#00c853" }}>{yesPercentage}%</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#e53935" }}>{noPercentage}%</span>
+        <div className="flex justify-between font-base font-medium uppercase tracking-wider">
+          <span className="text-primary">{yesPercentage}%</span>
+          <span className="text-no">{noPercentage}%</span>
         </div>
       )}
     </div>

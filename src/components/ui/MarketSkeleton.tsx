@@ -113,7 +113,7 @@ export const EventPageSkeleton: FC = () => (
       }
     `}</style>
 
-    <div className="md:px-20 px-4 md:mx-20" style={{ paddingTop: 24, paddingBottom: 80 }}>
+    <div className="container" style={{ paddingTop: 24, paddingBottom: 80 }}>
       {/* breadcrumb */}
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <div style={{ ...S, height: 12, width: 60, borderRadius: 4 }} />

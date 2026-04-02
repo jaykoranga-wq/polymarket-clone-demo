@@ -23,7 +23,7 @@ export function MyCarousel<T>({ items, renderItem }: MyCarouselProps<T>) {
         loop: true,
         skipSnaps: true,
       }}
-      className="w-full"
+      className="w-full font-liberation"
     >
       <CarouselContent>
         {items.map((item, index) => (
@@ -33,8 +33,8 @@ export function MyCarousel<T>({ items, renderItem }: MyCarouselProps<T>) {
         ))}
       </CarouselContent>
 
-      <CarouselPrevious className="-left-4 bg-[#1C2330] border-border hover:bg-[#252D3A] text-white" />
-      <CarouselNext className="-right-4 bg-[#1C2330] border-border hover:bg-[#252D3A] text-white" />
+      <CarouselPrevious className="-left-4 bg-primary   hover:bg-[#252D3A] text-black" />
+      <CarouselNext className="-right-4 bg-primary  hover:bg-[#252D3A] text-black" />
     </Carousel>
   )
 }

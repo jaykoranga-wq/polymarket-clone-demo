@@ -56,22 +56,13 @@ const OBRow = ({
 )
 
 const SpreadLine = ({ spread }: { spread: number }) => (
-  <div
-    className="text-[10px] text-center py-1 my-0.5"
-    style={{
-      color: "rgba(255,255,255,0.2)",
-      borderTop: "1px solid rgba(255,255,255,0.05)",
-      borderBottom: "1px solid rgba(255,255,255,0.05)",
-    }}
-  >
+  <div className="font-base text-center text-white/40 border-y border-y-white/5 py-1 my-0.5">
     spread {spread > 0 ? `${spread}¢` : "—"}
   </div>
 )
 
 const EmptyRows = ({ label }: { label: string }) => (
-  <div className="text-[11px] text-center py-3" style={{ color: "rgba(255,255,255,0.2)" }}>
-    {label}
-  </div>
+  <div className="font-base text-center text-white/40 py-3">{label}</div>
 )
 
 const SkeletonRows = () => (
@@ -128,38 +119,21 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
     <div className="ep-section">
       {/* ── Header ── */}
       <div className="ep-section-header">
-        <span className="ep-section-title">
-          Order Book <span className="ep-section-title-info">i</span>
-        </span>
-        <span style={{ fontFamily: "var(--ep-mono)", fontSize: 11, color: "var(--ep-muted)" }}>
-          PRICE · SHARES
-        </span>
+        <span className="ep-section-title">Order Book</span>
+        <span className="font-base text-muted-foreground">PRICE · SHARES</span>
       </div>
 
       {/* ── YES / NO token toggle ── */}
-      <div
-        className="flex gap-1 mb-4"
-        style={{
-          background: "rgba(255,255,255,0.04)",
-          borderRadius: 10,
-          padding: 4,
-          width: "fit-content",
-        }}
-      >
+      <div className="flex gap-1 mb-4 bg-white/4 rounded-2sm p-1 w-fit ">
         {(["YES", "NO"] as TokenSide[]).map((side) => (
           <button
             key={side}
             onClick={() => setActiveSide(side)}
+            className="py-1.5 px-5 rounded-md font-base font-bold cursor-pointer transition-all "
             style={{
-              padding: "5px 20px",
-              borderRadius: 7,
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: "pointer",
-              transition: "all 0.15s",
               background:
                 activeSide === side ? (side === "YES" ? "#00c853" : "#e53935") : "transparent",
-              color: activeSide === side ? "#000" : "rgba(255,255,255,0.4)",
+              color: activeSide === side ? "#000" : "white",
             }}
           >
             {side}
@@ -168,7 +142,13 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
       </div>
 
       {/* ── Column headers ── */}
-      <div className="ep-ob-col-head" style={{ marginBottom: 4 }}>
+      <div
+        className="grid font-base font-bold text-muted-foreground uppercase pb-1.5 px-2 "
+        style={{
+          marginBottom: 4,
+          gridTemplateColumns: "1fr 1fr",
+        }}
+      >
         <span>Price</span>
         <span style={{ textAlign: "right" }}>Shares</span>
       </div>
