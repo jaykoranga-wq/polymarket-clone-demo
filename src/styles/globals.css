@@ -201,6 +201,23 @@
   border-radius: 10px;
 }
 
+@media (max-width: 1479px) {
+  .ep-layout-inner {
+    grid-template-columns: 1fr 300px !important;
+    gap: 16px !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .ep-layout-inner {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ep-right-col {
+    display: none !important;
+  }
+}
+
 @media only screen and (max-width: 1380px) {
   .font-2xl {
     font-size: 32px;

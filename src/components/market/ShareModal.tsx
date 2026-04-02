@@ -18,7 +18,7 @@ interface ShareModalProps {
 const C = {
   bg: "#161a22",
   surface: "#1c2130",
-  border: "rgba(255,255,255,0.08)",
+  border: "rgba(255,255,255,0.10)",
   green: "#00c853",
   text: "#ffffff",
   muted: "rgba(255,255,255,0.5)",
@@ -40,7 +40,7 @@ const getShareOptions = (text: string, url: string) => [
     id: "twitter",
     label: "Share on X",
     color: "rgba(0,0,0,0.4)",
-    hover: "rgba(0,0,0,0.6)",
+    hover: "rgba(255,255,255,0.5)",
     tcolor: C.text,
     icon: <FaXTwitter size={16} />,
     action: () =>
@@ -120,56 +120,15 @@ export const ShareModal = ({ open, onClose, title, probability, outcome }: Share
     <div
       ref={overlayRef}
       onClick={handleOverlay}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 100,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0,0,0,0.72)",
-        backdropFilter: "blur(4px)",
-        padding: 16,
-      }}
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/92 p-4"
     >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 400,
-          background: C.bg,
-          border: `1px solid ${C.border}`,
-          borderRadius: 20,
-          overflow: "hidden",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.7)",
-        }}
-      >
+      <div className="w-full max-w-110 bg-black border border-white/10 rounded-xl overflow-hidden shadow-[0px_4px_100px_0px_#FFFFFF1A] ">
         {/* ── Header ── */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "18px 20px 14px",
-            borderBottom: `1px solid ${C.border}`,
-          }}
-        >
-          <span style={{ fontSize: 15, fontWeight: 700, color: C.text }}>Share market</span>
+        <div className="flex items-center justify-between p-6 pt-4 border-b border-b-white/10">
+          <span className="font-lg  font-bold text-white ">Share market</span>
           <button
             onClick={onClose}
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 8,
-              border: `1px solid ${C.border}`,
-              background: C.surface,
-              color: C.muted,
-              fontSize: 14,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transition: "color 0.15s",
-            }}
+            className="w-8 h-8 bg-transparent text-xl text-white/60 flex items-center justify-center cursor-pointer"
             onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
             onMouseLeave={(e) => (e.currentTarget.style.color = C.muted)}
           >
@@ -221,30 +180,18 @@ export const ShareModal = ({ open, onClose, title, probability, outcome }: Share
         </div> */}
 
         {/* ── Share options ── */}
-        <div
-          style={{ padding: "14px 20px 20px", display: "flex", flexDirection: "column", gap: 8 }}
-        >
+        <div className="p-6 flex flex-col gap-2 ">
           {options.map((opt) => {
             const isCopyDone = opt.id === "copy" && copied
             return (
               <button
                 key={opt.id}
                 onClick={() => handleOption(opt)}
+                className="flex items-center gap-3 rounded-lg py-3 px-4 font-sm  font-semibold cursor-pointer transition-all duration-150  text-left w-full"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "13px 16px",
-                  borderRadius: 12,
                   border: `1px solid ${C.border}`,
                   background: isCopyDone ? "rgba(0,200,83,0.12)" : opt.color,
                   color: isCopyDone ? C.green : opt.tcolor,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "all 0.15s",
-                  textAlign: "left",
-                  width: "100%",
                 }}
                 onMouseEnter={(e) => {
                   if (!isCopyDone) e.currentTarget.style.background = opt.hover
@@ -255,12 +202,8 @@ export const ShareModal = ({ open, onClose, title, probability, outcome }: Share
               >
                 {/* icon */}
                 <span
+                  className="flex items-center justify-center w-7 shrink-0 "
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 28,
-                    flexShrink: 0,
                     color: isCopyDone ? C.green : opt.tcolor,
                   }}
                 >
