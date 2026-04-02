@@ -23,22 +23,7 @@ const C = {
 const BigAvatar = ({ name }: { name: string }) => {
   const initials = name.slice(0, 2).toUpperCase()
   return (
-    <div
-      style={{
-        width: 80,
-        height: 80,
-        borderRadius: "50%",
-        background: "linear-gradient(135deg, #7c3aed, #db2777)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 28,
-        fontWeight: 800,
-        color: "#fff",
-        flexShrink: 0,
-        border: `3px solid ${C.green}`,
-      }}
-    >
+    <div className="w-40 h-40 rounded-md bg-primary/10 flex items-center justify-center text-8xl  font-extrabold text-white  shrink-0 ">
       {initials}
     </div>
   )
@@ -150,70 +135,25 @@ const ProfilePage = () => {
   const shortAddr = profile.address.slice(0, 6) + "..." + profile.address.slice(-4)
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: C.bg,
-        color: C.text,
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px 80px" }}>
+    <div className="container font-inter">
+      <div className="mt-7.5 mb-18">
         {/* ── Header card ── */}
-        <div
-          style={{
-            background: C.surface,
-            border: `1px solid ${C.border}`,
-            borderRadius: 16,
-            padding: 28,
-            marginBottom: 16,
-            display: "flex",
-            alignItems: "center",
-            gap: 20,
-            flexWrap: "wrap",
-          }}
-        >
+        <div className="flex items-center justify-between gap-5 flex-wrap mb-14">
           <BigAvatar name={profile.displayName} />
+          {/* <img className="w-40 h-40 rounded-sm object-cover" src="/user1.jpg" alt="logo" /> */}
 
           <div style={{ flex: 1, minWidth: 200 }}>
-            <h1
-              style={{ fontSize: 24, fontWeight: 800, margin: "0 0 4px", letterSpacing: "-0.01em" }}
-            >
-              {profile.displayName}
-            </h1>
-            <div style={{ fontSize: 12, color: C.muted, fontFamily: "monospace", marginBottom: 8 }}>
-              {shortAddr}
-            </div>
-            {email && <div style={{ fontSize: 13, color: C.muted, marginBottom: 4 }}>{email}</div>}
-            <div style={{ fontSize: 12, color: C.muted2 }}>
+            <h1 className="font-2xl font-extrabold mb-1">{profile.displayName}</h1>
+            <div className="font-sm text-white/60 mb-2">{shortAddr}</div>
+            {email && <div className="font-sm text-white/60  mb-1">{email}</div>}
+            <div className="font-sm text-white/60">
               Member since {formatMarketDate(profile.joinedAt)}
             </div>
           </div>
 
           {/* rank badge */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 4,
-              padding: "16px 24px",
-              borderRadius: 12,
-              background: "rgba(251,191,36,0.08)",
-              border: "1px solid rgba(251,191,36,0.2)",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: "#fbbf24",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-              }}
-            >
-              Global Rank
-            </span>
+          <div className="bg-linear-to-b from-primary/10 to-primary/5 flex flex-col gap-1 py-4 px-6 rounded-md border border-primary">
+            <span className="font-base text-primary uppercase font-bold">Global Rank</span>
             <span
               style={{ fontSize: 32, fontWeight: 900, color: "#fbbf24", letterSpacing: "-0.02em" }}
             >
