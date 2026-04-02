@@ -1,12 +1,72 @@
 // src/pages/portfolio/components/tabs/PositionsTab.tsx
 
+import { useState } from "react"
+
+import { useGetOrdersQuery } from "@/features/api/orders/orderApi"
+import {
+  type ApiOrder,
+  ORDER_STATUS_PARAM,
+  ORDER_TYPE_PARAM,
+} from "@/features/api/orders/orderApiTypes"
 import { useRedeem } from "@/hooks/useRedeem"
 import { MOCK_POSITIONS, type Position } from "@/mocks/mockPortfolio"
 
 import { PORTFOLIO_COLORS, POSITION_SIDE } from "../../portfolioConstants"
+import { Pagination } from "./OrdersAndHistoryTabs"
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const PAGE_SIZE = 10
 
 // ── Column layout ─────────────────────────────────────────────────────────────
 const COL = "1fr 80px 80px 80px 80px 110px 150px"
+
+// ── Map filled orders → Position (aggregate by market + side) ─────────────────
+const aggregateFilledOrders = (orders: ApiOrder[]): Position[] => {
+  const map = new Map<string, Position>()
+
+  for (const o of orders) {
+    const side = o.type === ORDER_TYPE_PARAM.BUY ? "YES" : "NO"
+    const key = `${o.market.id}-${side}`
+    const filledShares = Math.max(0, Number(o.shares) - Number(o.remainingShares))
+    if (filledShares === 0) continue
+
+    const priceCents = Math.round(Number(o.price) / 10000) // e.g. 500000 → 50¢
+    const invested = (filledShares * priceCents) / 100 // USDC
+
+    const existing = map.get(key)
+    if (existing) {
+      const newShares = existing.shares + filledShares
+      existing.avgPrice =
+        (existing.avgPrice * existing.shares + priceCents * filledShares) / newShares
+      existing.shares = newShares
+      existing.invested += invested
+      existing.value = existing.invested // use cost basis as value (no live price)
+    } else {
+      map.set(key, {
+        id: key,
+        marketId: o.market.id,
+        marketTitle: o.market.title,
+        category: "",
+        side: side as Position["side"],
+        shares: filledShares,
+        avgPrice: priceCents,
+        nowPrice: priceCents, // live price unavailable; show avg as placeholder
+        invested,
+        value: invested,
+        // blockchain fields — not available from orders API
+        conditionId: "",
+        yesTokenId: "",
+        noTokenId: "",
+        collateralToken: "",
+        isResolved: false,
+        winningOutcome: null,
+        isRedeemed: false,
+      })
+    }
+  }
+
+  return Array.from(map.values())
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const canRedeem = (pos: Position): boolean =>
@@ -73,7 +133,6 @@ const RedeemButton = ({
   onRedeem: (p: Position) => void
   isLoading: boolean
 }) => {
-  // already redeemed
   if (position.isRedeemed) {
     return (
       <span
@@ -91,7 +150,6 @@ const RedeemButton = ({
     )
   }
 
-  // lost position
   if (isLost(position)) {
     return (
       <span
@@ -107,7 +165,6 @@ const RedeemButton = ({
     )
   }
 
-  // can redeem
   if (canRedeem(position)) {
     return (
       <button
@@ -156,7 +213,6 @@ const RedeemButton = ({
     )
   }
 
-  // active market — no action
   return null
 }
 
@@ -197,6 +253,42 @@ const PnlDisplay = ({ position }: { position: Position }) => {
   )
 }
 
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+const shimmer: React.CSSProperties = {
+  background:
+    "linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)",
+  backgroundSize: "200% 100%",
+  animation: "pos-shimmer 1.6s ease-in-out infinite",
+  borderRadius: 6,
+}
+
+const PositionsSkeleton = () => (
+  <>
+    <style>{`@keyframes pos-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div
+        key={i}
+        style={{
+          display: "grid",
+          gridTemplateColumns: COL,
+          gap: 8,
+          padding: "16px",
+          borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
+          alignItems: "center",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ ...shimmer, height: 14, width: "65%" }} />
+          <div style={{ ...shimmer, height: 10, width: "25%" }} />
+        </div>
+        {[50, 60, 55, 60, 50, 70].map((w, j) => (
+          <div key={j} style={{ ...shimmer, height: 12, width: `${w}%`, marginLeft: "auto" }} />
+        ))}
+      </div>
+    ))}
+  </>
+)
+
 // ── Position row ──────────────────────────────────────────────────────────────
 const PositionRow = ({
   position,
@@ -222,7 +314,6 @@ const PositionRow = ({
         alignItems: "center",
         transition: "background 0.15s",
         cursor: "pointer",
-        // resolved won = subtle green tint
         background: canRedeem(position) ? "rgba(0,200,83,0.03)" : "transparent",
       }}
       onMouseEnter={(e) =>
@@ -252,11 +343,10 @@ const PositionRow = ({
           {position.marketTitle}
         </div>
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap", alignItems: "center" }}>
-          <CategoryTag label={position.category} />
+          {position.category && <CategoryTag label={position.category} />}
           {position.tags?.map((tag) => (
             <CategoryTag key={tag} label={tag} highlight />
           ))}
-          {/* resolved badge */}
           {position.isResolved && (
             <span
               style={{
@@ -349,21 +439,37 @@ const EmptyState = ({ label }: { label: string }) => (
 // ── PositionsTab ──────────────────────────────────────────────────────────────
 interface PositionsTabProps {
   search: string
-  // TODO: positions: Position[] ← from useGetPositionsQuery()
 }
 
 export const PositionsTab = ({ search }: PositionsTabProps) => {
-  // TODO: replace with API data
-  const positions = MOCK_POSITIONS.filter((p) =>
+  const [page, setPage] = useState(1)
+  const skip = (page - 1) * PAGE_SIZE
+
+  const { data, isLoading } = useGetOrdersQuery({
+    status: ORDER_STATUS_PARAM.FILLED,
+    limit: PAGE_SIZE,
+    skip,
+  })
+
+  const apiPositions = aggregateFilledOrders(data?.data.data ?? [])
+  const totalApiCount = data?.data.count ?? 0
+  const totalPages = Math.max(Math.ceil(totalApiCount / PAGE_SIZE), 1)
+
+  // combine mock + API positions, then filter by search
+  const combined = [...MOCK_POSITIONS, ...apiPositions].filter((p) =>
     p.marketTitle.toLowerCase().includes(search.toLowerCase()),
   )
 
   const { redeem, redeemingId, isRedeeming } = useRedeem()
 
+  if (isLoading) return <PositionsSkeleton />
+
   return (
     <>
-      {/* spin keyframe */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pos-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+      `}</style>
 
       {/* column headers */}
       <div
@@ -385,10 +491,10 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
         <ColHeader align="right">Value</ColHeader>
       </div>
 
-      {positions.length === 0 ? (
+      {combined.length === 0 ? (
         <EmptyState label="No positions found." />
       ) : (
-        positions.map((pos) => (
+        combined.map((pos) => (
           <PositionRow
             key={pos.id}
             position={pos}
@@ -398,6 +504,8 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
           />
         ))
       )}
+
+      <Pagination page={page} totalPages={totalPages} onPage={setPage} />
     </>
   )
 }

@@ -69,12 +69,12 @@ export interface GetOrdersResponse {
 export interface GetOrdersParams {
   status?: OrderStatusParam // filter by status
   limit?: number // items per page, default 10
-  page?: number // page number for pagination (add when backend supports)
-  offset?: number // or offset-based pagination
+  page?: number // page number (future)
+  skip?: number // number of records to skip (offset-based pagination)
 }
 
-import type { PortfolioOrder } from "@/mocks/mockPortfolio"
-import { ORDER_STATUS, POSITION_SIDE } from "@/pages/portfolio/portfolioConstants"
+import type { HistoryItem, PortfolioOrder } from "@/mocks/mockPortfolio"
+import { HISTORY_TYPE, ORDER_STATUS, POSITION_SIDE } from "@/pages/portfolio/portfolioConstants"
 
 export const mapApiOrderToPortfolioOrder = (o: ApiOrder): PortfolioOrder => ({
   id: o.id,
@@ -89,6 +89,26 @@ export const mapApiOrderToPortfolioOrder = (o: ApiOrder): PortfolioOrder => ({
   status: mapOrderStatus(o.status),
   createdAt: o.createdAt,
 })
+
+// Cents value from raw API price string (e.g. "500000" → 50)
+const rawToCtsCents = (raw: string) => Math.round(Number(raw) / 10000)
+
+export const mapApiOrderToHistoryItem = (o: ApiOrder): HistoryItem => {
+  const filledShares = Number(o.shares) - Number(o.remainingShares)
+  const priceCents = rawToCtsCents(o.price)
+  return {
+    id: o.id,
+    marketId: o.market.id,
+    marketTitle: o.market.title,
+    category: "",
+    type: o.type === ORDER_TYPE_PARAM.BUY ? HISTORY_TYPE.BUY : HISTORY_TYPE.SELL,
+    side: o.type === ORDER_TYPE_PARAM.BUY ? POSITION_SIDE.YES : POSITION_SIDE.NO,
+    shares: filledShares,
+    price: priceCents,
+    total: (filledShares * priceCents) / 100,
+    settledAt: o.createdAt,
+  }
+}
 
 const mapOrderStatus = (s: number): PortfolioOrder["status"] =>
   (

@@ -18,6 +18,7 @@ import {
   selectLoginMethod,
   selectPortfolioAmount,
   selectUserData,
+  selectUserLoading,
 } from "@/features/auth/authSlice"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import { useMagic } from "@/features/auth/lib/magic"
@@ -179,6 +180,7 @@ export const Navbar: FC = () => {
   const user = useAppSelector(selectUserData)
   const isAuthChecking = useAppSelector(selectIsAuthChecking)
   const loginMethod = useAppSelector(selectLoginMethod)
+  const isUserLoading = useAppSelector(selectUserLoading)
 
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -248,6 +250,7 @@ export const Navbar: FC = () => {
   }
 
   const debouncedHandleDeposit = useDebouncedCallback(handleDeposit, 500)
+  const showAuthLoader = isAuthChecking || isUserLoading
 
   return (
     <>
@@ -340,7 +343,9 @@ export const Navbar: FC = () => {
           {/* ── Right side with search ── */}
           <div className="flex items-center gap-2 sm:gap-3">
             <SearchBar />
-            {isAuthenticated ? (
+            {showAuthLoader ? (
+              <AuthLoader />
+            ) : isAuthenticated ? (
               <>
                 {/* Portfolio + Cash */}
                 <div className="hidden sm:flex items-center gap-4 font-base font-bold ">
@@ -433,8 +438,6 @@ export const Navbar: FC = () => {
                   )}
                 </div>
               </>
-            ) : isAuthChecking ? (
-              <AuthLoader />
             ) : (
               <>
                 {/* How it works */}

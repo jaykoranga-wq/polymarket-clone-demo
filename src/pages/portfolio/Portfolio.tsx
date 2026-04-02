@@ -1,14 +1,19 @@
 // src/pages/portfolio/PortfolioPage.tsx
 // Main portfolio page — clean orchestration only, all UI in sub-components
 
-import { Filter, Search } from "lucide-react"
 import { useState } from "react"
 import { useSelector } from "react-redux"
 import { useNavigate } from "react-router"
 
 import { LoginModal } from "@/components/auth/LoginModal"
+import { MetaMaskDepositModal } from "@/components/deposit/MetaMaskDepositModal"
 import { WithdrawModal } from "@/components/withdrawl/withdrawModal"
-import { selectAvailableAmount, selectIsAuthenticated } from "@/features/auth/authSlice"
+import {
+  selectAvailableAmount,
+  selectIsAuthenticated,
+  selectLoginMethod,
+} from "@/features/auth/authSlice"
+import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import { useMagic } from "@/features/auth/lib/magic"
 import { MOCK_PORTFOLIO_CHART, MOCK_PORTFOLIO_STATS } from "@/mocks/mockPortfolio"
 
@@ -29,6 +34,7 @@ const TABS: { key: PortfolioTab; label: string }[] = [
 const PortfolioPage = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated)
   const availableAmountRaw = useSelector(selectAvailableAmount)
+  const loginMethod = useSelector(selectLoginMethod)
   const { magic } = useMagic()
   const navigate = useNavigate()
 
@@ -36,6 +42,7 @@ const PortfolioPage = () => {
   const [activeTab, setActiveTab] = useState<PortfolioTab>(PORTFOLIO_TABS.POSITIONS)
   const [search, setSearch] = useState("")
   const [withdrawOpen, setWithdrawOpen] = useState(false)
+  const [metamaskDepositOpen, setMetamaskDepositOpen] = useState(false)
 
   // micro-USDC (6 decimals string) → plain USDC number
   const availableBalance = Number(BigInt(availableAmountRaw ?? "0")) / 1_000_000
@@ -50,6 +57,10 @@ const PortfolioPage = () => {
       setLoginOpen(true)
       return
     }
+    if (loginMethod === LOGIN_METHODS.MetaMask) {
+      setMetamaskDepositOpen(true)
+      return
+    }
     await magic?.wallet.showUI()
   }
 
@@ -58,6 +69,10 @@ const PortfolioPage = () => {
 
   return (
     <>
+      <MetaMaskDepositModal
+        open={metamaskDepositOpen}
+        onClose={() => setMetamaskDepositOpen(false)}
+      />
       <LoginModal
         open={loginOpen}
         onClose={isAuthenticated ? () => setLoginOpen(false) : handleLoginClose}
@@ -150,22 +165,54 @@ const PortfolioPage = () => {
             </div>
 
             {/* filter + search */}
-            <div className="flex gap-2.5 items-center">
-              <button className="flex items-center gap-1.5 py-1.5 px-4 rounded-md bg-white/5 border border-white/10 text-white text-sm font-semibold cursor-pointer">
-                <Filter size={14} className="text-white" /> Filter
-              </button>
-              <div className="relative ">
-                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-sm text-white/40">
-                  <Search size={14} />
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search positions..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pt-1.5 pr-3.5 pb-1.5 pl-8  bg-white/5 border border-white/10  rounded-md placeholder:text-white/40 text-white font-sm outline-none max-w-50"
-                />
-              </div>
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              {/* <button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "7px 14px",
+                    borderRadius: 8,
+                    border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
+                    background: PORTFOLIO_COLORS.SURFACE,
+                    color: PORTFOLIO_COLORS.TEXT_MUTED,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  ⚙ Filter
+                </button> */}
+              {/* <div style={{ position: "relative" }}>
+                  <span
+                    style={{
+                      position: "absolute",
+                      left: 10,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: PORTFOLIO_COLORS.TEXT_MUTED_2,
+                      fontSize: 14,
+                    }}
+                  >
+                    🔍
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Search positions..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    style={{
+                      background: PORTFOLIO_COLORS.SURFACE,
+                      border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
+                      borderRadius: 8,
+                      padding: "7px 14px 7px 32px",
+                      fontSize: 13,
+                      color: PORTFOLIO_COLORS.TEXT_PRIMARY,
+                      outline: "none",
+                      width: 200,
+                    }}
+                  />
+                </div> */}
             </div>
           </div>
 

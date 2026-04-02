@@ -6,11 +6,12 @@ import { toast } from "sonner"
 import { useGetOrdersQuery } from "@/features/api/orders/orderApi"
 import { useCancelOrderMutation } from "@/features/api/orders/orderApi"
 import {
+  mapApiOrderToHistoryItem,
   mapApiOrderToPortfolioOrder,
   ORDER_STATUS_PARAM,
 } from "@/features/api/orders/orderApiTypes"
 import { formatMarketDate } from "@/libs/formatDate"
-import { type HistoryItem, MOCK_HISTORY, type PortfolioOrder } from "@/mocks/mockPortfolio"
+import { type HistoryItem, type PortfolioOrder } from "@/mocks/mockPortfolio"
 
 import {
   HISTORY_TYPE,
@@ -18,6 +19,9 @@ import {
   PORTFOLIO_COLORS,
   POSITION_SIDE,
 } from "../../portfolioConstants"
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const PAGE_SIZE = 10
 
 // ── Skeleton loader ───────────────────────────────────────────────────────────
 const shimmer: React.CSSProperties = {
@@ -57,6 +61,105 @@ export const OrdersTabSkeleton = () => (
     ))}
   </>
 )
+
+// ── Pagination ────────────────────────────────────────────────────────────────
+export const Pagination = ({
+  page,
+  totalPages,
+  onPage,
+}: {
+  page: number
+  totalPages: number
+  onPage: (p: number) => void
+}) => {
+  if (totalPages <= 1) return null
+
+  const btnBase: React.CSSProperties = {
+    padding: "5px 12px",
+    borderRadius: 7,
+    fontSize: 12,
+    fontWeight: 600,
+    border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
+    background: PORTFOLIO_COLORS.SURFACE,
+    color: PORTFOLIO_COLORS.TEXT_MUTED,
+    cursor: "pointer",
+    transition: "all 0.15s",
+  }
+  const btnDisabled: React.CSSProperties = {
+    ...btnBase,
+    opacity: 0.35,
+    cursor: "not-allowed",
+  }
+  const pageNumStyle = (active: boolean): React.CSSProperties => ({
+    ...btnBase,
+    background: active ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.SURFACE,
+    color: active ? "#000" : PORTFOLIO_COLORS.TEXT_MUTED,
+    borderColor: active ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.CARD_BORDER,
+    fontWeight: active ? 700 : 600,
+  })
+
+  // show at most 5 page numbers centered around current
+  const start = Math.max(1, Math.min(page - 2, totalPages - 4))
+  const end = Math.min(totalPages, start + 4)
+  const pageNums = Array.from({ length: end - start + 1 }, (_, i) => start + i)
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+        padding: "16px",
+        borderTop: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
+      }}
+    >
+      <button
+        style={page === 1 ? btnDisabled : btnBase}
+        disabled={page === 1}
+        onClick={() => onPage(page - 1)}
+      >
+        ← Prev
+      </button>
+
+      {start > 1 && (
+        <>
+          <button style={pageNumStyle(false)} onClick={() => onPage(1)}>
+            1
+          </button>
+          {start > 2 && (
+            <span style={{ color: PORTFOLIO_COLORS.TEXT_MUTED_2, fontSize: 12 }}>…</span>
+          )}
+        </>
+      )}
+
+      {pageNums.map((n) => (
+        <button key={n} style={pageNumStyle(n === page)} onClick={() => onPage(n)}>
+          {n}
+        </button>
+      ))}
+
+      {end < totalPages && (
+        <>
+          {end < totalPages - 1 && (
+            <span style={{ color: PORTFOLIO_COLORS.TEXT_MUTED_2, fontSize: 12 }}>…</span>
+          )}
+          <button style={pageNumStyle(false)} onClick={() => onPage(totalPages)}>
+            {totalPages}
+          </button>
+        </>
+      )}
+
+      <button
+        style={page === totalPages ? btnDisabled : btnBase}
+        disabled={page === totalPages}
+        onClick={() => onPage(page + 1)}
+      >
+        Next →
+      </button>
+    </div>
+  )
+}
 
 // ── Shared components ─────────────────────────────────────────────────────────
 const SidePill = ({ side }: { side: string }) => (
@@ -234,7 +337,7 @@ const CancelButton = ({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ORDERS TAB
+// ORDERS TAB  (PENDING + PARTIALLY_FILLED, paginated)
 // ─────────────────────────────────────────────────────────────────────────────
 const ORDERS_COL = "1fr 80px 80px 80px 80px 100px 110px"
 
@@ -243,17 +346,49 @@ interface OrdersTabProps {
 }
 
 export const PortfolioOrdersTab = ({ search }: OrdersTabProps) => {
-  const { data, isLoading, refetch } = useGetOrdersQuery({
+  const [page, setPage] = useState(1)
+  const skip = (page - 1) * PAGE_SIZE
+
+  const {
+    data: pendingData,
+    isLoading: pendingLoading,
+    refetch: refetchPending,
+  } = useGetOrdersQuery({
     status: ORDER_STATUS_PARAM.PENDING,
-    limit: 50,
+    limit: PAGE_SIZE,
+    skip,
+  })
+  const {
+    data: partialData,
+    isLoading: partialLoading,
+    refetch: refetchPartial,
+  } = useGetOrdersQuery({
+    status: ORDER_STATUS_PARAM.PARTIALLY_FILLED,
+    limit: PAGE_SIZE,
+    skip,
   })
 
-  const orders: PortfolioOrder[] = (data?.data.data.map(mapApiOrderToPortfolioOrder) ?? []).filter(
-    (o) => o.marketTitle.toLowerCase().includes(search.toLowerCase()),
-  )
+  const isLoading = pendingLoading || partialLoading
 
-  // after cancel — refetch to get fresh list
-  const handleCancelled = () => refetch()
+  const handleCancelled = () => {
+    refetchPending()
+    refetchPartial()
+  }
+
+  const pendingOrders = pendingData?.data.data.map(mapApiOrderToPortfolioOrder) ?? []
+  const partialOrders = partialData?.data.data.map(mapApiOrderToPortfolioOrder) ?? []
+
+  const combined: PortfolioOrder[] = [...pendingOrders, ...partialOrders]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .filter((o) => o.marketTitle.toLowerCase().includes(search.toLowerCase()))
+
+  const pendingCount = pendingData?.data.count ?? 0
+  const partialCount = partialData?.data.count ?? 0
+  const totalPages = Math.max(
+    Math.ceil(pendingCount / PAGE_SIZE),
+    Math.ceil(partialCount / PAGE_SIZE),
+    1,
+  )
 
   if (isLoading) return <OrdersTabSkeleton />
 
@@ -292,13 +427,21 @@ export const PortfolioOrdersTab = ({ search }: OrdersTabProps) => {
           ))}
         </div>
 
-        {orders.length === 0 ? (
+        {combined.length === 0 ? (
           <EmptyState label="No open orders." />
         ) : (
-          orders.map((order) => (
+          combined.map((order) => (
             <OrderRow key={order.id} order={order} onCancelled={handleCancelled} />
           ))
         )}
+
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPage={(p) => {
+            setPage(p)
+          }}
+        />
       </div>
     </>
   )
@@ -386,7 +529,7 @@ const OrderRow = ({
         <StatusBadge status={order.status} />
       </div>
 
-      {/* action — cancel button only for pending/partial */}
+      {/* action */}
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         {isCancellable ? (
           <CancelButton orderId={order.id} onCancelled={onCancelled} />
@@ -399,7 +542,7 @@ const OrderRow = ({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// HISTORY TAB
+// HISTORY TAB  (FILLED + CANCELLED, paginated)
 // ─────────────────────────────────────────────────────────────────────────────
 const HISTORY_COL = "1fr 80px 80px 80px 90px 100px"
 
@@ -428,16 +571,45 @@ const HistoryTypeBadge = ({ type }: { type: HistoryItem["type"] }) => {
 
 interface HistoryTabProps {
   search: string
-  // TODO: const { data } = useGetHistoryQuery() when API ready
 }
 
 export const HistoryTab = ({ search }: HistoryTabProps) => {
-  const items = MOCK_HISTORY.filter((h) =>
-    h.marketTitle.toLowerCase().includes(search.toLowerCase()),
+  const [page, setPage] = useState(1)
+  const skip = (page - 1) * PAGE_SIZE
+
+  const { data: filledData, isLoading: filledLoading } = useGetOrdersQuery({
+    status: ORDER_STATUS_PARAM.FILLED,
+    limit: PAGE_SIZE,
+    skip,
+  })
+  const { data: cancelledData, isLoading: cancelledLoading } = useGetOrdersQuery({
+    status: ORDER_STATUS_PARAM.CANCELLED,
+    limit: PAGE_SIZE,
+    skip,
+  })
+
+  const isLoading = filledLoading || cancelledLoading
+
+  const filledItems = filledData?.data.data.map(mapApiOrderToHistoryItem) ?? []
+  const cancelledItems = cancelledData?.data.data.map(mapApiOrderToHistoryItem) ?? []
+
+  const combined: HistoryItem[] = [...filledItems, ...cancelledItems]
+    .sort((a, b) => new Date(b.settledAt).getTime() - new Date(a.settledAt).getTime())
+    .filter((h) => h.marketTitle.toLowerCase().includes(search.toLowerCase()))
+
+  const filledCount = filledData?.data.count ?? 0
+  const cancelledCount = cancelledData?.data.count ?? 0
+  const totalPages = Math.max(
+    Math.ceil(filledCount / PAGE_SIZE),
+    Math.ceil(cancelledCount / PAGE_SIZE),
+    1,
   )
+
+  if (isLoading) return <OrdersTabSkeleton />
 
   return (
     <div>
+      {/* column headers */}
       <div
         style={{
           display: "grid",
@@ -447,7 +619,7 @@ export const HistoryTab = ({ search }: HistoryTabProps) => {
           borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
         }}
       >
-        {["Market", "Type", "Side", "Shares", "Total", "P/L"].map((h, i) => (
+        {["Market", "Type", "Side", "Shares", "Total", "Date"].map((h, i) => (
           <div
             key={h}
             style={{
@@ -464,93 +636,87 @@ export const HistoryTab = ({ search }: HistoryTabProps) => {
         ))}
       </div>
 
-      {items.length === 0 ? (
+      {combined.length === 0 ? (
         <EmptyState label="No trade history." />
       ) : (
-        items.map((item) => <HistoryRow key={item.id} item={item} />)
+        combined.map((item) => <HistoryRow key={item.id} item={item} />)
       )}
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPage={(p) => {
+          setPage(p)
+        }}
+      />
     </div>
   )
 }
 
-const HistoryRow = ({ item }: { item: HistoryItem }) => {
-  const hasPnl = item.pnl !== undefined
-  const pnlPos = (item.pnl ?? 0) >= 0
-
-  return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: HISTORY_COL,
-        gap: 8,
-        padding: "14px 16px",
-        borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-        alignItems: "center",
-        transition: "background 0.15s",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-    >
-      <div style={{ minWidth: 0 }}>
-        <div
-          style={{
-            fontSize: 14,
-            fontWeight: 600,
-            color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            marginBottom: 4,
-          }}
-        >
-          {item.marketTitle}
-        </div>
-        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-          <CategoryTag label={item.category} />
-          <span style={{ fontSize: 10, color: PORTFOLIO_COLORS.TEXT_MUTED_2 }}>
-            {formatMarketDate(item.settledAt)}
-          </span>
-        </div>
-      </div>
-
-      <div>
-        <HistoryTypeBadge type={item.type} />
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <SidePill side={item.side} />
-      </div>
-
-      <div style={{ fontSize: 13, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
-        {item.shares.toLocaleString()}
-      </div>
-
+const HistoryRow = ({ item }: { item: HistoryItem }) => (
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: HISTORY_COL,
+      gap: 8,
+      padding: "14px 16px",
+      borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
+      alignItems: "center",
+      transition: "background 0.15s",
+    }}
+    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")}
+    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+  >
+    {/* market */}
+    <div style={{ minWidth: 0 }}>
       <div
         style={{
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 600,
           color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-          textAlign: "right",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          marginBottom: 4,
         }}
       >
-        ${item.total.toFixed(2)}
+        {item.marketTitle}
       </div>
-
-      <div style={{ textAlign: "right" }}>
-        {hasPnl ? (
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: pnlPos ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.RED,
-            }}
-          >
-            {pnlPos ? "+" : ""}${item.pnl!.toFixed(2)}
-          </span>
-        ) : (
-          <span style={{ fontSize: 12, color: PORTFOLIO_COLORS.TEXT_MUTED_2 }}>—</span>
-        )}
+      <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+        {item.category && <CategoryTag label={item.category} />}
       </div>
     </div>
-  )
-}
+
+    {/* type */}
+    <div>
+      <HistoryTypeBadge type={item.type} />
+    </div>
+
+    {/* side */}
+    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+      <SidePill side={item.side} />
+    </div>
+
+    {/* shares */}
+    <div style={{ fontSize: 13, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
+      {item.shares.toLocaleString()}
+    </div>
+
+    {/* total */}
+    <div
+      style={{
+        fontSize: 13,
+        fontWeight: 600,
+        color: PORTFOLIO_COLORS.TEXT_PRIMARY,
+        textAlign: "right",
+      }}
+    >
+      ${item.total.toFixed(2)}
+    </div>
+
+    {/* date */}
+    <div style={{ fontSize: 12, color: PORTFOLIO_COLORS.TEXT_MUTED_2, textAlign: "right" }}>
+      {formatMarketDate(item.settledAt)}
+    </div>
+  </div>
+)
