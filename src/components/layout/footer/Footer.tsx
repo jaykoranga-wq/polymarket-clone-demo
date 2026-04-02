@@ -48,7 +48,7 @@ export const Footer = () => {
               <img src="/logo.png" alt="logo" className="h-5.5 w-auto" />
             </div>
             <p className="font-base text-white leading-5 max-w-96">
-              Polymarket is a decentralized information markets platform, letting you trade on the
+              OutcomeX is a decentralized information markets platform, letting you trade on the
               world's most highly-debated topics.
             </p>
           </div>
@@ -69,7 +69,7 @@ export const Footer = () => {
         {/* ── Bottom bar ── */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <span className="font-xs font-bold text-white leading-4 uppercase tracking-widest">
-            © {new Date().getFullYear()} Polymarket Simulation
+            © {new Date().getFullYear()} OutcomeX Simulation
           </span>
           <div className="flex items-center gap-4">
             <span className="font-xs font-bold text-white uppercase tracking-widest">

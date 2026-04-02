@@ -55,7 +55,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
         </button>
 
         <h2 className="font-md sm:font-lg font-bold text-white mb-6 text-center">
-          Welcome to Polymarket
+          Welcome to OutcomeX
         </h2>
 
         {/* Google Login */}

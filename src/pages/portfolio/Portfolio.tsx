@@ -111,9 +111,8 @@ const PortfolioPage = () => {
                 icon={<IconWithdraw />}
                 label="Withdraw"
               />
-              <button className="w-9 h-9 border rounded-2md border-white/10 bg-white/5 font-sm font-medium text-white flex items-center justify-center cursor-pointer transition-all [&_svg]:[stroke:2.5px]">
-                <IconMore />
-              </button>
+              {/* <button className="w-9 h-9 border rounded-2md border-white/10 bg-white/5 font-sm font-medium text-white flex items-center justify-center cursor-pointer transition-all [&_svg]:[stroke:2.5px]">
+                <IconMore /> */}
             </div>
           </div>
 
@@ -297,10 +296,10 @@ const IconWithdraw = () => (
   </svg>
 )
 
-const IconMore = () => (
-  <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="2" cy="2" r="1.5" fill="currentColor" />
-    <circle cx="2" cy="8" r="1.5" fill="currentColor" />
-    <circle cx="2" cy="14" r="1.5" fill="currentColor" />
-  </svg>
-)
+// const IconMore = () => (
+//   <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+//     <circle cx="2" cy="2" r="1.5" fill="currentColor" />
+//     <circle cx="2" cy="8" r="1.5" fill="currentColor" />
+//     <circle cx="2" cy="14" r="1.5" fill="currentColor" />
+//   </svg>
+// )

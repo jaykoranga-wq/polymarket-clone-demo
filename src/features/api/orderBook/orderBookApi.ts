@@ -37,7 +37,7 @@ export interface OrderBookRow {
 // ── Transform raw API entry to UI row ─────────────────────────────────────────
 export const mapApiEntryToRow = (e: ApiOrderBookEntry): OrderBookRow => ({
   price: Math.round(Number(e.price) / 10000), // 500000 → 50 cents
-  shares: Number(e.remainingShares),
+  shares: Math.round(Number(e.remainingShares) / 100),
 })
 
 // ── RTK Query endpoint ────────────────────────────────────────────────────────

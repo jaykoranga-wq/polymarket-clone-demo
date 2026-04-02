@@ -327,6 +327,12 @@ export const useTrade = () => {
           usdcAmount: order.amount ?? (computedShares * marketPriceCents) / 100,
           status: "pending",
           createdAt: new Date().toISOString(),
+
+          //i have done this just because to match the type... for portfolio orders.
+          token: {
+            title: "",
+            id: "",
+          },
         }),
       )
 

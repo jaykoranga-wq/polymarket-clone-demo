@@ -144,7 +144,7 @@ const TermsPage = () => {
               </span>
             </div>
             <p style={{ fontSize: 14, color: C.body, marginTop: 16, lineHeight: 1.7 }}>
-              Please read these Terms and Conditions carefully before using the Polymarket platform.
+              Please read these Terms and Conditions carefully before using the OutcomeX platform.
               By accessing or using our service, you agree to be bound by these terms.
             </p>
           </div>

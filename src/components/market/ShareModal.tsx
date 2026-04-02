@@ -80,7 +80,7 @@ export const ShareModal = ({ open, onClose, title, probability, outcome }: Share
   const [copied, setCopied] = useState(false)
   const url = window.location.href
 
-  const shareText = `"${title}" — ${outcome} at ${probability}% 🎯\nTrade on Polymarket:`
+  const shareText = `"${title}" — ${outcome} at ${probability}% 🎯\nTrade on OutcomeX:`
 
   const options = getShareOptions(shareText, url)
 

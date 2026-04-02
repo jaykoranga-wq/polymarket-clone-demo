@@ -169,8 +169,8 @@ const SidePill = ({ side }: { side: string }) => (
       fontWeight: 800,
       padding: "4px 10px",
       borderRadius: 20,
-      background: side === POSITION_SIDE.YES ? "rgba(0,200,83,0.15)" : "rgba(229,57,53,0.15)",
-      color: side === POSITION_SIDE.YES ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.RED,
+      background: side === POSITION_SIDE.YES ? "rgba(229,57,53,0.15)" : "rgba(0,200,83,0.15)",
+      color: side === POSITION_SIDE.YES ? PORTFOLIO_COLORS.RED : PORTFOLIO_COLORS.GREEN,
     }}
   >
     {side}
@@ -499,7 +499,7 @@ const OrderRow = ({
 
       {/* side */}
       <div style={{ display: "flex", justifyContent: "flex-start" }}>
-        <SidePill side={order.side} />
+        <SidePill side={order.token.title} />
       </div>
 
       {/* type */}

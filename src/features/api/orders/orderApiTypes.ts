@@ -52,6 +52,10 @@ export interface ApiOrder {
     id: string
     title: string
   }
+  token: {
+    id: string
+    title: string
+  }
 }
 
 export interface GetOrdersResponse {
@@ -84,10 +88,11 @@ export const mapApiOrderToPortfolioOrder = (o: ApiOrder): PortfolioOrder => ({
   side: o.type === ORDER_TYPE_PARAM.BUY ? POSITION_SIDE.YES : POSITION_SIDE.NO,
   orderType: "Limit", // TODO: add to API response
   price: Math.round(Number(o.price) / 10000), // 500000 → 50 cents
-  shares: Number(o.shares),
+  shares: Math.round(Number(o.shares) / 100),
   filled: Number(o.shares) - Number(o.remainingShares), // filled = original - remaining
   status: mapOrderStatus(o.status),
   createdAt: o.createdAt,
+  token: o.token,
 })
 
 // Cents value from raw API price string (e.g. "500000" → 50)
