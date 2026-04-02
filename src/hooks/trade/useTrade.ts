@@ -28,10 +28,16 @@ interface CTFContract extends ethers.BaseContract {
   ): Promise<ethers.ContractTransactionResponse>
 }
 
+interface ExchangeContract extends ethers.BaseContract {
+  nonces(addr: string): Promise<bigint>
+}
+
 const CTF_ABI = [
   "function setApprovalForAll(address operator, bool approved) returns (bool)",
   "function isApprovedForAll(address owner, address operator) view returns (bool)",
 ]
+
+const EXCHANGE_ABI = ["function nonces(address) external view returns (uint256)"]
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -64,6 +70,20 @@ export const useTrade = () => {
     }
 
     return provider.getSigner()
+  }
+
+  //getnonce function
+
+  const getNonce = async (signer: ethers.JsonRpcSigner): Promise<bigint> => {
+    const exchange = new ethers.Contract(
+      ADDRESSES.CTFExchange,
+      EXCHANGE_ABI,
+      signer,
+    ) as unknown as ExchangeContract
+
+    const nonce = await exchange.nonces(address!)
+    console.log("on-chain nonce:", nonce.toString())
+    return nonce
   }
 
   // ── Switch MetaMask to Polygon Amoy ──────────────────────────────────────
@@ -151,42 +171,50 @@ export const useTrade = () => {
         { name: "tokenId", type: "uint256" },
         { name: "makerAmount", type: "uint256" },
         { name: "takerAmount", type: "uint256" },
-        { name: "expry", type: "uint256" },
+        { name: "side", type: "uint256" },
+        { name: "expiry", type: "uint256" },
         { name: "nonce", type: "uint256" },
         { name: "feeRateBps", type: "uint256" },
-        { name: "side", type: "uint8" },
         { name: "signatureType", type: "uint8" },
       ],
     }
 
-    const priceInt = BigInt(order.limitCents ?? 0)
-    console.log("priceincents", priceInt)
+    // These must match the payload values sent to the backend exactly
+    // limitCents = 50 for $0.50  →  payloadPrice = 50 * 10_000 = 500_000 (1e6 units)
+    // order.shares = 1 token     →  payloadShares = 1 * 100 = 100 (tokens×100)
+    const payloadPrice = BigInt((order.limitCents ?? 0) * 10_000) // e.g. 500_000n
+    const payloadShares = BigInt(Math.round(order.shares ?? 0) * 100) // e.g. 100n
+    console.log("payloadPrice (1e6):", payloadPrice.toString())
+    console.log("payloadShares (×100):", payloadShares.toString())
 
-    // shares as integer
-    const sharesInt = BigInt(Math.round(order.shares ?? 0))
-    console.log("shares", sharesInt)
+    // Match backend validateOrderSignature formula EXACTLY:
+    //   usdcRequired  = (price * shares) / 100
+    //   sharesRequired = shares * 10_000
+    const usdcRequired = (payloadPrice * payloadShares) / 100n
+    const sharesRequired = payloadShares * 10_000n
+    console.log("usdcRequired:", usdcRequired.toString())
+    console.log("sharesRequired:", sharesRequired.toString())
 
-    // match backend scaling EXACTLY
-    const usdcRequired = priceInt * sharesInt * 10000n
-    const sharesRequired = sharesInt * 100n
-    console.log("usdc:", usdcRequired)
-    console.log("sharesRequired:", sharesRequired)
+    // creating nonce for the order
+
+    const nonce = await getNonce(signer)
+    console.log("nonce: ", nonce)
 
     const orderStruct = {
       salt: BigInt(Date.now()),
       maker: address!,
       signer: address!,
       taker: ethers.ZeroAddress,
+      collateralToken: ADDRESSES.USDC,
+      ctf: ADDRESSES.ConditionalTokens,
       tokenId: BigInt(tokenId as string),
       makerAmount: order.action === "Buy" ? usdcRequired : sharesRequired,
       takerAmount: order.action === "Buy" ? sharesRequired : usdcRequired,
-      expiry: order.expirationEnabled ? BigInt(Math.floor(Date.now() / 1000) + 3600) : 0n,
-      nonce: BigInt(Math.floor(Math.random() * 1e9)),
-      feeRateBps: order.action === "Buy" ? 200n : 0n,
       side: order.action === "Buy" ? 0n : 1n,
+      expiry: 0n,
+      nonce: BigInt(nonce),
+      feeRateBps: order.action === "Buy" ? 200n : 0n,
       signatureType: 0n,
-      collateralToken: ADDRESSES.USDC,
-      ctf: ADDRESSES.CTFExchange,
     }
     console.log("working fine till here ")
 
