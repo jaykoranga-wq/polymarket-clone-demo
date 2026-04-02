@@ -42,7 +42,7 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
       }}
       className="group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer"
     >
-      <div className="flex gap-4 mb-2">
+      <div className="flex gap-4 items-center max-h-10 mb-2">
         <div className="size-10 min-w-10 rounded-md overflow-hidden border border-white ">
           <img
             src={
@@ -58,7 +58,7 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
         </div>
         <h3
           onClick={handleNavigation}
-          className="h3 font-bold leading-tight align-center capitalize line-clamp-2 max-h-9 overflow-hidden  group-hover:text-primary transition-colors"
+          className="h3 font-bold leading-tight align-center capitalize line-clamp-2 overflow-hidden  group-hover:text-primary transition-colors"
         >
           {market.title}
         </h3>

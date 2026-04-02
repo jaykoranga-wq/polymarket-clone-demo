@@ -41,7 +41,7 @@ function getAvatarColor(author: string): string {
 
 const Avatar = ({ author, size = 32 }: { author: string; size?: number }) => (
   <div
-    className="rounded-[6px] flex items-center justify-center text-white font-bold shrink-0"
+    className="rounded-sm flex items-center justify-center text-white font-bold shrink-0"
     style={{
       width: size,
       height: size,
@@ -246,11 +246,11 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
 
       {/* Compose */}
       <div className="flex  gap-2.5">
-        <Avatar author="You" size={34} />
-        <div className="flex flex-col  flex-1 gap-2">
+        {/* <Avatar author="You" size={41} /> */}
+        <div className="flex flex-col flex-1 gap-2">
           <input
-            className="width-full bg-slate border rounded-[6px] border-white/8 py-2.5 px-3.5 font-sm text-tab-text outline-none transition-all placeholder:text-muted-foreground focus:border-white/18 focus:bg-white/6 "
-            placeholder="Share your analysis..."
+            className="width-full bg-slate border min-h-18  rounded-[6px] border-white/8 py-2.5 px-3.5 font-sm text-white outline-none transition-all placeholder:text-tab-text focus:border-white/18 focus:bg-white/6 "
+            placeholder="Enter comment"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handlePost()}

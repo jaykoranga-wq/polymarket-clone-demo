@@ -24,7 +24,7 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
         <div className="min-w-sm">
           {/* Column headers */}
           <div
-            className="grid font-xs text-white font-bold uppercase tracking-widest pb-2 border-b border-white/6 mb-1 px-1"
+            className="grid font-base text-white/60 font-medium uppercase tracking-widest pb-2 border-b border-white/6 mb-1 px-1"
             style={{
               gridTemplateColumns: "repeat(5, 1fr)",
             }}
@@ -48,14 +48,16 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
               >
                 {/* User + time */}
                 <div className="flex flex-col min-w-0">
-                  <span className="font-base font-medium text-white">{item.user}</span>
-                  <span className="font-xs text-white/25">{formatMarketDate(item.timestamp)}</span>
+                  <span className="font-default font-medium text-white">{item.user}</span>
+                  <span className="font-base text-white/40">
+                    {formatMarketDate(item.timestamp)}
+                  </span>
                 </div>
 
                 {/* Action */}
                 <span
-                  className="text-[11px] font-bold text-center"
-                  style={{ color: item.action === "Buy" ? "#00c853" : "#e53935" }}
+                  className="font-sm font-medium text-center"
+                  style={{ color: item.action === "Buy" ? "#18C964" : "#FF5A5F95" }}
                 >
                   {item.action}
                 </span>
@@ -63,11 +65,10 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
                 {/* Outcome badge */}
                 <div className="flex justify-center">
                   <span
-                    className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                    className="font-base font-semibold px-1.5 py-0.5 rounded-full"
                     style={{
-                      background:
-                        item.outcome === "Yes" ? "rgba(0,200,83,0.12)" : "rgba(229,57,53,0.12)",
-                      color: item.outcome === "Yes" ? "#00c853" : "#e53935",
+                      background: item.outcome === "Yes" ? "#18C96433" : "#FF5A5F33",
+                      color: item.outcome === "Yes" ? "#18C964" : "#FF5A5F",
                     }}
                   >
                     {item.outcome}
@@ -75,20 +76,15 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
                 </div>
 
                 {/* Shares */}
-                <span
-                  className="font-base text-center font-medium"
-                  style={{ color: "rgba(255,255,255,0.6)" }}
-                >
+                <span className="font-sm text-center font-medium text-white/80">
                   {item.shares.toLocaleString()}
                 </span>
 
                 {/* Amount */}
                 <div className="flex justify-end pr-1">
-                  <div className="flex items-center gap-1.5 bg-white/4  py-1 rounded-md">
-                    <span className="text-[12px] font-bold text-white">
-                      ${item.usdcAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
+                  <span className="font-sm font-medium text-white">
+                    ${item.usdcAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </span>
                 </div>
               </div>
             ))}

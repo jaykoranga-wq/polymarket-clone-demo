@@ -73,7 +73,7 @@ const Home: FC = () => {
               }}
               className="group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer h-full"
             >
-              <div className="flex items-center gap-4 mb-1.5">
+              <div className="flex items-center gap-4 mb-1.5 min-h-10">
                 <div className="size-10 min-w-10 rounded-md overflow-hidden border border-white">
                   <img
                     src="https://images.unsplash.com/photo-1668076476189-7664ff0e7a91?q=80&w=400&auto=format&fit=crop"
@@ -81,9 +81,7 @@ const Home: FC = () => {
                     className="size-full object-cover"
                   />
                 </div>
-                <h3 className="h3 font-bold leading-tight line-clamp-2 min-h-10">
-                  US strikes Iran by...?
-                </h3>
+                <h3 className="h3 font-bold leading-tight line-clamp-2 ">US strikes Iran by...?</h3>
               </div>
               <div className="flex-1 flex flex-col justify-center space-y-3 w-full my-1">
                 <div className="flex justify-between items-center w-full">
@@ -142,7 +140,7 @@ const Home: FC = () => {
               }}
               className="group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer h-full"
             >
-              <div className="flex gap-4 mb-2">
+              <div className="flex items-center gap-4 mb-2 min-h-10">
                 <div className="size-10 min-w-10 rounded-md overflow-hidden border border-white ">
                   <img
                     src="https://images.unsplash.com/photo-1544427920-c49ccfb85579?q=80&w=400&auto=format&fit=crop"
@@ -150,7 +148,7 @@ const Home: FC = () => {
                     className="size-full object-cover group-hover:grayscale transition-all duration-300"
                   />
                 </div>
-                <h3 className="h3 font-bold leading-tight align-center line-clamp-2 min-h-10 group-hover:text-primary transition-colors">
+                <h3 className="h3 font-bold leading-tight align-center line-clamp-2  group-hover:text-primary transition-colors">
                   Will the US confirm that aliens exist before 2027?
                 </h3>
               </div>
@@ -205,7 +203,7 @@ const Home: FC = () => {
               }}
               className="group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer h-full"
             >
-              <div className="flex items-center gap-4 mb-1.5">
+              <div className="flex items-center gap-4 mb-1.5 min-h-10">
                 <div className="size-10 min-w-10 rounded-md overflow-hidden border border-white">
                   <img
                     src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=400&auto=format&fit=crop"
@@ -213,7 +211,7 @@ const Home: FC = () => {
                     className="size-full object-cover"
                   />
                 </div>
-                <h3 className="h3 font-bold leading-tight line-clamp-2 min-h-10">
+                <h3 className="h3 font-bold leading-tight line-clamp-2 ">
                   NBA Western Conference Champion
                 </h3>
               </div>
@@ -404,7 +402,7 @@ const Home: FC = () => {
               }}
               className="group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer h-full"
             >
-              <div className="flex gap-4 mb-2">
+              <div className="flex items-center gap-4 mb-2 min-h-10">
                 <div className="size-10 min-w-10 rounded-md overflow-hidden border border-white ">
                   <img
                     src="https://images.unsplash.com/photo-1544427920-c49ccfb85579?q=80&w=400&auto=format&fit=crop"
@@ -412,7 +410,7 @@ const Home: FC = () => {
                     className="size-full object-cover group-hover:grayscale transition-all duration-300"
                   />
                 </div>
-                <h3 className="h3 font-bold leading-tight align-center line-clamp-2 min-h-10 group-hover:text-primary transition-colors">
+                <h3 className="h3 font-bold leading-tight align-center line-clamp-2  group-hover:text-primary transition-colors">
                   Will Jesus Christ return before 2027?
                 </h3>
               </div>

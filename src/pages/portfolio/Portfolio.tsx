@@ -95,7 +95,7 @@ const PortfolioPage = () => {
           //  style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px 80px" }}
         >
           {/* ── Page header ── */}
-          <div className="flex items-start justify-between mb-7">
+          <div className="flex flex-col md:flex-row items-start gap-4 md:items-center justify-between mb-7">
             <div>
               <h1 className="font-xxl font-bold text-white">Portfolio</h1>
               <p className="font-default mt-1.5 text-white/60 ">
@@ -143,7 +143,7 @@ const PortfolioPage = () => {
 
           {/* tab bar + search */}
 
-          <div className="flex items-center justify-between  flex-wrap pb-4 pt-0 gap-3">
+          <div className="flex items-center justify-between  flex-wrap pb-4 pt-0 gap-4">
             {/* tabs */}
             <div className="flex gap-4 bg-white/5 border border-white/10 rounded-2md p-1">
               {TABS.map((t) => (
@@ -217,16 +217,9 @@ const PortfolioPage = () => {
           </div>
 
           {/* ──  table ── */}
-          <div
-            style={{
-              background: PORTFOLIO_COLORS.CARD_BG,
-              border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-              borderRadius: 16,
-              overflow: "hidden",
-            }}
-          >
+          <div className="bg-linear-to-b from-white/5 to-white/2 border border-white/10 rounded-2xl overflow-x-auto no-scrollbar ">
             {/* tab content */}
-            <div style={{ padding: "16px 0 0" }}>
+            <div className="min-w-[900px] pt-4">
               {activeTab === PORTFOLIO_TABS.POSITIONS && <PositionsTab search={search} />}
               {activeTab === PORTFOLIO_TABS.ORDERS && <PortfolioOrdersTab search={search} />}
               {activeTab === PORTFOLIO_TABS.HISTORY && <HistoryTab search={search} />}

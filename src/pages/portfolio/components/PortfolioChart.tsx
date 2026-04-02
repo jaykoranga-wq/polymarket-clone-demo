@@ -43,7 +43,7 @@ export const PortfolioChart = memo(
         height: 280,
         layout: {
           background: { type: ColorType.Solid, color: "transparent" },
-          textColor: "rgba(255,255,255,0.3)",
+          textColor: "white",
           fontFamily: "'DM Mono', monospace",
           fontSize: 10,
         },
@@ -119,43 +119,12 @@ export const PortfolioChart = memo(
     return (
       <div className="bg-linear-to-b from-white/5 to-white/2 border border-white/10 rounded-2xl mb-7.5 p-6 relative">
         {/* header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            marginBottom: 20,
-          }}
-        >
+        <div className="flex md:flex-row flex-col md:items-center justify-between gap-3 pb-3">
           <div>
-            <div
-              style={{
-                fontSize: 12,
-                color: PORTFOLIO_COLORS.TEXT_MUTED,
-                marginBottom: 6,
-                fontWeight: 500,
-              }}
-            >
-              Portfolio Value
-            </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-              <span
-                style={{
-                  fontSize: 32,
-                  fontWeight: 800,
-                  color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {formatCash(portfolioValue)}
-              </span>
-              <span
-                style={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: isPositive ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.RED,
-                }}
-              >
+            <div className="text-muted-foreground font-sm">Portfolio Value</div>
+            <div className="flex items-center gap-3">
+              <span className="text-white font-2xl font-black">{formatCash(portfolioValue)}</span>
+              <span className="text-primary ">
                 {isPositive ? "+" : ""}
                 {formatCash(delta)} ({isPositive ? "+" : ""}
                 {deltaPct.toFixed(2)}%)
@@ -164,29 +133,13 @@ export const PortfolioChart = memo(
           </div>
 
           {/* tab switcher */}
-          <div
-            style={{
-              display: "flex",
-              gap: 2,
-              background: "rgba(255,255,255,0.04)",
-              borderRadius: 10,
-              padding: 4,
-            }}
-          >
+          <div className="flex gap-2 p-1 rounded-2md max-w-fit border border-white/10 m-0 bg-white/5">
             {TABS.map((t) => (
               <button
                 key={t}
                 onClick={() => handleTabChange(t)}
-                style={{
-                  padding: "6px 16px",
-                  borderRadius: 7,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  background: activeTab === t ? PORTFOLIO_COLORS.GREEN : "transparent",
-                  color: activeTab === t ? "#000" : PORTFOLIO_COLORS.TEXT_MUTED,
-                  transition: "all 0.15s",
-                  cursor: "pointer",
-                }}
+                className={`px-[11px] py-[5px] rounded-md text-sm font-medium border-none cursor-pointer transition-all duration-120 hover:text-[#e2e8f0]
+                  ${activeTab === t ? " bg-primary text-black shadow-[0px_4px_6px_-4px_rgba(16,210,96,0.3),0px_10px_15px_-3px_rgba(16,210,96,0.3)]" : "bg-transparent text-white/60"}`}
               >
                 {t}
               </button>
