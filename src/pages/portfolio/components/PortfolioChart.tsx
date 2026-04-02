@@ -117,14 +117,7 @@ export const PortfolioChart = memo(
     }
 
     return (
-      <div
-        style={{
-          background: PORTFOLIO_COLORS.CARD_BG,
-          border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-          borderRadius: 16,
-          padding: "24px 24px 0",
-        }}
-      >
+      <div className="bg-linear-to-b from-white/5 to-white/2 border border-white/10 rounded-2xl mb-7.5 p-6 relative">
         {/* header */}
         <div
           style={{

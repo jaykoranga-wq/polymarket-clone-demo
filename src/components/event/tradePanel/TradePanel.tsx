@@ -258,15 +258,24 @@ const TradePanel = ({
         )} */}
 
         {/* ── YES / NO outcome buttons ── */}
+
         <div className="flex justify-between gap-2 items-center mb-3">
           <button
-            className={`flex-1 bg-option-yes h-12.5 border rounded-sm border-yes/20 text-primary font-bold hover:bg-primary hover:text-background transition-all active:scale-95${outcome === labelA ? " active" : ""}`}
+            className={`flex-1 h-12.5 border rounded-sm font-bold transition-all active:scale-95 ${
+              outcome === labelA
+                ? "bg-primary text-background border-primary"
+                : "bg-option-yes border-yes/20 text-primary hover:bg-primary hover:text-background"
+            }`}
             onClick={() => handleOutcome(labelA)}
           >
             {labelA} {priceA}¢
           </button>
           <button
-            className={`flex-1 bg-option-no h-12.5 border rounded-sm border-no/20 text-no font-bold hover:bg-no hover:text-background transition-all active:scale-95${outcome === labelB ? " active" : ""}`}
+            className={`flex-1 h-12.5 border rounded-sm font-bold transition-all active:scale-95 ${
+              outcome === labelB
+                ? "bg-no text-background border-no"
+                : "bg-option-no border-no/20 text-no hover:bg-no hover:text-background"
+            }`}
             onClick={() => handleOutcome(labelB)}
           >
             {labelB} {priceB}¢

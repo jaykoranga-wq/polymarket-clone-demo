@@ -24,7 +24,7 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
         <div className="min-w-sm">
           {/* Column headers */}
           <div
-            className="grid font-xs text-white font-bold uppercase tracking-widest pb-2 border-b border-white/6 mb-1"
+            className="grid font-xs text-white font-bold uppercase tracking-widest pb-2 border-b border-white/6 mb-1 px-1"
             style={{
               gridTemplateColumns: "repeat(5, 1fr)",
             }}
@@ -32,7 +32,7 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
             <span>User</span>
             <span className="text-center">Action</span>
             <span className="text-center">Outcome</span>
-            <span className="text-right">Shares</span>
+            <span className="text-center">Shares</span>
             <span className="text-right">Amount</span>
           </div>
 
@@ -76,7 +76,7 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
 
                 {/* Shares */}
                 <span
-                  className="text-[12px] text-right font-medium"
+                  className="font-base text-center font-medium"
                   style={{ color: "rgba(255,255,255,0.6)" }}
                 >
                   {item.shares.toLocaleString()}
@@ -84,7 +84,7 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
 
                 {/* Amount */}
                 <div className="flex justify-end pr-1">
-                  <div className="flex items-center gap-1.5 bg-white/4 px-2 py-1 rounded-md">
+                  <div className="flex items-center gap-1.5 bg-white/4  py-1 rounded-md">
                     <span className="text-[12px] font-bold text-white">
                       ${item.usdcAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </span>

@@ -23,7 +23,7 @@ const StatCard = ({ label, value, subValue, subColor, icon, iconBg, cardBg }: St
   >
     {/* label + icon row */}
     <div className="flex items-center justify-between">
-      <span className="font-sm text-white/40 font-medium">{label}</span>
+      <span className="font-sm text-white/40 ">{label}</span>
       <div
         className="w-9 h-9 rounded-2md flex items-center justify-center font-default shrink-0"
         style={{
@@ -39,7 +39,7 @@ const StatCard = ({ label, value, subValue, subColor, icon, iconBg, cardBg }: St
       <div className="font-lg font-bold text-white leading-tight">{value}</div>
       {subValue && (
         <div
-          className="font-sm font-semibold"
+          className="font-sm font-medium"
           style={{
             color: subColor ?? PORTFOLIO_COLORS.TEXT_MUTED,
           }}
@@ -77,28 +77,28 @@ export const StatsCards = ({
       <StatCard
         label="Total Value"
         value={formatCash(totalValue)}
-        icon={<DollarSign size={18} color="#2D7FF9" />}
-        iconBg="#2D7FF920"
-        cardBg="bg-linear-to-b from-white/5 to-white/2"
+        icon={<DollarSign size={16} color="#2D7FF9" />}
+        iconBg="#2D7FF933"
+        cardBg="linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)"
       />
       <StatCard
         label="Available"
         value={formatCash(available)}
-        icon={<Activity size={18} color="#7B61FF" />}
-        iconBg="#7B61FF20"
-        cardBg="bg-linear-to-b from-white/5 to-white/2"
+        icon={<Activity size={16} color="#7B61FF" />}
+        iconBg="#7B61FF33"
+        cardBg="linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)"
       />
       <StatCard
         label="Past Month P/L"
         value={`${pnlPositive ? "+" : ""}${formatCash(pastMonthPnl)}`}
         subValue={`${pnlPositive ? "+" : ""}${pastMonthPct.toFixed(2)}%`}
         subColor={pnlPositive ? "#18C964" : PORTFOLIO_COLORS.RED}
-        icon={<TrendingUp size={18} color={pnlPositive ? "#18C964" : "#e53935"} />}
+        icon={<TrendingUp size={16} color={pnlPositive ? "#18C964" : "#e53935"} />}
         iconBg={pnlPositive ? "#18C96433" : "rgba(229, 57, 53, 0.15)"}
         cardBg={
           pnlPositive
             ? "linear-gradient(135deg, rgba(24, 201, 100, 0.1) 0%, rgba(24, 201, 100, 0.05) 100%)"
-            : "bg-linear-to-b from-white/5 to-white/2"
+            : "linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)"
         }
       />
       <StatCard
@@ -106,9 +106,9 @@ export const StatsCards = ({
         value={String(activePositions)}
         subValue={`${formatCash(potentialValue)} potential`}
         subColor={PORTFOLIO_COLORS.TEXT_MUTED}
-        icon={<Award size={18} color="#2D7FF9" />}
-        iconBg="#2D7FF920"
-        cardBg="bg-linear-to-b from-white/5 to-white/2"
+        icon={<Award size={16} color="#2D7FF9" />}
+        iconBg="#2D7FF933"
+        cardBg="linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)"
       />
     </div>
   )

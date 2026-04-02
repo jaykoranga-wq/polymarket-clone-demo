@@ -82,8 +82,10 @@ const PortfolioPage = () => {
           {/* ── Page header ── */}
           <div className="flex items-start justify-between mb-7">
             <div>
-              <h1 className="font-xxl font-extrabold text-white">Portfolio</h1>
-              <p className="font-sm mt-1.5 text-white/60 ">Track your positions and performance</p>
+              <h1 className="font-xxl font-bold text-white">Portfolio</h1>
+              <p className="font-default mt-1.5 text-white/60 ">
+                Track your positions and performance
+              </p>
             </div>
 
             {/* action buttons */}
@@ -94,7 +96,7 @@ const PortfolioPage = () => {
                 icon={<IconWithdraw />}
                 label="Withdraw"
               />
-              <button className="w-9 h-9 border rounded-2md border-white/10 bg-white/5 text-white flex items-center justify-center cursor-pointer transition-all">
+              <button className="w-9 h-9 border rounded-2md border-white/10 bg-white/5 font-sm font-medium text-white flex items-center justify-center cursor-pointer transition-all [&_svg]:[stroke:2.5px]">
                 <IconMore />
               </button>
             </div>
@@ -205,7 +207,7 @@ const ActionBtn = ({
 }) => (
   <button
     onClick={onClick}
-    className="flex items-center gap-1.5 py-1.5 px-4.5 rounded-2md font-sm font-bold border border-white/10 bg-white/5 text-white cursor-pointer transition-all "
+    className="flex items-center gap-1.5 py-1.5 px-4.5 rounded-2md font-sm font-medium border border-white/10 bg-white/5 text-white cursor-pointer transition-all "
     onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
     onMouseLeave={(e) =>
       (e.currentTarget.style.background =
