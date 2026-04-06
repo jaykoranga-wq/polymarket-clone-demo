@@ -639,7 +639,7 @@ const TradePanel = ({
 
         {/* ── Place Order button ── */}
         <button
-          className={`w-full p-3.5 rounded-2md font-deafult font-black cursor-pointer bg-primary text-black transition-all duration-300 shadow-[0px_4px_6px_-4px_#10D26033,0px_10px_15px_-3px_#10D26033] mb-3 flex items-center justify-center gap-2 ${action === "Sell" ? " sell" : ""}`}
+          className={`w-full p-3.5 rounded-2md font-deafult font-black cursor-pointer bg-primary disabled:bg-secondary disabled:cursor-not-allowed text-black transition-all duration-300 shadow-[0px_4px_6px_-4px_#10D26033,0px_10px_15px_-3px_#10D26033] mb-3 flex items-center justify-center gap-2 ${action === "Sell" ? " sell" : ""}`}
           disabled={approvalState !== "idle" || (buttonState === "trade" && tradeDisabled)}
           onClick={() => {
             if (buttonState === "login") {

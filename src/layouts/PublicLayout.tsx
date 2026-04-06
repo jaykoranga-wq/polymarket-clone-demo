@@ -29,7 +29,6 @@ export function PublicLayout() {
       void checkAuth(magic, dispatch, loginToBackend as any)
     }
     if (markets) {
-      console.log("markets from APi in index:", markets)
       dispatch(setMarkets([...markets, ...MOCK_MARKETS]))
     } else dispatch(setMarkets(MOCK_MARKETS))
     //notification

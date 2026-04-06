@@ -1,4 +1,15 @@
-import { ChevronDown, ChevronRight, Info, Moon, Search, Settings, X } from "lucide-react"
+import {
+  ChevronDown,
+  ChevronRight,
+  Heart,
+  Info,
+  Link,
+  Moon,
+  Search,
+  Settings,
+  Trophy,
+  X,
+} from "lucide-react"
 import { type FC, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router"
@@ -63,7 +74,7 @@ const MenuItem = ({
 }) => (
   <button
     onClick={onClick}
-    className={`cursor-pointer w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5 rounded-lg
+    className={`group cursor-pointer w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5 rounded-lg
       ${red ? "text-red-500 hover:text-red-400" : "text-white/80 hover:text-white"}`}
   >
     {icon && <span className="text-base w-5 flex items-center justify-center">{icon}</span>}
@@ -208,7 +219,7 @@ export const Navbar: FC = () => {
         try {
           await logoutToBackend().unwrap()
         } catch (err) {
-          console.log(err)
+          console.error(err)
         }
         const isLoggedIn = await magic?.user.isLoggedIn()
         if (isLoggedIn) await magic?.user.logout()
@@ -417,7 +428,12 @@ export const Navbar: FC = () => {
                       </div>
                       <Divider />
                       <MenuItem
-                        icon="🏆"
+                        icon={
+                          <Trophy
+                            size={16}
+                            className="text-primary transition-colors group-hover:text-white"
+                          />
+                        }
                         label="Leaderboard"
                         onClick={() => {
                           setProfileOpen(false)
@@ -425,7 +441,12 @@ export const Navbar: FC = () => {
                         }}
                       />
                       <MenuItem
-                        icon="💚"
+                        icon={
+                          <Heart
+                            size={16}
+                            className="text-primary transition-colors group-hover:text-white fill-current"
+                          />
+                        }
                         label="Rewards"
                         onClick={() => {
                           setProfileOpen(false)
@@ -474,7 +495,12 @@ export const Navbar: FC = () => {
                   {menuOpen && (
                     <Dropdown onClose={() => setMenuOpen(false)}>
                       <MenuItem
-                        icon="🏆"
+                        icon={
+                          <Trophy
+                            size={16}
+                            className="text-primary transition-colors group-hover:text-white"
+                          />
+                        }
                         label="Leaderboard"
                         onClick={() => {
                           setMenuOpen(false)
@@ -482,14 +508,27 @@ export const Navbar: FC = () => {
                         }}
                       />
                       <MenuItem
-                        icon="💚"
+                        icon={
+                          <Heart
+                            size={16}
+                            className="text-primary transition-colors group-hover:text-white fill-current"
+                          />
+                        }
                         label="Rewards"
                         onClick={() => {
                           setMenuOpen(false)
                           navigate("/rewards/guest")
                         }}
                       />
-                      <MenuItem icon="🔗" label="APIs" />
+                      <MenuItem
+                        icon={
+                          <Link
+                            size={16}
+                            className="text-primary transition-colors group-hover:text-white"
+                          />
+                        }
+                        label="APIs"
+                      />
                       <Divider />
                       <DarkModeRow />
                       <Divider />

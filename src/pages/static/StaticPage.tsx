@@ -40,29 +40,29 @@ const StaticPage = () => {
         {/* back button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-[13px] text-white/40 hover:text-white transition-colors mb-8 cursor-pointer bg-transparent border-none"
+          className="flex items-center gap-1.5 font-sm text-primary hover:text-white transition-colors mb-8 cursor-pointer bg-transparent border-none"
         >
           ← Back
         </button>
 
         {/* page header */}
         <div className="mb-10 pb-8 border-b border-white/[0.07]">
-          <h1 className="text-[32px] font-extrabold tracking-tight text-white mb-2 leading-tight">
+          <h1 className="font-xxl font-extrabold tracking-tight text-white mb-2 leading-tight">
             {page.title}
           </h1>
-          <p className="text-[15px] text-white/50 m-0">{page.subtitle}</p>
+          <p className="font-md text-white/50 m-0">{page.subtitle}</p>
         </div>
 
         {/* sections */}
-        <div className="flex flex-col gap-9 max-w-2xl items-center">
+        <div className="flex flex-col gap-9  items-center">
           {page.sections.map((section) => (
             <section key={section.heading}>
-              <h2 className="text-[18px] font-bold text-white mb-3 tracking-tight">
+              <h2 className="font-md font-bold text-white mb-3 tracking-tight">
                 {section.heading}
               </h2>
               <div className="flex flex-col gap-3">
                 {section.content.map((para, i) => (
-                  <p key={i} className="text-[14px] leading-[1.8] text-white/75 m-0">
+                  <p key={i} className="font-sm leading-[1.8]  text-white/75 m-0">
                     {para}
                   </p>
                 ))}

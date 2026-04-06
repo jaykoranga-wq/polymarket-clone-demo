@@ -31,10 +31,10 @@ import type { Market } from "@/features/markets/types"
 const KNOWN_GROUPS = new Set(["trending", "ending_soon", "new_market", "earn_rewards"])
 
 const GROUP_TITLES: Record<string, string> = {
-  trending: "🔥 Trending Markets",
-  ending_soon: "⏰ Ending Soon",
-  new_market: "🆕 New Markets",
-  earn_rewards: "📈 Earn Rewards",
+  trending: "Trending Markets",
+  ending_soon: "Ending Soon",
+  new_market: "New Markets",
+  earn_rewards: "Earn Rewards",
 }
 
 // ── MarketsPage ───────────────────────────────────────────────────────────────
