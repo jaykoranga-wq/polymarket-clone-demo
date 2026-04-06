@@ -66,17 +66,9 @@ const ModalHeader = ({
   subtitle: string
   onClose: () => void
 }) => (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: "20px 20px 16px",
-      borderBottom: `1px solid ${C.border}`,
-    }}
-  >
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <div
+  <div className="flex items-center justify-between p-6 pb-4 border-b border-white/10">
+    {/* <div style={{ display: "flex", alignItems: "center", gap: 10 }}> */}
+    {/* <div
         style={{
           width: 36,
           height: 36,
@@ -89,27 +81,15 @@ const ModalHeader = ({
         }}
       >
         ↑
-      </div>
-      <div>
-        <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{title}</div>
-        <div style={{ fontSize: 11, color: C.muted }}>{subtitle}</div>
-      </div>
+      </div> */}
+    <div>
+      <div className="font-lg font-bold text-white">{title}</div>
+      <div className="font-sm text-white/60">{subtitle}</div>
     </div>
+    {/* </div> */}
     <button
       onClick={onClose}
-      style={{
-        width: 30,
-        height: 30,
-        borderRadius: 8,
-        border: `1px solid ${C.border}`,
-        background: C.surface,
-        color: C.muted,
-        fontSize: 14,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: "pointer",
-      }}
+      className="w-8 h-8 bg-transparent text-xl text-white/60 flex items-center justify-center cursor-pointer"
       onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
       onMouseLeave={(e) => (e.currentTarget.style.color = C.muted)}
     >
@@ -118,39 +98,21 @@ const ModalHeader = ({
   </div>
 )
 
-const InfoRow = ({ label, value, mono }: { label: string; value: string; mono?: boolean }) => (
+const InfoRow = ({ label, value }: { label: string; value: string }) => (
   <div
-    style={{
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "10px 14px",
-      background: C.surface,
-      borderRadius: 8,
-      border: `1px solid ${C.border}`,
-    }}
+    className="flex justify-between items-center py-2.5 p-3.5 rounded-md bg-linear-to-b from-white/5 to-white/2 border border-white/10"
+    // style={{
+    //   display: "flex",
+    //   justifyContent: "space-between",
+    //   alignItems: "center",
+    //   padding: "10px 14px",
+    //   background: C.surface,
+    //   borderRadius: 8,
+    //   border: `1px solid ${C.border}`,
+    // }}
   >
-    <span
-      style={{
-        fontSize: 11,
-        fontWeight: 700,
-        color: C.muted2,
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-      }}
-    >
-      {label}
-    </span>
-    <span
-      style={{
-        fontSize: 13,
-        fontWeight: 600,
-        color: C.text,
-        fontFamily: mono ? "monospace" : "inherit",
-      }}
-    >
-      {value}
-    </span>
+    <span className="font-sm font-semibold text-white/60 uppercase tracking-wider">{label}</span>
+    <span className="font-sm font-semibold text-white ">{value}</span>
   </div>
 )
 
@@ -163,17 +125,7 @@ const MagicWithdrawView = ({
   onOpenMagic: () => void
 }) => (
   <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
-    <div
-      style={{
-        background: "rgba(0,200,83,0.06)",
-        border: "1px solid rgba(0,200,83,0.15)",
-        borderRadius: 10,
-        padding: "12px 14px",
-        fontSize: 13,
-        color: "rgba(255,255,255,0.7)",
-        lineHeight: 1.6,
-      }}
-    >
+    <div className="bg-primary/20 border border-primary/80 rounded-md py-3 px-3.5 font-sm text-white/60 ">
       Your USDC is in your Magic wallet. Use the Magic wallet interface to send USDC to any address.
     </div>
 
@@ -182,27 +134,12 @@ const MagicWithdrawView = ({
 
     <button
       onClick={onOpenMagic}
-      style={{
-        width: "100%",
-        padding: "13px",
-        borderRadius: 12,
-        background: C.green,
-        color: "#000",
-        fontWeight: 800,
-        fontSize: 14,
-        cursor: "pointer",
-        border: "none",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-        marginTop: 4,
-      }}
+      className="width-full p-3 bg-primary rounded-lg text-black font-black font-default  cursor-pointer flex items-center justify-center gap-2 mt-1"
     >
       Open Magic Wallet
     </button>
 
-    <p style={{ fontSize: 11, color: C.muted2, textAlign: "center", margin: 0, lineHeight: 1.6 }}>
+    <p className="font-sm text-tab-text align-center text-center">
       In Magic wallet, tap "Send" → enter destination address → confirm
     </p>
   </div>
@@ -387,12 +324,12 @@ const MetaMaskWithdrawForm = ({
 
   // ── Form state ──
   return (
-    <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
+    <div className="p-6 flex flex-col gap-3.5">
       {/* balance info */}
       <InfoRow label="Available to withdraw" value={`$${availableBalance.toFixed(2)} USDC`} />
 
       {/* destination address */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div className="flex flex-col gap-1.5">
         <label
           style={{
             fontSize: 11,
@@ -607,29 +544,9 @@ export const WithdrawModal = ({ open, onClose, availableBalance }: WithdrawModal
       <div
         ref={overlayRef}
         onClick={handleOverlay}
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 100,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "rgba(0,0,0,0.75)",
-          backdropFilter: "blur(4px)",
-          padding: 16,
-        }}
+        className="fixed inset-0 z-100 flex items-center justify-center bg-black/92 p-4"
       >
-        <div
-          style={{
-            width: "100%",
-            maxWidth: 440,
-            background: C.bg,
-            border: `1px solid ${C.border}`,
-            borderRadius: 20,
-            overflow: "hidden",
-            boxShadow: "0 24px 80px rgba(0,0,0,0.7)",
-          }}
-        >
+        <div className="w-full max-w-110 bg-black border border-white/10 rounded-xl overflow-hidden shadow-[0px_4px_100px_0px_#FFFFFF1A]">
           <ModalHeader
             title="Withdraw USDC"
             subtitle={isMetaMask ? `MetaMask · ${shortAddr(address ?? "")}` : "Magic Wallet"}
