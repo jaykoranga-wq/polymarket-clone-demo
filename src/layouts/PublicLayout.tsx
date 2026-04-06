@@ -11,6 +11,7 @@ import { useMagic } from "@/features/auth/lib/magic"
 import { setMarkets } from "@/features/markets/marketSlice"
 import { useWalletBalance } from "@/hooks/useWalletBalance"
 import { MOCK_MARKETS } from "@/mocks/mockData"
+import { listenToMessages, requestFCMToken } from "@/services/firebase/fcm"
 
 export function PublicLayout() {
   const dispatch = useDispatch()
@@ -31,6 +32,14 @@ export function PublicLayout() {
       console.log("markets from APi in index:", markets)
       dispatch(setMarkets([...markets, ...MOCK_MARKETS]))
     } else dispatch(setMarkets(MOCK_MARKETS))
+    //notification
+    requestFCMToken().then((token) => {
+      if (token) {
+        // 👉 send to backend
+      }
+    })
+
+    listenToMessages()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [magic, dispatch, markets])

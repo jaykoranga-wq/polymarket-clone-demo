@@ -123,9 +123,9 @@ export const useTrade = () => {
     }
 
     // approve unlimited so user never needs to approve again
-    const tx = await usdc.approve(ADDRESSES.CTFExchange, ethers.MaxUint256)
-    await tx.wait()
-    console.log("USDC approved ✅")
+    // const tx = await usdc.approve(ADDRESSES.CTFExchange, ethers.MaxUint256)
+    // await tx.wait()
+    // console.log("USDC approved ✅")
   }
 
   // ── Step 3: approve CTF share transfers (one-time per wallet) ────────────

@@ -85,7 +85,8 @@ export const mapApiOrderToPortfolioOrder = (o: ApiOrder): PortfolioOrder => ({
   marketId: o.market.id,
   marketTitle: o.market.title,
   category: "", // TODO: add to API response
-  side: o.type === ORDER_TYPE_PARAM.BUY ? POSITION_SIDE.YES : POSITION_SIDE.NO,
+  side: o.token.title.toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO,
+  direction: o.type === ORDER_TYPE_PARAM.BUY ? "Buy" : "Sell",
   orderType: "Limit", // TODO: add to API response
   price: Math.round(Number(o.price) / 10000), // 500000 → 50 cents
   shares: Math.round(Number(o.shares) / 100),
@@ -107,10 +108,11 @@ export const mapApiOrderToHistoryItem = (o: ApiOrder): HistoryItem => {
     marketTitle: o.market.title,
     category: "",
     type: o.type === ORDER_TYPE_PARAM.BUY ? HISTORY_TYPE.BUY : HISTORY_TYPE.SELL,
-    side: o.type === ORDER_TYPE_PARAM.BUY ? POSITION_SIDE.YES : POSITION_SIDE.NO,
-    shares: filledShares,
+    side: o.token.title.toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO,
+    orderType: "Limit", // TODO: add to API response
+    shares: filledShares / 100,
     price: priceCents,
-    total: (filledShares * priceCents) / 100,
+    total: ((filledShares / 100) * priceCents) / 100,
     settledAt: o.createdAt,
   }
 }

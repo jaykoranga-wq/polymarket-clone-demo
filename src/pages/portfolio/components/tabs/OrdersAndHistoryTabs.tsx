@@ -36,7 +36,7 @@ const OrderRowSkeleton = () => (
   <div
     style={{
       display: "grid",
-      gridTemplateColumns: "1fr 80px 80px 80px 80px 100px",
+      gridTemplateColumns: "1fr 80px 80px 80px 80px 80px 100px 110px",
       gap: 8,
       padding: "16px",
       borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
@@ -47,7 +47,7 @@ const OrderRowSkeleton = () => (
       <div style={{ ...shimmer, height: 14, width: "70%" }} />
       <div style={{ ...shimmer, height: 10, width: "30%" }} />
     </div>
-    {[60, 50, 40, 50, 70].map((w, i) => (
+    {[60, 50, 40, 50, 40, 70, 60].map((w, i) => (
       <div key={i} style={{ ...shimmer, height: 12, width: `${w}%`, marginLeft: "auto" }} />
     ))}
   </div>
@@ -162,18 +162,36 @@ export const Pagination = ({
 }
 
 // ── Shared components ─────────────────────────────────────────────────────────
-const SidePill = ({ side }: { side: string }) => (
+const SidePill = ({ side }: { side: string }) => {
+  const isYes = side.toUpperCase() === POSITION_SIDE.YES
+  return (
+    <span
+      style={{
+        fontSize: 11,
+        fontWeight: 800,
+        padding: "4px 10px",
+        borderRadius: 20,
+        background: isYes ? "rgba(0,200,83,0.15)" : "rgba(229,57,53,0.15)",
+        color: isYes ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.RED,
+      }}
+    >
+      {side.toUpperCase()}
+    </span>
+  )
+}
+
+const DirectionPill = ({ direction }: { direction: "Buy" | "Sell" }) => (
   <span
     style={{
       fontSize: 11,
       fontWeight: 800,
       padding: "4px 10px",
       borderRadius: 20,
-      background: side === POSITION_SIDE.YES ? "rgba(229,57,53,0.15)" : "rgba(0,200,83,0.15)",
-      color: side === POSITION_SIDE.YES ? PORTFOLIO_COLORS.RED : PORTFOLIO_COLORS.GREEN,
+      background: direction === "Buy" ? "rgba(0,200,83,0.15)" : "rgba(229,57,53,0.15)",
+      color: direction === "Buy" ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.RED,
     }}
   >
-    {side}
+    {direction}
   </span>
 )
 
@@ -339,7 +357,7 @@ const CancelButton = ({
 // ─────────────────────────────────────────────────────────────────────────────
 // ORDERS TAB  (PENDING + PARTIALLY_FILLED, paginated)
 // ─────────────────────────────────────────────────────────────────────────────
-const ORDERS_COL = "1fr 80px 80px 80px 80px 100px 110px"
+const ORDERS_COL = "1fr 80px 80px 80px 80px 80px 100px 110px"
 
 interface OrdersTabProps {
   search: string
@@ -410,21 +428,23 @@ export const PortfolioOrdersTab = ({ search }: OrdersTabProps) => {
             borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
           }}
         >
-          {["Market", "Side", "Type", "Price", "Shares", "Status", "Action"].map((h, i) => (
-            <div
-              key={h}
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-                color: PORTFOLIO_COLORS.TEXT_MUTED_2,
-                textAlign: i > 1 ? "right" : ("left" as React.CSSProperties["textAlign"]),
-              }}
-            >
-              {h}
-            </div>
-          ))}
+          {["Market", "Outcome", "Order", "Type", "Price", "Shares", "Status", "Action"].map(
+            (h, i) => (
+              <div
+                key={h}
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: PORTFOLIO_COLORS.TEXT_MUTED_2,
+                  textAlign: i > 2 ? "right" : ("left" as React.CSSProperties["textAlign"]),
+                }}
+              >
+                {h}
+              </div>
+            ),
+          )}
         </div>
 
         {combined.length === 0 ? (
@@ -497,12 +517,17 @@ const OrderRow = ({
         </div>
       </div>
 
-      {/* side */}
+      {/* outcome (Yes / No) */}
       <div style={{ display: "flex", justifyContent: "flex-start" }}>
         <SidePill side={order.token.title} />
       </div>
 
-      {/* type */}
+      {/* order direction (Buy / Sell) */}
+      <div style={{ display: "flex", justifyContent: "flex-start" }}>
+        <DirectionPill direction={order.direction} />
+      </div>
+
+      {/* type (Limit / Market) */}
       <div style={{ fontSize: 13, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
         {order.orderType}
       </div>
@@ -544,7 +569,7 @@ const OrderRow = ({
 // ─────────────────────────────────────────────────────────────────────────────
 // HISTORY TAB  (FILLED + CANCELLED, paginated)
 // ─────────────────────────────────────────────────────────────────────────────
-const HISTORY_COL = "1fr 80px 80px 80px 90px 100px"
+const HISTORY_COL = "1fr 80px 80px 80px 80px 90px 100px"
 
 const HistoryTypeBadge = ({ type }: { type: HistoryItem["type"] }) => {
   const map = {
@@ -619,7 +644,7 @@ export const HistoryTab = ({ search }: HistoryTabProps) => {
           borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
         }}
       >
-        {["Market", "Type", "Side", "Shares", "Total", "Date"].map((h, i) => (
+        {["Market", "Type", "Outcome", "Order Type", "Shares", "Total", "Date"].map((h, i) => (
           <div
             key={h}
             style={{
@@ -628,7 +653,7 @@ export const HistoryTab = ({ search }: HistoryTabProps) => {
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               color: PORTFOLIO_COLORS.TEXT_MUTED_2,
-              textAlign: i > 1 ? "right" : ("left" as React.CSSProperties["textAlign"]),
+              textAlign: i > 2 ? "right" : ("left" as React.CSSProperties["textAlign"]),
             }}
           >
             {h}
@@ -687,14 +712,19 @@ const HistoryRow = ({ item }: { item: HistoryItem }) => (
       </div>
     </div>
 
-    {/* type */}
+    {/* type (Buy / Sell / Redeem) */}
     <div>
       <HistoryTypeBadge type={item.type} />
     </div>
 
-    {/* side */}
-    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+    {/* outcome (Yes / No) */}
+    <div style={{ display: "flex", justifyContent: "flex-start" }}>
       <SidePill side={item.side} />
+    </div>
+
+    {/* order type (Limit / Market) */}
+    <div style={{ fontSize: 13, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
+      {item.orderType}
     </div>
 
     {/* shares */}
