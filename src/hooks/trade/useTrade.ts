@@ -82,7 +82,6 @@ export const useTrade = () => {
     ) as unknown as ExchangeContract
 
     const nonce = await exchange.nonces(address!)
-    console.log("on-chain nonce:", nonce.toString())
     return nonce
   }
 
@@ -118,14 +117,12 @@ export const useTrade = () => {
     // check existing allowance — skip tx if already sufficient
     const allowance = await usdc.allowance(address!, ADDRESSES.CTFExchange)
     if (allowance >= amount) {
-      console.log("USDC already approved ✅ skipping")
       return
     }
 
     // approve unlimited so user never needs to approve again
     const tx = await usdc.approve(ADDRESSES.CTFExchange, ethers.MaxUint256)
     await tx.wait()
-    console.log("USDC approved ✅")
   }
 
   // ── Step 3: approve CTF share transfers (one-time per wallet) ────────────
@@ -139,19 +136,16 @@ export const useTrade = () => {
     // check first — skip tx if already approved
     const approved = await ctf.isApprovedForAll(address!, ADDRESSES.CTFExchange)
     if (approved) {
-      console.log("CTF already approved ✅ skipping")
       return
     }
 
     const tx = await ctf.setApprovalForAll(ADDRESSES.CTFExchange, true)
     await tx.wait()
-    console.log("CTF approved ✅")
   }
 
   // ── Step 4: sign order (EIP-712 — free, no gas) ───────────────────────────
   const signOrder = async (signer: ethers.JsonRpcSigner, order: TradeOrder) => {
     const tokenId = order.outcome === "Yes" ? order.yesTokenOnChainId : order.noTokenOnChainId
-    console.log("while signing , the tokneId is :", tokenId)
 
     const domain = {
       name: "PolymarketCTFExchange",
@@ -184,21 +178,16 @@ export const useTrade = () => {
     // order.shares = 1 token     →  payloadShares = 1 * 100 = 100 (tokens×100)
     const payloadPrice = BigInt((order.limitCents ?? 0) * 10_000) // e.g. 500_000n
     const payloadShares = BigInt(Math.round(order.shares ?? 0) * 100) // e.g. 100n
-    console.log("payloadPrice (1e6):", payloadPrice.toString())
-    console.log("payloadShares (×100):", payloadShares.toString())
 
     // Match backend validateOrderSignature formula EXACTLY:
     //   usdcRequired  = (price * shares) / 100
     //   sharesRequired = shares * 10_000
     const usdcRequired = (payloadPrice * payloadShares) / 100n
     const sharesRequired = payloadShares * 10_000n
-    console.log("usdcRequired:", usdcRequired.toString())
-    console.log("sharesRequired:", sharesRequired.toString())
 
     // creating nonce for the order
 
     const nonce = await getNonce(signer)
-    console.log("nonce: ", nonce)
 
     const orderStruct = {
       salt: BigInt(Date.now()),
@@ -216,7 +205,6 @@ export const useTrade = () => {
       feeRateBps: order.action === "Buy" ? 200n : 0n,
       signatureType: 0n,
     }
-    console.log("working fine till here ")
 
     // pops Magic / MetaMask "Sign" popup — free, no gas
     const signature = await signer.signTypedData(domain, types, orderStruct)
@@ -234,7 +222,6 @@ export const useTrade = () => {
     try {
       // 1. get signer
       const signer = await getSigner()
-      console.log("signer ready:", signer)
 
       // 2. approve USDC if buying (skips if already approved)
       setApprovalState("approving-usdc")
@@ -252,12 +239,8 @@ export const useTrade = () => {
       setApprovalState("signing")
       const { orderStruct, signature } = await signOrder(signer, order)
 
-      console.log("order ready to send:", { orderStruct, signature })
-
       // 5. TODO: POST to backend when endpoint is ready
       // await postOrder({ order: orderStruct, signature }).unwrap()
-      console.log("limitCents: ", order.limitCents)
-      console.log("shares: ", order.shares)
 
       const payload = {
         tokenId:
@@ -275,12 +258,10 @@ export const useTrade = () => {
         signature,
       }
 
-      console.log("sending payload:", payload)
       setApprovalState("submitting")
 
-      const res = await createOrder(payload).unwrap()
+      await createOrder(payload).unwrap()
 
-      console.log("order created:", res)
       toast.success("Order placed successfully", {
         duration: 3000,
         position: "top-right",
@@ -340,7 +321,6 @@ export const useTrade = () => {
       const usdcDollars = order.amount ?? (computedShares * marketPriceCents) / 100
       const usdcToReserve = BigInt(Math.round(usdcDollars * 1_000_000)).toString()
       dispatch(reserveAmount(usdcToReserve))
-      console.log("Trade submitted ✅")
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Trade failed"
       console.error("Trade error:", err)

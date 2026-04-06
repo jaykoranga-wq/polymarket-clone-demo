@@ -44,12 +44,40 @@ export const MOCK_PROFILE: UserProfile = {
 }
 
 export const MOCK_PROFILE_STATS = [
-  { label: "Total Volume", value: "$42,850", sub: "all time" },
-  { label: "Total Trades", value: "187", sub: "completed" },
-  { label: "Win Rate", value: "63.4%", sub: "accuracy" },
-  { label: "Profit / Loss", value: "+$8,240", sub: "all time", green: true },
-  { label: "Global Rank", value: "#142", sub: "leaderboard" },
-  { label: "Member Since", value: "Jan 2024", sub: "joined" },
+  {
+    label: "Total Volume",
+    value: "$42,850",
+    sub: "+12% this month",
+    trend: "up",
+    accentColor: "var(--color-primary)",
+  },
+  {
+    label: "Total Trades",
+    value: "187",
+    sub: "HIGH ACTIVITY",
+    accentColor: "rgba(255,255,255,0.2)",
+  },
+  {
+    label: "Win Rate",
+    value: "63.4%",
+    sub: "ELITE TIER",
+    accentColor: "var(--color-primary)",
+    green: true,
+  },
+  {
+    label: "P/L",
+    value: "+$8,240",
+    sub: "Realized Profit",
+    trend: "realized",
+    accentColor: "var(--color-primary)",
+    green: true,
+  },
+  {
+    label: "Member Since",
+    value: "Jan 2024",
+    sub: "EARLY ADOPTER",
+    accentColor: "rgba(255,255,255,0.2)",
+  },
 ]
 
 // ─── REWARDS ─────────────────────────────────────────────────────────────────

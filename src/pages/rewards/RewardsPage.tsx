@@ -1,6 +1,7 @@
 // src/pages/rewards/RewardsPage.tsx
 // TODO: replace mock data with useGetRewardsQuery() when API ready
 
+import { Heart, Trophy } from "lucide-react"
 import { useState } from "react"
 
 import { MOCK_REWARDS, MOCK_REWARDS_SUMMARY, type RewardItem } from "@/mocks/mockPages"
@@ -18,6 +19,20 @@ const C = {
 
 const CATEGORY_FILTERS = ["all", "trading", "accuracy", "social", "milestone"] as const
 type Filter = (typeof CATEGORY_FILTERS)[number]
+
+// ── Emoji Mapping ─────────────────────────────────────────────────────────────
+const EmojiIcon = ({ emoji, size = 22 }: { emoji: string; size?: number }) => {
+  if (emoji === "🏆")
+    return <Trophy size={size} className="text-primary transition-colors group-hover:text-white" />
+  if (emoji === "💚")
+    return (
+      <Heart
+        size={size}
+        className="text-primary transition-colors group-hover:text-white fill-current"
+      />
+    )
+  return <>{emoji}</>
+}
 
 // ── XP Progress bar ───────────────────────────────────────────────────────────
 const XPCard = () => {
@@ -100,6 +115,7 @@ const XPCard = () => {
 // ── Reward card ───────────────────────────────────────────────────────────────
 const RewardCard = ({ item }: { item: RewardItem }) => (
   <div
+    className="group cursor-pointer transition-all hover:bg-white/5"
     style={{
       background: item.completed ? "rgba(0,200,83,0.04)" : C.surface,
       border: `1px solid ${item.completed ? "rgba(0,200,83,0.2)" : C.border}`,
@@ -125,7 +141,7 @@ const RewardCard = ({ item }: { item: RewardItem }) => (
         flexShrink: 0,
       }}
     >
-      {item.icon}
+      <EmojiIcon emoji={item.icon} size={22} />
     </div>
 
     {/* content */}

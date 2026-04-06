@@ -30,7 +30,6 @@ export const useWalletBalance = () => {
     if (!address) return
     let lockedAmountBigint: bigint = 0n
     if (lockedData) {
-      console.log(lockedData)
       // lockedAmount comes from backend in micro-USDC (same units as on-chain)
       lockedAmountBigint = BigInt(lockedData.data.lockedAmount)
     }
@@ -57,7 +56,6 @@ export const useWalletBalance = () => {
         dispatch(setCashAmount({ cashAmount: raw.toString() }))
 
         // Lock the backend-reported reserved balance in redux
-        console.log("locked balance (micro-USDC):", lockedAmountBigint)
         dispatch(reserveAmount(lockedAmountBigint.toString()))
       } catch (err) {
         console.error("Balance fetch failed:", err)

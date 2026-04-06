@@ -24,7 +24,6 @@ export const HeroBanner: FC<HeroBannerProps> = ({
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   function handleClickTrade() {
-    console.log("handle trade clicked ..")
     dispatch(setSelectedMarket(market))
     if (market) {
       navigate(`/event/${market?.id as string}`)
