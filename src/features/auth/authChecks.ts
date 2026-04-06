@@ -133,17 +133,37 @@ export async function checkMagicSession(
 // ---------------------------------------------------------------------------
 
 /**
- * Reads the token/address from localStorage and restores Redux state silently.
+ * Reads the token/address from localStorage, validates it against the backend,
+ * and restores Redux state silently only if the token is still valid.
  * Uses NO popup — eth_accounts is not needed since we already have the token.
  * Returns true if a valid stored session was found.
  */
-export function checkMetaMask(dispatch: AppDispatch): boolean {
+export async function checkMetaMask(dispatch: AppDispatch): Promise<boolean> {
   try {
     const token = localStorage.getItem("auth_token")
     const method = localStorage.getItem("auth_method")
     const publicAddress = localStorage.getItem("auth_address")
 
     if (!window.ethereum || wasMetaMaskLoggedOut() || !token) return false
+
+    // Validate the stored token with the backend before trusting it.
+    // If the token has expired or been invalidated, the server returns 401
+    // and we must clear localStorage instead of showing a false "logged in" state.
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL_SECOND}/v1/user/profile`, {
+      headers: {
+        Authorization: token,
+        "ngrok-skip-browser-warning": "true",
+      },
+    })
+
+    if (!res.ok) {
+      // Token is expired or invalid — clear stale session data
+      localStorage.removeItem("auth_token")
+      localStorage.removeItem("auth_method")
+      localStorage.removeItem("auth_address")
+      localStorage.removeItem("isSignedIn")
+      return false
+    }
 
     dispatch(
       login({
@@ -183,7 +203,7 @@ export async function checkAuth(
   const hasMagicSession = await checkMagicSession(magic, dispatch, loginToBackend)
   if (hasMagicSession) return
 
-  const hasMetaMask = checkMetaMask(dispatch)
+  const hasMetaMask = await checkMetaMask(dispatch)
   if (hasMetaMask) return
 
   // Nothing found — clear loading and mark as unauthenticated

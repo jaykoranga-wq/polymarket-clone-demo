@@ -197,15 +197,6 @@ const EventPage = () => {
               gridTemplateColumns: "1fr 340px",
             }}
           >
-            <style>{`
-              @media (max-width: 1479px) {
-                .ep-layout-inner { grid-template-columns: 1fr 300px !important; gap: 16px !important; }
-              }
-              @media (max-width: 1023px) {
-                .ep-layout-inner { grid-template-columns: 1fr !important; }
-                .ep-right-col { display: none !important; }
-              }
-            `}</style>
             {/* ══ LEFT ══ */}
             <div className="min-w-0">
               {/* Chart */}

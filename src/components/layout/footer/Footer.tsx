@@ -45,7 +45,7 @@ export const Footer = () => {
               className="flex items-center gap-2 cursor-pointer w-fit"
               onClick={() => navigate("/")}
             >
-              <img src="/logo.png" alt="logo" className="h-5.5 w-auto" />
+              <img src="/logo.svg" alt="logo" className="h-5.5 w-auto" />
             </div>
             <p className="font-base text-white leading-5 max-w-96">
               OutcomeX is a decentralized information markets platform, letting you trade on the

@@ -271,7 +271,7 @@ export const Navbar: FC = () => {
             }}
           >
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="OutcomeX" className=" h-4 sm:h-5.5 w-auto" />
+              <img src="/logo.svg" alt="Polymarket" className=" h-4 sm:h-5.5 w-auto" />
             </div>
 
             <nav className="hidden lg:flex items-center gap-6 py-1.5 px-3 text-sm font-bold  ">
