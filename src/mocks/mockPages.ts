@@ -97,7 +97,7 @@ export interface RewardItem {
 export const MOCK_REWARDS: RewardItem[] = [
   {
     id: "r1",
-    icon: "🎯",
+    icon: "target",
     category: "accuracy",
     title: "Prediction Master",
     description: "Win 10 trades in a row",
@@ -108,7 +108,7 @@ export const MOCK_REWARDS: RewardItem[] = [
   },
   {
     id: "r2",
-    icon: "💰",
+    icon: "dollar",
     category: "trading",
     title: "High Roller",
     description: "Trade over $10,000 in a single month",
@@ -119,7 +119,7 @@ export const MOCK_REWARDS: RewardItem[] = [
   },
   {
     id: "r3",
-    icon: "🔥",
+    icon: "flame",
     category: "trading",
     title: "On Fire",
     description: "Place 50 trades total",
@@ -130,7 +130,7 @@ export const MOCK_REWARDS: RewardItem[] = [
   },
   {
     id: "r4",
-    icon: "📊",
+    icon: "chart",
     category: "accuracy",
     title: "Market Analyst",
     description: "Achieve 70% win rate over 30 trades",
@@ -141,7 +141,7 @@ export const MOCK_REWARDS: RewardItem[] = [
   },
   {
     id: "r5",
-    icon: "🏅",
+    icon: "award",
     category: "milestone",
     title: "Top 100",
     description: "Reach top 100 on the leaderboard",
@@ -152,7 +152,7 @@ export const MOCK_REWARDS: RewardItem[] = [
   },
   {
     id: "r6",
-    icon: "⚡",
+    icon: "zap",
     category: "trading",
     title: "Speed Demon",
     description: "Place 5 trades in a single day",

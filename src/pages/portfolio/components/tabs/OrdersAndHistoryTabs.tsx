@@ -1,6 +1,6 @@
 // src/pages/portfolio/components/tabs/OrdersAndHistoryTabs.tsx
 
-import { useState } from "react"
+import { ChevronLeft, ChevronRight, useState } from "react"
 import { toast } from "sonner"
 
 import { useGetOrdersQuery } from "@/features/api/orders/orderApi"
@@ -119,7 +119,10 @@ export const Pagination = ({
         disabled={page === 1}
         onClick={() => onPage(page - 1)}
       >
-        ← Prev
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <ChevronLeft size={14} strokeWidth={2.5} />
+          <span>Prev</span>
+        </div>
       </button>
 
       {start > 1 && (
@@ -155,7 +158,10 @@ export const Pagination = ({
         disabled={page === totalPages}
         onClick={() => onPage(page + 1)}
       >
-        Next →
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span>Next</span>
+          <ChevronRight size={14} strokeWidth={2.5} />
+        </div>
       </button>
     </div>
   )
