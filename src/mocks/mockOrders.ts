@@ -21,6 +21,10 @@ export const MOCK_ORDERS: UserOrder[] = [
     status: "pending",
     createdAt: "2024-10-01T10:30:00.000Z",
     expiresAt: "2024-11-01T10:30:00.000Z",
+    token: {
+      id: "12dcxddd",
+      title: "yes",
+    },
   },
   {
     id: "order-002",
@@ -36,6 +40,10 @@ export const MOCK_ORDERS: UserOrder[] = [
     usdcAmount: 84,
     status: "pending",
     createdAt: "2024-10-03T14:15:00.000Z",
+    token: {
+      id: "1232eew54d",
+      title: "no",
+    },
   },
   {
     id: "order-003",
@@ -51,6 +59,10 @@ export const MOCK_ORDERS: UserOrder[] = [
     usdcAmount: 39,
     status: "pending",
     createdAt: "2024-10-05T09:00:00.000Z",
+    token: {
+      id: "12322aqdd",
+      title: "yes",
+    },
   },
 
   // ── Partial fill ──────────────────────────────────────────────────────────
@@ -69,6 +81,10 @@ export const MOCK_ORDERS: UserOrder[] = [
     status: "partially filled",
     createdAt: "2024-10-07T16:45:00.000Z",
     expiresAt: "2024-12-01T00:00:00.000Z",
+    token: {
+      id: "12322wed",
+      title: "yes",
+    },
   },
 
   // ── Market Buy — pending (open tab) ───────────────────────────────────────
@@ -87,6 +103,10 @@ export const MOCK_ORDERS: UserOrder[] = [
     usdcAmount: 100,
     status: "pending",
     createdAt: "2024-10-10T09:00:00.000Z",
+    token: {
+      id: "12322dd22",
+      title: "yes",
+    },
   },
 
   // ── Market Sell — pending (open tab) ──────────────────────────────────────
@@ -105,6 +125,10 @@ export const MOCK_ORDERS: UserOrder[] = [
     usdcAmount: 33.6,
     status: "pending",
     createdAt: "2024-10-10T10:00:00.000Z",
+    token: {
+      id: "12322d654d",
+      title: "no",
+    },
   },
 
   // ── Filled orders ─────────────────────────────────────────────────────────
@@ -122,6 +146,10 @@ export const MOCK_ORDERS: UserOrder[] = [
     usdcAmount: 102,
     status: "filled",
     createdAt: "2024-09-20T11:00:00.000Z",
+    token: {
+      id: "12322ddd",
+      title: "yes",
+    },
   },
   {
     id: "order-006",
@@ -137,6 +165,10 @@ export const MOCK_ORDERS: UserOrder[] = [
     usdcAmount: 28,
     status: "filled",
     createdAt: "2024-09-25T08:30:00.000Z",
+    token: {
+      id: "12322d654d",
+      title: "no",
+    },
   },
 
   // ── Cancelled orders ──────────────────────────────────────────────────────
@@ -154,5 +186,9 @@ export const MOCK_ORDERS: UserOrder[] = [
     usdcAmount: 72,
     status: "cancelled",
     createdAt: "2024-09-15T13:20:00.000Z",
+    token: {
+      id: "12322ddd",
+      title: "yes",
+    },
   },
 ]
