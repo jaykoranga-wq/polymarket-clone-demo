@@ -16,7 +16,6 @@ const Home: FC = () => {
   // const filteredMarkets = useSelector(selectFilteredMarkets)
   const allMarkets = useSelector(selectAllMarkets)
   const newMarkets = useSelector(selectNewMarkets)
-  console.log("new market value", newMarkets)
   const mainHeroMarket = MOCK_MARKETS[0]
   const carouselItems = MOCK_MARKETS.filter((_, i) => i < 5)
 

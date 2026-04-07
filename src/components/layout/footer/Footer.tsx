@@ -35,7 +35,7 @@ export const Footer = () => {
   const navigate = useNavigate()
 
   return (
-    <footer className="border-t border-[#3B82F638] bg-background mt-auto">
+    <footer className="border-t border-border bg-background mt-auto">
       <div className="container py-12 flex flex-col gap-12 justify-between">
         {/* ── Top section ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 ">

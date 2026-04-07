@@ -46,7 +46,7 @@ export const MarketRulesTab = ({
       )}
 
       {/* ── Market meta grid ── */}
-      <div className="ep-meta-grid">
+      <div className=" grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-x-3 gap-y-4.5 mt-5  p-4 bg-white/5  border border-white/10 rounded-lg ">
         <div>
           <div className=" font-xs font-bold text-muted-foreground uppercase mb-1">Volume</div>
           <div className="ep-meta-value">${volume.toLocaleString()}</div>

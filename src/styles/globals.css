@@ -180,7 +180,7 @@
 }
 
 .font-xxl {
-  font-size: 30px;
+  font-size: 32px;
   line-height: 36px;
 }
 
@@ -199,6 +199,10 @@
 
 .rounded-2md {
   border-radius: 10px;
+}
+
+.rounded-xxl {
+  border-radius: 20px;
 }
 
 @media (max-width: 1479px) {

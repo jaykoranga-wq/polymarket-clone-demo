@@ -231,7 +231,7 @@ export const PriceChart = memo(
             {TABS.map((t) => (
               <button
                 key={t}
-                className={`px-[11px] py-[5px] rounded-md text-sm font-medium border-none cursor-pointer transition-all duration-120 hover:text-[#e2e8f0]
+                className={`px-3 py-1.5 rounded-md text-sm font-medium border-none cursor-pointer transition-all duration-120 hover:text-[#e2e8f0]
                   ${tab === t ? " bg-primary text-black shadow-[0px_4px_6px_-4px_rgba(16,210,96,0.3),0px_10px_15px_-3px_rgba(16,210,96,0.3)]" : "bg-transparent text-white/60"}`}
                 onClick={() => onTabChange(t)}
               >

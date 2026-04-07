@@ -155,7 +155,6 @@ export async function handleMetaMaskLogin({
       method: "eth_requestAccounts",
     })) as unknown as string[]
     const publicAddress = accounts[0]
-    console.log("public adress:", publicAddress)
 
     // Step 2: get nonce + temp token from backend
     dispatch(setTempToken({ token: null }))

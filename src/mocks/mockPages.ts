@@ -44,12 +44,40 @@ export const MOCK_PROFILE: UserProfile = {
 }
 
 export const MOCK_PROFILE_STATS = [
-  { label: "Total Volume", value: "$42,850", sub: "all time" },
-  { label: "Total Trades", value: "187", sub: "completed" },
-  { label: "Win Rate", value: "63.4%", sub: "accuracy" },
-  { label: "Profit / Loss", value: "+$8,240", sub: "all time", green: true },
-  { label: "Global Rank", value: "#142", sub: "leaderboard" },
-  { label: "Member Since", value: "Jan 2024", sub: "joined" },
+  {
+    label: "Total Volume",
+    value: "$42,850",
+    sub: "+12% this month",
+    trend: "up",
+    accentColor: "var(--color-primary)",
+  },
+  {
+    label: "Total Trades",
+    value: "187",
+    sub: "HIGH ACTIVITY",
+    accentColor: "rgba(255,255,255,0.2)",
+  },
+  {
+    label: "Win Rate",
+    value: "63.4%",
+    sub: "ELITE TIER",
+    accentColor: "var(--color-primary)",
+    green: false,
+  },
+  {
+    label: "P/L",
+    value: "+$8,240",
+    sub: "Realized Profit",
+    trend: "realized",
+    accentColor: "var(--color-primary)",
+    green: true,
+  },
+  {
+    label: "Member Since",
+    value: "Jan 2024",
+    sub: "EARLY ADOPTER",
+    accentColor: "rgba(255,255,255,0.2)",
+  },
 ]
 
 // ─── REWARDS ─────────────────────────────────────────────────────────────────
@@ -69,7 +97,7 @@ export interface RewardItem {
 export const MOCK_REWARDS: RewardItem[] = [
   {
     id: "r1",
-    icon: "🎯",
+    icon: "target",
     category: "accuracy",
     title: "Prediction Master",
     description: "Win 10 trades in a row",
@@ -80,7 +108,7 @@ export const MOCK_REWARDS: RewardItem[] = [
   },
   {
     id: "r2",
-    icon: "💰",
+    icon: "dollar",
     category: "trading",
     title: "High Roller",
     description: "Trade over $10,000 in a single month",
@@ -91,7 +119,7 @@ export const MOCK_REWARDS: RewardItem[] = [
   },
   {
     id: "r3",
-    icon: "🔥",
+    icon: "flame",
     category: "trading",
     title: "On Fire",
     description: "Place 50 trades total",
@@ -102,7 +130,7 @@ export const MOCK_REWARDS: RewardItem[] = [
   },
   {
     id: "r4",
-    icon: "📊",
+    icon: "chart",
     category: "accuracy",
     title: "Market Analyst",
     description: "Achieve 70% win rate over 30 trades",
@@ -113,7 +141,7 @@ export const MOCK_REWARDS: RewardItem[] = [
   },
   {
     id: "r5",
-    icon: "🏅",
+    icon: "award",
     category: "milestone",
     title: "Top 100",
     description: "Reach top 100 on the leaderboard",
@@ -124,7 +152,7 @@ export const MOCK_REWARDS: RewardItem[] = [
   },
   {
     id: "r6",
-    icon: "⚡",
+    icon: "zap",
     category: "trading",
     title: "Speed Demon",
     description: "Place 5 trades in a single day",
@@ -266,5 +294,43 @@ export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
     winRate: 63.4,
     trades: 187,
     isCurrentUser: true,
+  },
+]
+
+export const MOCK_BIGGEST_WINS = [
+  {
+    rank: 1,
+    displayName: "lfc123",
+    subtitle: "PFK Ludogorets 1945...",
+    initial: 197340,
+    profit: 225158,
+  },
+  {
+    rank: 2,
+    displayName: "gmanas",
+    subtitle: "Vastrom Catamounts vs...",
+    initial: 87770,
+    profit: 198909,
+  },
+  {
+    rank: 3,
+    displayName: "swisstony",
+    subtitle: "Lille OSC vs FK Crvena...",
+    initial: 209157,
+    profit: 300566,
+  },
+  {
+    rank: 4,
+    displayName: "norrisfan",
+    subtitle: "Lille OSC vs FK Crvena...",
+    initial: 39275,
+    profit: 109937,
+  },
+  {
+    rank: 5,
+    displayName: "c4c4",
+    subtitle: "Rockets vs. Hornets.",
+    initial: 121969,
+    profit: 188483,
   },
 ]

@@ -82,13 +82,6 @@ export const useRedeem = () => {
 
       setRedeemState("redeeming")
 
-      console.log("Redeeming position:", {
-        collateralToken: position.collateralToken,
-        // parentCollectionId:   PARENT_COLLECTION_ID,
-        conditionId: position.conditionId,
-        indexSets: [indexSet.toString()],
-      })
-
       // this sends an on-chain tx — MetaMask/Magic shows confirmation popup
       const tx = await ctf.redeemPositions?.(
         position.collateralToken,
@@ -97,9 +90,7 @@ export const useRedeem = () => {
         [indexSet],
       )
 
-      console.log("Redeem tx submitted:", tx.hash)
       await tx.wait()
-      console.log("Redeem tx confirmed ✅")
 
       setRedeemState("done")
 

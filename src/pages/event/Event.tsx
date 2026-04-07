@@ -90,13 +90,11 @@ const EventPage = () => {
 
   useEffect(() => {
     if (tradeError) {
-      if (tradeError.includes('reason="rejected"')) {
-        toast.error("User Rejected the request", {
-          duration: 3000,
-          position: "top-right",
-          style: { fontSize: "12px", padding: "8px 12px", maxWidth: "320px" },
-        })
-      }
+      toast.error(tradeError, {
+        duration: 4000,
+        position: "top-right",
+        style: { fontSize: "12px", padding: "8px 12px", maxWidth: "320px" },
+      })
     }
   }, [tradeError])
 
@@ -141,11 +139,11 @@ const EventPage = () => {
               </h1>
 
               <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-[5px] text-sm text-white whitespace-nowrap [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-white [&_svg]:[stroke:2.5px]">
+                <div className="flex items-center gap-1.5 text-sm text-white whitespace-nowrap [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-white [&_svg]:[stroke:2.5px]">
                   <IcoClockSm />
                   Ends {formatMarketDate(market.resolutionTime)}
                 </div>
-                <div className="flex items-center gap-[5px] text-sm text-white whitespace-nowrap [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-white [&_svg]:[stroke:2.5px]">
+                <div className="flex items-center gap-1.5 text-sm text-white whitespace-nowrap [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-white [&_svg]:[stroke:2.5px]">
                   <IcoVolSm />${totalVolume.toLocaleString()} Vol
                 </div>
                 {isResolved && (

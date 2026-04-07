@@ -1,29 +1,77 @@
 // src/pages/profile/ProfilePage.tsx
 // TODO: replace MOCK_PROFILE / MOCK_PROFILE_STATS with useGetProfileQuery()
 
+import {
+  Award,
+  Calendar,
+  Copy,
+  Diamond,
+  Flame,
+  Heart,
+  Landmark,
+  Mail,
+  Share2,
+  Target,
+  TrendingUp,
+  Trophy,
+  Zap,
+} from "lucide-react"
 import { useSelector } from "react-redux"
 
 import { selectUserData } from "@/features/auth/authSlice"
 import { formatMarketDate } from "@/libs/formatDate"
+import type { Badge } from "@/mocks/mockPages"
 import { MOCK_PROFILE, MOCK_PROFILE_STATS } from "@/mocks/mockPages"
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const C = {
   bg: "#0d0f13",
-  surface: "#161a22",
-  border: "rgba(255,255,255,0.07)",
-  green: "#00c853",
-  red: "#e53935",
+  surface: "#111418", // Darker card background
+  border: "rgba(255,255,255,0.08)",
+  green: "#10d260", // Brand primary green
+  red: "#ea3943",
   text: "#ffffff",
   muted: "rgba(255,255,255,0.45)",
   muted2: "rgba(255,255,255,0.25)",
 } as const
 
+// ── Emoji Mapping ─────────────────────────────────────────────────────────────
+const ICON_MAP: Record<string, React.ElementType> = {
+  "🏆": Trophy,
+  "💚": Heart,
+  "🔥": Flame,
+  "🎯": Target,
+  "💎": Diamond,
+  "⚡": Zap,
+  "🏅": Award,
+}
+
+const EmojiIcon = ({
+  emoji,
+  size = 16,
+  color,
+}: {
+  emoji: string
+  size?: number
+  color?: string
+}) => {
+  const Icon = ICON_MAP[emoji]
+  if (!Icon) return null
+
+  const iconProps = {
+    size,
+    className: `transition-colors ${color ? "" : "text-primary group-hover:text-white"} ${emoji === "💚" ? "fill-current" : ""}`,
+    style: color ? { color } : undefined,
+  }
+
+  return <Icon {...iconProps} />
+}
+
 // ── Avatar initials ───────────────────────────────────────────────────────────
 const BigAvatar = ({ name }: { name: string }) => {
   const initials = name.slice(0, 2).toUpperCase()
   return (
-    <div className="w-40 h-40 rounded-md bg-primary/10 flex items-center justify-center text-8xl  font-extrabold text-white  shrink-0 ">
+    <div className="w-40 h-40 rounded-lg bg-primary/10 flex items-center justify-center text-7xl  font-extrabold text-white  shrink-0 ">
       {initials}
     </div>
   )
@@ -35,95 +83,108 @@ const StatCard = ({
   value,
   sub,
   green,
+  trend,
 }: {
   label: string
   value: string
   sub: string
   green?: boolean
+  trend?: string
+  accentColor?: string
 }) => (
-  <div
-    style={{
-      background: C.surface,
-      border: `1px solid ${C.border}`,
-      borderRadius: 14,
-      padding: "18px 20px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 6,
-    }}
-  >
+  <div className="bg-white/5  py-4 px-5 flex rounded-lg flex-col gap-1 justify-center min-h-24 border border-white/10">
+    <span className="font-base font-bold text-white/45 uppercase tracking-widest">{label}</span>
     <span
+      className="font-lg font-black tracking-tight my-1 "
       style={{
-        fontSize: 11,
-        fontWeight: 600,
-        color: C.muted,
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-      }}
-    >
-      {label}
-    </span>
-    <span
-      style={{
-        fontSize: 24,
-        fontWeight: 800,
         color: green ? C.green : C.text,
-        letterSpacing: "-0.02em",
       }}
     >
       {value}
     </span>
-    <span style={{ fontSize: 11, color: C.muted2 }}>{sub}</span>
+    <div className="flex items-center gap-1.5 mt-1">
+      {trend === "up" && <TrendingUp size={12} className="text-primary" />}
+      {trend === "realized" && <Landmark size={12} className="text-primary" />}
+      <span
+        className="font-xs font-medium "
+        style={{
+          color: trend ? C.green : "#ffffff70",
+          textTransform: trend ? "none" : "uppercase",
+          letterSpacing: trend ? "0" : "0.05em",
+        }}
+      >
+        {sub}
+      </span>
+    </div>
   </div>
 )
 
 // ── Badge chip ────────────────────────────────────────────────────────────────
 const BadgeChip = ({ icon, label, color }: { icon: string; label: string; color: string }) => (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-      padding: "8px 14px",
-      borderRadius: 10,
-      background: color,
-      border: "1px solid rgba(255,255,255,0.08)",
-      fontSize: 12,
-      fontWeight: 600,
-      color: C.text,
-    }}
-  >
-    <span style={{ fontSize: 16 }}>{icon}</span>
+  <div className="group transition-all hover:bg-white/5 flex items-center gap-2.5 py-2.5 px-4 rounded-md bg-primary/5 border border-primary/10 font-base font-bold text-white cursor-pointer w-fit">
+    <EmojiIcon emoji={icon} size={18} color={color.includes("0.15") ? undefined : color} />
     {label}
   </div>
 )
 
-// ── Section wrapper ───────────────────────────────────────────────────────────
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div
-    style={{
-      background: C.surface,
-      border: `1px solid ${C.border}`,
-      borderRadius: 16,
-      overflow: "hidden",
-    }}
-  >
-    <div
-      style={{
-        padding: "16px 20px",
-        borderBottom: `1px solid ${C.border}`,
-        fontSize: 13,
-        fontWeight: 700,
-        color: C.text,
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-      }}
-    >
-      {title}
+const AccuracySection = ({ winRate, trades }: { winRate: number; trades: number }) => (
+  <div className="bg-white/5 border border-white/10 rounded-md py-4 px-6 flex-2">
+    <div className="flex justify-between flex-col md:flex-row items-start md:items-center gap-4 mb-8">
+      <div>
+        <h2 className="text-xl font-bold mb-1.5">Trading Accuracy</h2>
+        <p className="text-sm text-white/60 max-w-[320px]">
+          Statistical success rate across all {trades} executed predictions
+        </p>
+      </div>
+      <div className="font-xl font-black text-primary tracking-tighter shrink-0">{winRate}%</div>
     </div>
-    <div style={{ padding: 20 }}>{children}</div>
+
+    <div className="relative h-4 bg-white/5 rounded-full overflow-hidden mb-10 w-full flex-1">
+      <div
+        className="h-full bg-primary transition-all duration-75 ease  shadow-[0_0_20px_#10D26044]"
+        style={{
+          width: `${winRate}%`,
+        }}
+      />
+    </div>
+
+    <div className="grid grid-cols-2 gap-20">
+      <div className="flex flex-col gap-1">
+        <span className="font-xs font-bold text-white/60 uppercase tracking-widest">
+          Correct Predictions
+        </span>
+        <span className="font-sm font-bold">118 Positions</span>
+      </div>
+      <div className="flex flex-col gap-1 text-right">
+        <span className="font-xs font-bold text-white/60 uppercase tracking-widest">Losses</span>
+        <span className="font-sm font-bold">69 Positions</span>
+      </div>
+    </div>
   </div>
 )
+
+const BadgesSection = ({ badges }: { badges: Badge[] }) => (
+  <div className="bg-white/5 border border-white/10 rounded-md py-4 px-6 flex-1 lg:min-w-[380px] min-w-0">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="font-sm font-bold uppercase tracking-[0.2em]  shrink-0">Badges Earned</h2>
+    </div>
+
+    <div className="flex flex-wrap gap-3">
+      {badges.map((b) => (
+        <BadgeChip key={b.id} icon={b.icon} label={b.label} color={b.color} />
+      ))}
+    </div>
+  </div>
+)
+
+interface ProfileStat {
+  label: string
+  value: string
+  sub: string
+  green?: boolean
+  trend?: string
+  accentColor?: string
+}
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 const ProfilePage = () => {
@@ -138,86 +199,62 @@ const ProfilePage = () => {
     <div className="container font-inter">
       <div className="mt-7.5 mb-18">
         {/* ── Header card ── */}
-        <div className="flex items-center justify-between gap-5 flex-wrap mb-14">
+        <div className="flex  flex-wrap justify-start items-center gap-10 mb-14">
           <BigAvatar name={profile.displayName} />
-          {/* <img className="w-40 h-40 rounded-sm object-cover" src="/user1.jpg" alt="logo" /> */}
 
-          <div style={{ flex: 1, minWidth: 200 }}>
-            <h1 className="font-2xl font-extrabold mb-1">{profile.displayName}</h1>
-            <div className="font-sm text-white/60 mb-2">{shortAddr}</div>
-            {email && <div className="font-sm text-white/60  mb-1">{email}</div>}
-            <div className="font-sm text-white/60">
-              Member since {formatMarketDate(profile.joinedAt)}
+          <div className="mt-2">
+            <h1 className="font-2xl font-black mb-4 tracking-tight">{profile.displayName}</h1>
+
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <div className="flex items-center gap-2.5 text-white/60 font-medium font-sm cursor-pointer hover:text-white/80 transition-colors">
+                  <Copy size={16} /> {shortAddr}
+                </div>
+                <div className="flex items-center gap-2.5 text-white/60 font-medium font-sm ">
+                  <Calendar size={14} /> Member since {formatMarketDate(profile.joinedAt)}
+                </div>
+              </div>
+
+              {email && (
+                <div className="flex items-center gap-3 text-white/60 font-medium text-sm">
+                  <Mail size={16} /> {email}
+                </div>
+              )}
+
+              {/* Share Button Below Email */}
+              <button className="flex items-center gap-2.5 text-black py-2 px-5 bg-primary border border-white/10 rounded-md font-bold font-sm hover:bg-primary/60 w-fit transition-all mt-1">
+                <Share2 size={15} className="text-black [&_svg]:[stroke:2.5px]" /> Share Profile
+              </button>
             </div>
           </div>
 
-          {/* rank badge */}
-          <div className="bg-linear-to-b from-primary/10 to-primary/5 flex flex-col gap-1 py-4 px-6 rounded-md border border-primary">
-            <span className="font-base text-primary uppercase font-bold">Global Rank</span>
-            <span
-              style={{ fontSize: 32, fontWeight: 900, color: "#fbbf24", letterSpacing: "-0.02em" }}
-            >
-              #{profile.rank}
-            </span>
+          <div className="flex bg-primary/10 border border-primary/20 rounded-md py-4 px-6 items-center gap-7 justify-between lg:ml-auto max-h-21 ">
+            <div className="flex flex-col gap-1">
+              <span className="font-base text-primary uppercase font-bold">Global Rank</span>
+              <span className="font-xl text-primary font-black">#{profile.rank}</span>
+            </div>
           </div>
         </div>
 
         {/* ── Stats grid ── */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-            gap: 12,
-            marginBottom: 16,
-          }}
-        >
-          {stats.map((s) => (
-            <StatCard key={s.label} label={s.label} value={s.value} sub={s.sub} green={s.green} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          {stats.slice(0, 4).map((s: ProfileStat) => (
+            <StatCard
+              key={s.label}
+              label={s.label}
+              value={s.value}
+              sub={s.sub}
+              green={s.green}
+              trend={s.trend}
+              accentColor={s.accentColor}
+            />
           ))}
         </div>
 
-        {/* ── Badges ── */}
-        <Section title="Badges Earned">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            {profile.badges.map((b) => (
-              <BadgeChip key={b.id} icon={b.icon} label={b.label} color={b.color} />
-            ))}
-          </div>
-        </Section>
-
-        {/* ── Win rate bar ── */}
-        <div style={{ marginTop: 16 }}>
-          <Section title="Accuracy">
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-                <span style={{ color: C.muted }}>Win rate</span>
-                <span style={{ fontWeight: 700, color: C.green }}>{profile.winRate}%</span>
-              </div>
-              <div style={{ height: 8, borderRadius: 99, background: "rgba(255,255,255,0.06)" }}>
-                <div
-                  style={{
-                    height: "100%",
-                    width: `${profile.winRate}%`,
-                    borderRadius: 99,
-                    background: C.green,
-                    transition: "width 0.6s ease",
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: 11,
-                  color: C.muted2,
-                }}
-              >
-                <span>0%</span>
-                <span>{profile.totalTrades} trades total</span>
-                <span>100%</span>
-              </div>
-            </div>
-          </Section>
+        {/* ── Middle Row: Accuracy & Badges ── */}
+        <div className="flex flex-wrap flex-col lg:flex-row gap-5">
+          <AccuracySection winRate={profile.winRate} trades={profile.totalTrades} />
+          <BadgesSection badges={profile.badges} />
         </div>
       </div>
     </div>
