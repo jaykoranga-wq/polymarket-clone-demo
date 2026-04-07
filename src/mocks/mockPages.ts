@@ -296,3 +296,41 @@ export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
     isCurrentUser: true,
   },
 ]
+
+export const MOCK_BIGGEST_WINS = [
+  {
+    rank: 1,
+    displayName: "lfc123",
+    subtitle: "PFK Ludogorets 1945...",
+    initial: 197340,
+    profit: 225158,
+  },
+  {
+    rank: 2,
+    displayName: "gmanas",
+    subtitle: "Vastrom Catamounts vs...",
+    initial: 87770,
+    profit: 198909,
+  },
+  {
+    rank: 3,
+    displayName: "swisstony",
+    subtitle: "Lille OSC vs FK Crvena...",
+    initial: 209157,
+    profit: 300566,
+  },
+  {
+    rank: 4,
+    displayName: "norrisfan",
+    subtitle: "Lille OSC vs FK Crvena...",
+    initial: 39275,
+    profit: 109937,
+  },
+  {
+    rank: 5,
+    displayName: "c4c4",
+    subtitle: "Rockets vs. Hornets.",
+    initial: 121969,
+    profit: 188483,
+  },
+]

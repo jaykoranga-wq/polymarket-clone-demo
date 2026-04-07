@@ -3,11 +3,14 @@
 
 import {
   Award,
-  ChevronRight,
+  Calendar,
+  Copy,
   Diamond,
   Flame,
   Heart,
   Landmark,
+  Mail,
+  Share2,
   Target,
   TrendingUp,
   Trophy,
@@ -68,7 +71,7 @@ const EmojiIcon = ({
 const BigAvatar = ({ name }: { name: string }) => {
   const initials = name.slice(0, 2).toUpperCase()
   return (
-    <div className="w-40 h-40 rounded-md bg-primary/10 flex items-center justify-center text-8xl  font-extrabold text-white  shrink-0 ">
+    <div className="w-40 h-40 rounded-lg bg-primary/10 flex items-center justify-center text-7xl  font-extrabold text-white  shrink-0 ">
       {initials}
     </div>
   )
@@ -81,7 +84,6 @@ const StatCard = ({
   sub,
   green,
   trend,
-  accentColor,
 }: {
   label: string
   value: string
@@ -90,16 +92,10 @@ const StatCard = ({
   trend?: string
   accentColor?: string
 }) => (
-  <div
-    className="bg-white/4  py-4 px-5 flex rounded-sm flex-col gap-1 justify-center min-h-24"
-    style={{
-      border: `1px solid ${C.border}`,
-      borderLeft: accentColor ? `2px solid ${accentColor}` : `1px solid ${C.border}`,
-    }}
-  >
+  <div className="bg-white/5  py-4 px-5 flex rounded-lg flex-col gap-1 justify-center min-h-24 border border-white/10">
     <span className="font-base font-bold text-white/45 uppercase tracking-widest">{label}</span>
     <span
-      className="font-lg font-extrabold tracking-tight my-1 "
+      className="font-lg font-black tracking-tight my-1 "
       style={{
         color: green ? C.green : C.text,
       }}
@@ -110,9 +106,9 @@ const StatCard = ({
       {trend === "up" && <TrendingUp size={12} className="text-primary" />}
       {trend === "realized" && <Landmark size={12} className="text-primary" />}
       <span
-        className="font-base font-semibold "
+        className="font-xs font-medium "
         style={{
-          color: trend ? C.green : C.muted2,
+          color: trend ? C.green : "#ffffff70",
           textTransform: trend ? "none" : "uppercase",
           letterSpacing: trend ? "0" : "0.05em",
         }}
@@ -125,22 +121,22 @@ const StatCard = ({
 
 // ── Badge chip ────────────────────────────────────────────────────────────────
 const BadgeChip = ({ icon, label, color }: { icon: string; label: string; color: string }) => (
-  <div className="group transition-all hover:bg-white/5 flex items-center gap-2.5 py-2.5 px-4 rounded-lg bg-white/4 border border-white/6 font-sm  font-semibold text-white cursor-pointer">
+  <div className="group transition-all hover:bg-white/5 flex items-center gap-2.5 py-2.5 px-4 rounded-lg bg-white/7 border border-white/10 font-base font-bold text-white cursor-pointer w-fit">
     <EmojiIcon emoji={icon} size={18} color={color.includes("0.15") ? undefined : color} />
     {label}
   </div>
 )
 
 const AccuracySection = ({ winRate, trades }: { winRate: number; trades: number }) => (
-  <div className="bg-white/4  border border-white/6 rounded-md py-8 px-10 ">
-    <div className="flex flex-col gap-4 md:flex-row justify-between items-start mb-8">
+  <div className="bg-white/5 border border-white/10 rounded-md py-4 px-6 flex-2">
+    <div className="flex justify-between flex-col md:flex-row items-start md:items-center gap-4 mb-8">
       <div>
         <h2 className="text-xl font-bold mb-1.5">Trading Accuracy</h2>
-        <p className="text-sm text-white/40 max-w-[320px]">
+        <p className="text-sm text-white/60 max-w-[320px]">
           Statistical success rate across all {trades} executed predictions
         </p>
       </div>
-      <div className="text-4xl font-black text-primary tracking-tighter">{winRate}%</div>
+      <div className="font-xl font-black text-primary tracking-tighter shrink-0">{winRate}%</div>
     </div>
 
     <div className="relative h-4 bg-white/5 rounded-full overflow-hidden mb-10 w-full flex-1">
@@ -154,28 +150,23 @@ const AccuracySection = ({ winRate, trades }: { winRate: number; trades: number 
 
     <div className="grid grid-cols-2 gap-20">
       <div className="flex flex-col gap-1">
-        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+        <span className="font-xs font-bold text-white/60 uppercase tracking-widest">
           Correct Predictions
         </span>
-        <span className="text-lg font-bold">118 Positions</span>
+        <span className="font-sm font-bold">118 Positions</span>
       </div>
       <div className="flex flex-col gap-1 text-right">
-        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
-          Losses
-        </span>
-        <span className="text-lg font-bold">69 Positions</span>
+        <span className="font-xs font-bold text-white/60 uppercase tracking-widest">Losses</span>
+        <span className="font-sm font-bold">69 Positions</span>
       </div>
     </div>
   </div>
 )
 
 const BadgesSection = ({ badges }: { badges: Badge[] }) => (
-  <div className="bg-white/4 border border-white/10 rounded-md py-8 px-10 min-w-80">
-    <div className="flex justify-between items-center mb-10">
-      <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">Badges Earned</h2>
-      <button className="text-[11px] font-bold text-primary flex items-center gap-0.5 hover:opacity-80 transition-opacity">
-        VIEW ALL <ChevronRight size={14} className="mt-0.5" />
-      </button>
+  <div className="bg-white/5 border border-white/10 rounded-md py-4 px-6 flex-1 lg:min-w-[380px] min-w-0">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="font-sm font-bold uppercase tracking-[0.2em]  shrink-0">Badges Earned</h2>
     </div>
 
     <div className="flex flex-wrap gap-3">
@@ -208,29 +199,46 @@ const ProfilePage = () => {
     <div className="container font-inter">
       <div className="mt-7.5 mb-18">
         {/* ── Header card ── */}
-        <div className="flex items-center justify-between gap-5 flex-wrap mb-14">
+        <div className="flex  flex-wrap justify-start items-center gap-10 mb-14">
           <BigAvatar name={profile.displayName} />
-          {/* <img className="w-40 h-40 rounded-sm object-cover" src="/user1.jpg" alt="logo" /> */}
 
-          <div className="flex-1 min-w-50">
-            <h1 className="font-2xl font-extrabold mb-1">{profile.displayName}</h1>
-            <div className="font-sm text-white/60 mb-2">{shortAddr}</div>
-            {email && <div className="font-sm text-white/60  mb-1">{email}</div>}
-            <div className="font-sm text-white/60">
-              Member since {formatMarketDate(profile.joinedAt)}
+          <div className="mt-2">
+            <h1 className="font-2xl font-black mb-4 tracking-tight">{profile.displayName}</h1>
+
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <div className="flex items-center gap-2.5 text-white/60 font-medium font-sm cursor-pointer hover:text-white/80 transition-colors">
+                  <Copy size={16} /> {shortAddr}
+                </div>
+                <div className="flex items-center gap-2.5 text-white/60 font-medium font-sm ">
+                  <Calendar size={14} /> Member since {formatMarketDate(profile.joinedAt)}
+                </div>
+              </div>
+
+              {email && (
+                <div className="flex items-center gap-3 text-white/60 font-medium text-sm">
+                  <Mail size={16} /> {email}
+                </div>
+              )}
+
+              {/* Share Button Below Email */}
+              <button className="flex items-center gap-2.5 text-black py-2 px-5 bg-primary border border-white/10 rounded-md font-bold font-sm hover:bg-primary/60 w-fit transition-all mt-1">
+                <Share2 size={15} className="text-black [&_svg]:[stroke:2.5px]" /> Share Profile
+              </button>
             </div>
           </div>
 
-          {/* rank badge */}
-          <div className="bg-linear-to-b from-primary/10 to-primary/5 flex flex-col gap-1 py-4 px-6 rounded-md border border-primary">
-            <span className="font-base text-primary uppercase font-bold">Global Rank</span>
-            <span className="font-xl  text-primary font-black  ">#{profile.rank}</span>
+          <div className="flex bg-primary/10 border border-primary/20 rounded-md py-4 px-6 items-center gap-7 justify-between lg:ml-auto max-h-21 ">
+            <div className="flex flex-col gap-1">
+              <span className="font-base text-primary uppercase font-bold">Global Rank</span>
+              <span className="font-xl text-primary font-black">#{profile.rank}</span>
+            </div>
           </div>
         </div>
 
         {/* ── Stats grid ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-10">
-          {stats.map((s: ProfileStat) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          {stats.slice(0, 4).map((s: ProfileStat) => (
             <StatCard
               key={s.label}
               label={s.label}
@@ -244,7 +252,7 @@ const ProfilePage = () => {
         </div>
 
         {/* ── Middle Row: Accuracy & Badges ── */}
-        <div className="flex flex-col xl:flex-row gap-5">
+        <div className="flex flex-wrap flex-col lg:flex-row gap-5">
           <AccuracySection winRate={profile.winRate} trades={profile.totalTrades} />
           <BadgesSection badges={profile.badges} />
         </div>

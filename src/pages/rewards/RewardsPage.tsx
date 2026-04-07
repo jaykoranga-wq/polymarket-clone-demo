@@ -46,13 +46,13 @@ const XPCard = () => {
   const pct = Math.round((currentXp / nextLevelXp) * 100)
 
   return (
-    <div className="flex-1 min-w-[320px] bg-white/5 border border-primary/20 rounded-2xl md:p-6 p-3  relative overflow-hidden transition-all duration-300 hover:border-primary/40 group">
+    <div className="flex-1 min-w-[310px] bg-white/5 border border-primary/20 rounded-2xl md:p-6 p-3  relative overflow-hidden transition-all duration-300 hover:border-primary/40 group">
       {/* subtle glow background */}
       <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 blur-3xl rounded-full" />
 
-      <div className="flex items-center gap-6 relative">
+      <div className="flex items-center gap-4 md:gap-6 relative">
         {/* level badge */}
-        <div className="w-16 h-16 rounded-2xl bg-primary/10 border-2 border-primary/30 flex flex-col items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,200,83,0.1)]">
+        <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-primary/10 border-2 border-primary/30 flex flex-col items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,200,83,0.1)]">
           <span className="font-base font-black text-primary tracking-widest uppercase">LVL</span>
           <span className="text-2xl font-black text-primary leading-tight">{level}</span>
         </div>
@@ -63,7 +63,7 @@ const XPCard = () => {
             <h3 className="text-sm font-black text-white tracking-wide uppercase">
               {currentXp.toLocaleString()} <span className="text-primary/70">XP</span>
             </h3>
-            <span className="text-[11px] font-bold text-white/40 ">
+            <span className="font-base font-bold text-white/60 ">
               {nextLevelXp.toLocaleString()} XP to Level {level + 1}
             </span>
           </div>
@@ -74,7 +74,7 @@ const XPCard = () => {
               style={{ width: `${pct}%` }}
             />
           </div>
-          <div className="mt-2 font-base font-bold text-white/30 ">{pct}% to next level</div>
+          <div className="mt-2 font-base font-bold text-white/60 ">{pct}% to next level</div>
         </div>
 
         {/* separator */}
@@ -85,7 +85,7 @@ const XPCard = () => {
           <div className="text-xl font-black text-primary text-center leading-none mb-1">
             {completed}/{total}
           </div>
-          <div className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-none">
+          <div className="font-base font-bold text-white uppercase tracking-widest leading-none">
             Finished
           </div>
         </div>
@@ -98,14 +98,14 @@ const XPCard = () => {
 const RewardCard = ({ item }: { item: RewardItem }) => {
   if (item.completed) {
     return (
-      <div className="bg-[#0b0e11] border border-primary/10 rounded-2xl p-6 flex flex-col gap-6 transition-all duration-300 hover:border-primary/20 group h-full">
+      <div className="bg-primary/2 border border-primary/20 rounded-md p-6 flex flex-col gap-4 transition-all duration-300 hover:border-primary/20 group h-full">
         {/* top row: icon + xp with check */}
         <div className="flex justify-between items-start w-full">
-          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary/80">
+          <div className="w-10 h-10 bg-primary/10 rounded-sm flex items-center justify-center text-primary/50">
             <RewardIcon name={item.icon} size={20} />
           </div>
-          <div className="flex items-center gap-1.5 text-primary font-black text-[12px] tracking-tight uppercase">
-            <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(16,210,96,0.2)]">
+          <div className="flex items-center gap-1.5 text-primary/60 font-bold font-sm tracking-tight uppercase">
+            <div className="w-4 h-4 bg-primary/60 rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(16,210,96,0.2)]">
               <CheckCircle2 size={10} className="text-black" strokeWidth={4} />
             </div>
             {item.reward}
@@ -114,8 +114,8 @@ const RewardCard = ({ item }: { item: RewardItem }) => {
 
         {/* mid: title + desc */}
         <div>
-          <h3 className="text-white/60 font-black text-lg mb-1 leading-tight">{item.title}</h3>
-          <p className="text-white/40 text-xs font-medium leading-relaxed">{item.description}</p>
+          <h3 className="text-white/60 font-bold text-lg mb-1 leading-tight">{item.title}</h3>
+          <p className="text-white/40 font-sm leading-relaxed">{item.description}</p>
         </div>
       </div>
     )
@@ -127,35 +127,35 @@ const RewardCard = ({ item }: { item: RewardItem }) => {
   const targetUnit = targetParts.slice(1).join(" ")
 
   return (
-    <div className="bg-[#121418] border border-white/5 rounded-2xl p-6 flex flex-col gap-6 transition-all duration-300 hover:border-white/10 group h-full">
+    <div className="bg-white/5 border border-white/10 rounded-md p-6 flex flex-col gap-4 transition-all duration-300 hover:border-white/10 group h-full">
       {/* top row: icon + xp */}
       <div className="flex justify-between items-start w-full">
-        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-          <RewardIcon name={item.icon} size={20} />
+        <div className="w-8.5 h-8.5 bg-primary/10 rounded-sm flex items-center justify-center">
+          <RewardIcon name={item.icon} size={18} />
         </div>
-        <div className="text-sm font-black text-primary tracking-tight">{item.reward}</div>
+        <div className="font-sm font-bold text-primary tracking-tight">{item.reward}</div>
       </div>
 
       {/* mid: title + desc */}
       <div>
         <h3 className="text-white font-black text-xl mb-1.5 leading-none">{item.title}</h3>
-        <p className="text-white/40 text-xs font-medium leading-relaxed">{item.description}</p>
+        <p className="text-white/60 font-sm leading-relaxed">{item.description}</p>
       </div>
 
       {/* bottom: progress info */}
       <div className="mt-auto">
-        <div className="flex justify-between items-end mb-3">
+        <div className="flex justify-between items-end mt-2 mb-3">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-white font-black text-2xl tracking-tighter leading-none">
+            <span className="text-white font-black font-lg tracking-tighter leading-none">
               {targetValue}
             </span>
             {targetUnit && (
-              <span className="text-white/60 text-sm font-bold tracking-tight lowercase">
+              <span className="text-white/60 font-sm font-medium tracking-tight lowercase">
                 {targetUnit}
               </span>
             )}
           </div>
-          <span className="text-white/60 font-base font-black tracking-wider mb-0.5">
+          <span className="text-white/60 font-base font-bold tracking-wider mb-0.5">
             {item.progress}%
           </span>
         </div>
@@ -173,8 +173,8 @@ const RewardCard = ({ item }: { item: RewardItem }) => {
 
 const SectionHeader = ({ label, count }: { label: string; count: number }) => (
   <div className="flex items-center gap-2.5 mb-6">
-    <h2 className="text-[11px] font-black text-white/50 uppercase tracking-[0.2em]">{label}</h2>
-    <div className="bg-white/10 text-white/50 text-[10px] font-black px-1.5 py-0.5 rounded-sm min-w-[20px] text-center">
+    <h2 className="font-sm font-black text-white/50 uppercase tracking-[0.2em]">{label}</h2>
+    <div className="bg-white/10 text-white font-sm font-black px-2 py-0.5 rounded-sm min-w-[20px] text-center">
       {count}
     </div>
   </div>
@@ -216,10 +216,10 @@ const RewardsPage = () => {
         <div className="flex flex-row flex-wrap justify-between items-start gap-12 mb-10">
           {/* header */}
           <div className="max-w-xl">
-            <h1 className="font-2xl font-bold text-white tracking-tighter mb-4 leading-tight">
-              Earn Rewards & XP
-            </h1>
-            <p className="font-default text-white/50 ">
+            <h2 className="font-xxl font-bold text-white tracking-tighter mb-1.5 leading-tight">
+              Rewards Hub
+            </h2>
+            <p className="font-default text-white/60 ">
               Redeem points, complete daily challenges, and level up to unlock exclusive trading
               perks and reach the top of the leaderboard.
             </p>
@@ -230,14 +230,14 @@ const RewardsPage = () => {
         </div>
 
         {/* filter tabs */}
-        <div className="flex bg-white/5 border border-white/10 rounded-2md p-1 mb-10 w-fit">
+        <div className="flex bg-white/5 border border-white/10 rounded-2md p-1 mb-10 max-w-fit max-lg:overflow-x-auto max-lg:[scrollbar-width:none] max-lg:[-ms-overflow-style:none] max-lg:[&::-webkit-scrollbar]:hidden">
           {CATEGORY_FILTERS.map((f) => {
             const isActive = filter === f
             return (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`py-2 px-5 rounded-md font-base font-bold transition-all duration-200 cursor-pointer ${
+                className={`py-2 px-5 rounded-md font-sm font-medium transition-all duration-200 cursor-pointer ${
                   isActive
                     ? "bg-primary text-black shadow-[0px_4px_6px_-4px_rgba(16,210,96,0.3),0px_10px_15px_-3px_rgba(16,210,96,0.3)]"
                     : "text-white/60 hover:text-white"
@@ -250,7 +250,7 @@ const RewardsPage = () => {
         </div>
 
         {/* content grid */}
-        <div className="flex flex-col gap-14">
+        <div className="flex flex-col gap-10">
           {/* active challenges */}
           {displayActive.length > 0 && (
             <div>
