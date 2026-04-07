@@ -4,9 +4,9 @@ import type { UserOrder } from "@/features/orders/orderTypes"
 
 export interface CreateOrderRequest {
   tokenId: string
-  price: number
+  price: string
   type: number
-  shares: number
+  shares: string
   nonce: string
   salt: string
   signature: string

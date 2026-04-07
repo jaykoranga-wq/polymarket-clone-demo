@@ -198,7 +198,7 @@ export const useTrade = () => {
     const orderStruct = {
       // FIX: was Date.now() — two orders placed within the same millisecond
       // would produce identical hashes → second one reverts as OrderFilledOrCancelled.
-      salt: BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)),
+      salt: BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) + BigInt(Date.now()),
       maker: address!,
       signer: address!,
       taker: ethers.ZeroAddress,
@@ -304,8 +304,31 @@ export const useTrade = () => {
       const usdcToReserve = BigInt(Math.round(usdcDollars * 1_000_000)).toString()
       dispatch(reserveAmount(usdcToReserve))
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Trade failed"
       console.error("Trade error:", err)
+      let message = "Trade failed. Please try again."
+
+      if (err instanceof Error) {
+        // Wallet / ethers errors
+        const code = (err as unknown as { code?: number | string }).code
+        if (code === 4001 || err.message.includes('reason="rejected"')) {
+          message = "Transaction rejected by user."
+        } else if (err.message.includes("MetaMask not found")) {
+          message = "MetaMask not found. Please install the MetaMask extension."
+        } else if (err.message.includes("Magic not ready")) {
+          message = "Wallet not ready. Please try again."
+        } else if (err.message.includes("insufficient funds")) {
+          message = "Insufficient funds for gas fees."
+        } else if (err.message) {
+          message = err.message
+        }
+      } else if (typeof err === "object" && err !== null) {
+        // RTK Query / backend API errors: { status: number, data: { message: string } }
+        const apiErr = err as { status?: number; data?: { message?: string; type?: string } }
+        if (apiErr.data?.message) {
+          message = apiErr.data.message
+        }
+      }
+
       setTradeError(message)
     } finally {
       setIsTrading(false)
