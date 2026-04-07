@@ -1,6 +1,7 @@
 // src/pages/portfolio/components/tabs/OrdersAndHistoryTabs.tsx
 
-import { ChevronLeft, ChevronRight, useState } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useState } from "react"
 import { toast } from "sonner"
 
 import { useGetOrdersQuery } from "@/features/api/orders/orderApi"
