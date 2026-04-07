@@ -14,7 +14,7 @@ import { ADDRESSES, ERC20_ABI } from "@/libs/contracts"
 
 import type { TradeOrder } from "./TradeTypes"
 
-// ── Typed contract interfaces — eliminates "possibly undefined" errors ────────
+// ── Typed contract interfaces ─────────────────────────────────────────────────
 interface USDCContract extends ethers.BaseContract {
   allowance(owner: string, spender: string): Promise<bigint>
   approve(spender: string, amount: bigint): Promise<ethers.ContractTransactionResponse>
@@ -39,7 +39,19 @@ const CTF_ABI = [
 
 const EXCHANGE_ABI = ["function nonces(address) external view returns (uint256)"]
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Unit conversion reference ─────────────────────────────────────────────────
+//
+//  UI layer          Backend payload          On-chain (contract)
+//  ─────────────     ───────────────          ───────────────────
+//  limitCents  50    price  = 500_000         same (1e6 USDC units)
+//  shares       1    shares = 100             sharesOnChain = 100 × 10_000 = 1_000_000
+//
+//  Backend reconstructs:
+//    usdcRequired   = (price × shares) / 100   → (500_000 × 100) / 100 = 500_000
+//    sharesOnChain  = shares × 10_000           → 100 × 10_000 = 1_000_000
+//
+//  So the struct must be signed with EXACTLY those values, and the payload
+//  must carry the pre-scaled price/shares so the backend can reproduce them.
 
 export const useTrade = () => {
   const { magic } = useMagic()
@@ -53,7 +65,6 @@ export const useTrade = () => {
     "idle" | "approving-usdc" | "approving-ctf" | "signing" | "submitting"
   >("idle")
 
-  //api calls
   const [createOrder] = useCreateOrderMutation()
 
   // ── Step 1: get signer ────────────────────────────────────────────────────
@@ -72,20 +83,17 @@ export const useTrade = () => {
     return provider.getSigner()
   }
 
-  //getnonce function
-
+  // ── Step 1b: read on-chain nonce ──────────────────────────────────────────
   const getNonce = async (signer: ethers.JsonRpcSigner): Promise<bigint> => {
     const exchange = new ethers.Contract(
       ADDRESSES.CTFExchange,
       EXCHANGE_ABI,
       signer,
     ) as unknown as ExchangeContract
-
-    const nonce = await exchange.nonces(address!)
-    return nonce
+    return exchange.nonces(address!)
   }
 
-  // ── Switch MetaMask to Polygon Amoy ──────────────────────────────────────
+  // ── Switch MetaMask to Polygon Amoy ───────────────────────────────────────
   const switchToAmoy = async () => {
     try {
       await window?.ethereum?.request({
@@ -110,41 +118,29 @@ export const useTrade = () => {
     }
   }
 
-  // ── Step 2: approve USDC spending (one-time per wallet) ──────────────────
+  // ── Step 2: approve USDC spending ────────────────────────────────────────
   const approveUSDC = async (signer: ethers.JsonRpcSigner, amount: bigint) => {
     const usdc = new ethers.Contract(ADDRESSES.USDC, ERC20_ABI, signer) as unknown as USDCContract
-
-    // check existing allowance — skip tx if already sufficient
     const allowance = await usdc.allowance(address!, ADDRESSES.CTFExchange)
-    if (allowance >= amount) {
-      return
-    }
-
-    // approve unlimited so user never needs to approve again
-    // const tx = await usdc.approve(ADDRESSES.CTFExchange, ethers.MaxUint256)
-    // await tx.wait()
-    // console.log("USDC approved ✅")
+    if (allowance >= amount) return
+    const tx = await usdc.approve(ADDRESSES.CTFExchange, ethers.MaxUint256)
+    await tx.wait()
   }
 
-  // ── Step 3: approve CTF share transfers (one-time per wallet) ────────────
+  // ── Step 3: approve CTF token transfers ──────────────────────────────────
   const approveCTF = async (signer: ethers.JsonRpcSigner) => {
     const ctf = new ethers.Contract(
       ADDRESSES.ConditionalTokens,
       CTF_ABI,
       signer,
     ) as unknown as CTFContract
-
-    // check first — skip tx if already approved
     const approved = await ctf.isApprovedForAll(address!, ADDRESSES.CTFExchange)
-    if (approved) {
-      return
-    }
-
+    if (approved) return
     const tx = await ctf.setApprovalForAll(ADDRESSES.CTFExchange, true)
     await tx.wait()
   }
 
-  // ── Step 4: sign order (EIP-712 — free, no gas) ───────────────────────────
+  // ── Step 4: sign order (EIP-712) ──────────────────────────────────────────
   const signOrder = async (signer: ethers.JsonRpcSigner, order: TradeOrder) => {
     const tokenId = order.outcome === "Yes" ? order.yesTokenOnChainId : order.noTokenOnChainId
 
@@ -174,40 +170,52 @@ export const useTrade = () => {
       ],
     }
 
-    // These must match the payload values sent to the backend exactly
-    // limitCents = 50 for $0.50  →  payloadPrice = 50 * 10_000 = 500_000 (1e6 units)
-    // order.shares = 1 token     →  payloadShares = 1 * 100 = 100 (tokens×100)
-    const payloadPrice = BigInt((order.limitCents ?? 0) * 10_000) // e.g. 500_000n
-    const payloadShares = BigInt(Math.round(order.shares ?? 0) * 100) // e.g. 100n
+    // ── Derive the two values the backend will independently reconstruct ─────
+    //
+    //  payloadShares = userShares × 100          (e.g. 1 share → 100)
+    //  payloadPrice  = limitCents × 10_000        (e.g. $0.50  → 500_000)
+    //
+    //  Backend formula:
+    //    usdcRequired  = (payloadPrice × payloadShares) / 100
+    //                  = (500_000 × 100) / 100 = 500_000          ✓
+    //    sharesOnChain = payloadShares × 10_000
+    //                  = 100 × 10_000 = 1_000_000                 ✓
+    //
+    //  The struct must be signed with EXACTLY usdcRequired / sharesOnChain
+    //  so the backend's signature verification reproduces the same hash.
 
-    // Match backend validateOrderSignature formula EXACTLY:
-    //   usdcRequired  = (price * shares) / 100
-    //   sharesRequired = shares * 10_000
-    const usdcRequired = (payloadPrice * payloadShares) / 100n
-    const sharesRequired = payloadShares * 10_000n
+    const payloadPrice = BigInt((order.limitCents ?? 0) * 10_000) // 1e6 USDC units
+    const payloadShares = BigInt(Math.round(order.shares ?? 0) * 100) // backend shares unit
 
-    // creating nonce for the order
+    // FIX: was `(payloadPrice * payloadShares) / 100n` which introduced a
+    // spurious extra /100 making usdcRequired 100× too small.
+    const usdcRequired = payloadPrice * (payloadShares / 100n) // = price × userShares
+    const sharesOnChain = payloadShares * 10_000n // = userShares × 1_000_000
 
+    const isBuy = order.action === "Buy"
     const nonce = await getNonce(signer)
 
     const orderStruct = {
-      salt: BigInt(Date.now()),
+      // FIX: was Date.now() — two orders placed within the same millisecond
+      // would produce identical hashes → second one reverts as OrderFilledOrCancelled.
+      salt: BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)),
       maker: address!,
       signer: address!,
       taker: ethers.ZeroAddress,
       collateralToken: ADDRESSES.USDC,
       ctf: ADDRESSES.ConditionalTokens,
       tokenId: BigInt(tokenId as string),
-      makerAmount: order.action === "Buy" ? usdcRequired : sharesRequired,
-      takerAmount: order.action === "Buy" ? sharesRequired : usdcRequired,
-      side: order.action === "Buy" ? 0n : 1n,
+      // BUY  → maker spends USDC,   taker delivers outcome tokens
+      // SELL → maker delivers tokens, taker pays USDC
+      makerAmount: isBuy ? usdcRequired : sharesOnChain,
+      takerAmount: isBuy ? sharesOnChain : usdcRequired,
+      side: isBuy ? 0n : 1n,
       expiry: 0n,
       nonce: BigInt(nonce),
-      feeRateBps: order.action === "Buy" ? 200n : 0n,
+      feeRateBps: isBuy ? 200n : 0n,
       signatureType: 0n,
     }
 
-    // pops Magic / MetaMask "Sign" popup — free, no gas
     const signature = await signer.signTypedData(domain, types, orderStruct)
     return { orderStruct, signature }
   }
@@ -217,50 +225,37 @@ export const useTrade = () => {
     if (!address) return
 
     setIsTrading(true)
-
     setTradeError(null)
 
     try {
-      // 1. get signer
       const signer = await getSigner()
 
-      // 2. approve USDC if buying (skips if already approved)
       setApprovalState("approving-usdc")
       if (order.action === "Buy") {
         const usdcAmount = BigInt(Math.round(order.amount ?? 0))
         await approveUSDC(signer, usdcAmount)
       }
 
-      // 3. approve CTF share transfers (skips if already approved)
-
       setApprovalState("approving-ctf")
       await approveCTF(signer)
 
-      // 4. sign the order — free, no gas
       setApprovalState("signing")
       const { orderStruct, signature } = await signOrder(signer, order)
-
-      // 5. TODO: POST to backend when endpoint is ready
-      // await postOrder({ order: orderStruct, signature }).unwrap()
 
       const payload = {
         tokenId:
           order.outcome === "Yes" ? (order.yesTokenId as string) : (order.noTokenId as string),
-
-        price: ((order.limitCents ?? 0) * 10000).toString(),
-
+        // Backend expects price in 1e6 units and shares in userShares×100 units.
+        // These must match what was used to build the signed struct above.
+        price: ((order.limitCents ?? 0) * 10_000).toString(), // e.g. "500000"
+        shares: (Math.round(order.shares ?? 0) * 100).toString(), // e.g. "100"
         type: order.action === "Buy" ? 1 : 2,
-
-        shares: (Math.round(order.shares ?? 0) * 100).toString(),
-
         nonce: orderStruct.nonce.toString(),
         salt: orderStruct.salt.toString(),
-
         signature,
       }
 
       setApprovalState("submitting")
-
       await createOrder(payload).unwrap()
 
       toast.success("Order placed successfully", {
@@ -269,14 +264,9 @@ export const useTrade = () => {
         style: { fontSize: "12px", padding: "8px 12px", maxWidth: "320px" },
       })
 
-      // ── Derive price & shares for market orders ────────────────────────────
-      // For Limit orders we already have limitCents + shares from the panel.
-      // For Market orders: price = current market probability in cents;
-      //   Buy  → shares are estimated from (amount / (price¢/100))
-      //   Sell → shares come directly from what the user entered (order.shares)
+      // ── Redux: derive display price & shares ─────────────────────────────
       const marketPriceCents: number = (() => {
         if (order.orderType === "Limit") return order.limitCents ?? 0
-        // Pick yes or no price from redux market state
         const isYes = order.outcome === "Yes" || order.outcome === "Up"
         return isYes
           ? ((selectedMarket as { yesProbability?: number })?.yesProbability ?? 0)
@@ -284,11 +274,8 @@ export const useTrade = () => {
       })()
 
       const computedShares: number = (() => {
-        // Limit orders: shares already typed by user
         if (order.orderType === "Limit") return order.shares ?? 0
-        // Market Sell: user typed shares directly
         if (order.action === "Sell") return order.shares ?? 0
-        // Market Buy: estimate shares = amount / (marketPriceCents / 100)
         const pricePerShare = marketPriceCents / 100
         if (pricePerShare <= 0) return 0
         return Math.floor((order.amount ?? 0) / pricePerShare)
@@ -296,7 +283,7 @@ export const useTrade = () => {
 
       dispatch(
         addOrder({
-          id: `temp-${Date.now()}`, // replace with real ID from backend response
+          id: `temp-${Date.now()}`,
           marketId: order.marketId,
           marketTitle: selectedMarket?.title as string,
           outcome: order.outcome,
@@ -309,16 +296,10 @@ export const useTrade = () => {
           usdcAmount: order.amount ?? (computedShares * marketPriceCents) / 100,
           status: "pending",
           createdAt: new Date().toISOString(),
-
-          //i have done this just because to match the type... for portfolio orders.
-          token: {
-            title: "",
-            id: "",
-          },
+          token: { title: "", id: "" },
         }),
       )
 
-      // Convert dollar amount → micro-USDC string for Redux (serializable)
       const usdcDollars = order.amount ?? (computedShares * marketPriceCents) / 100
       const usdcToReserve = BigInt(Math.round(usdcDollars * 1_000_000)).toString()
       dispatch(reserveAmount(usdcToReserve))
