@@ -20,11 +20,11 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
       </div>
 
       {/* Scrollable table container */}
-      <div className="overflow-x-auto no-scrollbar -mx-1 px-1">
+      <div className="overflow-x-auto no-scrollbar -mx-1   border border-white/10 bg-linear-to-b from-white/5 to-white/2 rounded-md">
         <div className="min-w-sm">
           {/* Column headers */}
           <div
-            className="grid font-base text-white/60 font-medium uppercase tracking-widest pb-2 border-b border-white/6 mb-1 px-1"
+            className="grid font-base text-white/60 font-medium uppercase tracking-widest py-4 px-6 pt-8 border-b border-white/6 mb-1 "
             style={{
               gridTemplateColumns: "repeat(5, 1fr)",
             }}
@@ -37,11 +37,11 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
           </div>
 
           {/* Rows */}
-          <div className="flex flex-col">
+          <div className="flex flex-col  ">
             {items.map((item) => (
               <div
                 key={item.id}
-                className="grid items-center border-b border-b-white/4 py-2.5 transition-colors hover:bg-white/2 rounded-lg px-1"
+                className="grid items-center border-b border-b-white/4 py-2.5 transition-colors hover:bg-white/2  px-6"
                 style={{
                   gridTemplateColumns: "repeat(5, 1fr)",
                 }}

@@ -201,6 +201,10 @@
   border-radius: 10px;
 }
 
+.rounded-xxl {
+  border-radius: 20px;
+}
+
 @media (max-width: 1479px) {
   .ep-layout-inner {
     grid-template-columns: 1fr 300px !important;

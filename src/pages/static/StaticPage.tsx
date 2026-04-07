@@ -1,5 +1,6 @@
 // src/pages/static/StaticPage.tsx
 
+import { ArrowLeft } from "lucide-react"
 import { useEffect } from "react"
 import { useNavigate, useParams } from "react-router"
 
@@ -34,27 +35,27 @@ const StaticPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0f13] text-white">
+    <div className=" text-white">
       {/* same width + padding as EventPage */}
-      <div className="container py-12 pb-24">
+      <div className="container py-6 pb-20">
         {/* back button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 font-sm text-primary hover:text-white transition-colors mb-8 cursor-pointer bg-transparent border-none"
+          className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-sm font-base font-bold bg-primary  text-black hover:text-white transition-colors mb-8 cursor-pointer  border-none"
         >
-          ← Back
+          <ArrowLeft size={16} strokeWidth={3} /> Back
         </button>
 
         {/* page header */}
-        <div className="mb-10 pb-8 border-b border-white/[0.07]">
+        <div className="mb-10 pb-8 border-b border-white/7">
           <h1 className="font-xxl font-extrabold tracking-tight text-white mb-2 leading-tight">
             {page.title}
           </h1>
-          <p className="font-md text-white/50 m-0">{page.subtitle}</p>
+          <p className="font-default text-white/50 m-0">{page.subtitle}</p>
         </div>
 
         {/* sections */}
-        <div className="flex flex-col gap-9  items-center">
+        <div className="flex flex-col gap-9  ">
           {page.sections.map((section) => (
             <section key={section.heading}>
               <h2 className="font-md font-bold text-white mb-3 tracking-tight">
