@@ -44,7 +44,7 @@ const RankDisplay = ({ rank }: { rank: number }) => {
     )
   }
 
-  return <span className="font-sm font-bold text-white">#{rank}</span>
+  return <span className="font-sm  text-white">#{rank}</span>
 }
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
@@ -77,27 +77,23 @@ const PodiumCard = ({ entry }: { entry: LeaderboardEntry }) => {
 
   return (
     <div
-      className="flex flex-col bg-white/6 border border-white/10 rounded-3xl pt-7.5 pb-5 px-4 relative items-center transition-all duration-200 hover:border-primary cursor-pointer flex-1 min-w-[250px] "
+      className="flex flex-col bg-linear-to-b from-white/5 to-white/2 border border-white/10 rounded-lg pt-7.5 pb-5 px-4 relative items-center transition-all duration-200 hover:border-primary cursor-pointer flex-1 min-w-[250px] "
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-4px)"
-        e.currentTarget.style.borderColor = "#10D260"
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "translateY(0)"
-        e.currentTarget.style.borderColor = "#ffffff10"
       }}
     >
       {/* large background rank */}
-      <div className="absolute top-5 right-3 text-[30px] md:text-[45px] lg:text-[55px] font-black text-white/4 hover/text-primary pointer-events-none select-none">
+      <div className="absolute top-2 right-3 text-[30px] md:text-[45px] lg:text-[55px] font-black text-white/10 hover:text-primary pointer-events-none select-none">
         #{rank}
       </div>
 
       {/* avatar container */}
       <div className="relative mb-3 w-fit mx-auto">
-        <div className="w-16 h-16 rounded-xxl p-1 bg-primary/10 shadow-[0px_4px_6px_-4px_rgba(16,210,96,0.3),0px_10px_15px_-3px_rgba(16,210,96,0.3)]">
-          <div className="w-full h-full rounded-xl overflow-hidden bg-primary/10">
-            <Avatar name={entry.displayName} size={56} square />
-          </div>
+        <div className="w-16 h-16 rounded-xxl border-4 border-primary overflow-hidden flex items-center justify-center">
+          <Avatar name={entry.displayName} size={56} square />
         </div>
         {/* rank bubble */}
         <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center font-xs font-black text-white border-2 border-black">
@@ -111,7 +107,7 @@ const PodiumCard = ({ entry }: { entry: LeaderboardEntry }) => {
           <span className="font-default font-medium text-white truncate whitespace-nowrap">
             {entry.displayName}
           </span>
-          <BadgeCheck size={13} className="text-market-blue fill-market-blue/20 shrink-0" />
+          <BadgeCheck size={13} className="text-market-blue  shrink-0" />
         </div>
         <div className="font-base text-tabs truncate whitespace-nowrap">{entry.address}</div>
       </div>
@@ -129,16 +125,20 @@ const PodiumCard = ({ entry }: { entry: LeaderboardEntry }) => {
       {/* stats grid */}
       <div className="flex w-full justify-between gap-2">
         <div className="flex-1 text-center">
-          <div className="font-xs font-bold text-white/30 uppercase tracking-[0.15em] ">Profit</div>
+          <div className="font-xs font-bold text-[#64748B] uppercase tracking-[0.15em] ">
+            Profit
+          </div>
           <div className="font-sm font-bold text-primary tracking-tight">
             +${(entry.profitLoss / 1000).toFixed(1)}k
           </div>
         </div>
 
-        <div className="w-px h-8 bg-white/10 self-start" />
+        <div className="w-px h-8 bg-white/7 self-start" />
 
         <div className="flex-1 text-center">
-          <div className="font-xs font-bold text-white/30 uppercase tracking-[0.15em] ">Volume</div>
+          <div className="font-xs font-bold text-[#64748B] uppercase tracking-[0.15em] ">
+            Volume
+          </div>
           <div className="font-sm font-bold text-white tracking-tight">
             ${(entry.volume / 1000).toFixed(1)}k
           </div>
@@ -151,11 +151,13 @@ const PodiumCard = ({ entry }: { entry: LeaderboardEntry }) => {
 // ── Table row ─────────────────────────────────────────────────────────────────
 const LeaderRow = ({ entry }: { entry: LeaderboardEntry }) => (
   <div
-    className="grid grid-cols-[repeat(6,1fr)] gap-2 py-3.5 px-6 items-center  relative transition-all duration-150"
+    className={`grid grid-cols-[repeat(6,1fr)] gap-2 py-3.5 px-6 items-center relative transition-all duration-150 ${
+      !entry.isCurrentUser ? "border-t border-white/10" : ""
+    }`}
     style={{
       background: entry.isCurrentUser ? "rgba(0,200,83,0.05)" : "transparent",
-      border: entry.isCurrentUser ? `1px solid rgba(0,200,83,0.2)` : `none`,
-      borderRadius: entry.isCurrentUser ? 10 : 0,
+      border: entry.isCurrentUser ? "1px solid rgba(0,200,83,0.2)" : undefined,
+      borderRadius: entry.isCurrentUser ? 15 : 0,
     }}
     onMouseEnter={(e) => {
       if (!entry.isCurrentUser) e.currentTarget.style.background = "rgba(255,255,255,0.02)"
@@ -196,14 +198,12 @@ const LeaderRow = ({ entry }: { entry: LeaderboardEntry }) => (
             </span>
           )}
         </div>
-        <div className="font-base  text-white/30 font-mono">{entry.address}</div>
+        {/* <div className="font-base  text-white/30 font-mono">{entry.address}</div> */}
       </div>
     </div>
 
     {/* volume */}
-    <div style={{ fontSize: 13, fontWeight: 600, color: C.text, textAlign: "right" }}>
-      ${(entry.volume / 1000).toFixed(1)}k
-    </div>
+    <div className="font-sm text-white text-right">${(entry.volume / 1000).toFixed(1)}k</div>
 
     {/* p/l */}
     <div
@@ -247,14 +247,16 @@ const BiggestWinItem = ({
       </div>
 
       {/* Rank badge - Squircle */}
-      <div className="shrink-0 flex items-center justify-center font-black absolute top-5 right-5 w-7  rounded-sm bg-white/5 py-1 px-2 text-white font-xs">
+      <div className="shrink-0 flex items-center justify-center font-black absolute top-5 right-4 w-7  rounded-sm bg-white/5 py-0.5 px-1.5 text-white font-xs">
         #{entry.rank}
       </div>
     </div>
 
     {/* Bottom: Profit value transition */}
     <div className="flex items-center gap-2">
-      <span className="font-sm tracking-widest text-tabs truncate">{fmt(entry.initial)}</span>
+      <span className="font-sm tracking-widest text-tabs truncate font-mono">
+        {fmt(entry.initial)}
+      </span>
       <span className="font-sm text-tabs">→</span>
       <span className="font-sm font-bold text-primary truncate">{fmt(entry.profit)}</span>
     </div>
@@ -265,12 +267,12 @@ const BiggestWinsPanel = () => (
   <div className="w-full lg:w-[300px] xl:w-[340px] shrink-0 sticky top-6">
     <div className="overflow-hidden">
       {/* Panel header */}
-      <div className="px-5">
+      <div className="mb-4">
         <h2 className="font-md text-white tracking-tight">Biggest Wins This Month</h2>
       </div>
 
       {/* Items */}
-      <div className="p-5 flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         {MOCK_BIGGEST_WINS.map((entry) => (
           <BiggestWinItem key={entry.rank} entry={entry} />
         ))}
@@ -305,7 +307,7 @@ const LeaderboardPage = () => {
           {/* filters */}
           <div className="flex items-center  gap-3.5">
             {/* category dropdown placeholder */}
-            <div className="flex items-center gap-3 p-2.5 pr-1.5  bg-white/5 border border-white/10 rounded-2md text-white/80 font-base font-medium justify-between cursor-pointer min-w-30 ">
+            <div className="flex items-center gap-3 p-2.5 pr-1.5  bg-white/5 border border-white/10 rounded-2md text-white/90 font-base font-medium justify-between cursor-pointer min-w-42 ">
               <span>Category</span>
               <ChevronDown size={14} strokeWidth={2.5} className="opacity-50" />
             </div>
@@ -324,7 +326,7 @@ const LeaderboardPage = () => {
                     className="py-2 px-4 rounded-md font-base font-medium cursor-pointer transition-all duration-200 whitespace-nowrap "
                     style={{
                       background: isActive ? C.green : "transparent",
-                      color: isActive ? "#000" : "#ffffff60",
+                      color: isActive ? "#000" : "#ffffff99",
                       boxShadow: isActive ? `0 4px 20px ${C.green}44` : "none",
                     }}
                   >
@@ -344,11 +346,11 @@ const LeaderboardPage = () => {
 
         {/* your rank banner hidden */}
 
-        <div className="flex gap-6 items-start flex-wrap lg:flex-nowrap">
+        <div className="flex gap-5 items-start flex-wrap lg:flex-nowrap">
           {/* ── LEFT: existing leaderboard ── */}
           <div className="flex-1 min-w-0">
             {/* podium top 3 */}
-            <div className="flex flex-wrap  items-stretch justify-center gap-4 mb-8">
+            <div className="flex flex-wrap  items-stretch justify-center gap-4 mb-4">
               {top3.slice(0, 3).map((entry) => (
                 <PodiumCard key={entry.rank} entry={entry} />
               ))}
@@ -358,11 +360,11 @@ const LeaderboardPage = () => {
             <div className="bg-linear-to-b from-white/5 to-white/2 border border-white/10 rounded-2xl overflow-x-auto no-scrollbar ">
               <div className="min-w-[680px]">
                 {/* column headers */}
-                <div className="grid grid-cols-[repeat(6,1fr)] gap-2 py-4 px-6 pt-8 border-b border-white/10 ">
+                <div className="grid grid-cols-[repeat(6,1fr)] gap-2 py-4 px-6 pt-8  ">
                   {["Rank", "Trader", "Volume", "P/L", "Win Rate", "Trades"].map((h, i) => (
                     <div
                       key={h}
-                      className="text-white/60 font-base font-medium uppercase tracking-wide"
+                      className="text-white/60 font-base font-medium uppercase tracking-wide "
                       style={{
                         textAlign: i > 1 ? "right" : ("left" as React.CSSProperties["textAlign"]),
                       }}

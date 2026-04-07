@@ -74,12 +74,16 @@ const MenuItem = ({
 }) => (
   <button
     onClick={onClick}
-    className={`group cursor-pointer w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5 rounded-lg
-      ${red ? "text-red-500 hover:text-red-400" : "text-white/80 hover:text-white"}`}
+    className={`group cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-all hover:bg-primary hover:text-black rounded-none
+      ${red ? "text-red-500 hover:bg-red-500 hover:text-white" : "text-white text-opacity-90 grayscale-0"}`}
   >
-    {icon && <span className="text-base w-5 flex items-center justify-center">{icon}</span>}
+    {icon && (
+      <span className="text-base w-5 flex items-center justify-center transition-colors group-hover:text-black">
+        {icon}
+      </span>
+    )}
     <span className="flex-1 text-left">{label}</span>
-    {rightIcon && <span className="text-white/30">{rightIcon}</span>}
+    {rightIcon && <span className="text-white/30 group-hover:text-black">{rightIcon}</span>}
   </button>
 )
 
@@ -127,7 +131,7 @@ const Dropdown = ({
   return (
     <div
       ref={ref}
-      className={`absolute bg-[#141920] border border-white/10 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] z-50 py-2 overflow-hidden ${className}`}
+      className={`absolute bg-[#191c22] border border-white/10 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] z-50 py-0 overflow-hidden ${className}`}
     >
       {children}
     </div>

@@ -62,7 +62,7 @@ export const MOCK_PROFILE_STATS = [
     value: "63.4%",
     sub: "ELITE TIER",
     accentColor: "var(--color-primary)",
-    green: true,
+    green: false,
   },
   {
     label: "P/L",

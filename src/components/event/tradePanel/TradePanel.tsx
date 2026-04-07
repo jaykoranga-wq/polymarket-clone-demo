@@ -479,7 +479,7 @@ const TradePanel = ({
             {expiry && (
               <div className="tp-expiry-box" ref={expiryRef}>
                 <div
-                  className="tp-expiry-select-custom"
+                  className="w-full py-4 px-2.5 bg-white/5 border border-white/10 rounded-2md text-white font-sm font-medium cursor-pointer flex items-center justify-between transition-all duration-75 ease hover:border-white/20  "
                   onClick={() => setExpiryDropOpen((p) => !p)}
                 >
                   <span>In {expiryDuration}</span>
@@ -639,7 +639,7 @@ const TradePanel = ({
 
         {/* ── Place Order button ── */}
         <button
-          className={`w-full p-3.5 rounded-2md font-deafult font-black cursor-pointer bg-primary disabled:bg-secondary disabled:cursor-not-allowed text-black transition-all duration-300 shadow-[0px_4px_6px_-4px_#10D26033,0px_10px_15px_-3px_#10D26033] mb-3 flex items-center justify-center gap-2 ${action === "Sell" ? " sell" : ""}`}
+          className={`w-full p-3.5 rounded-2md font-deafult font-black cursor-pointer bg-primary disabled:bg-secondary disabled:cursor-not-allowed text-black transition-all duration-300 shadow-[0px_4px_6px_-4px_#10D26033,0px_10px_15px_-3px_#10D26033] disabled:shadow-[0px_4px_6px_-4px_#8b949e33,0px_10px_15px_-3px_#8b949e33] mb-3 flex items-center justify-center gap-2 ${action === "Sell" ? " sell" : ""}`}
           disabled={approvalState !== "idle" || (buttonState === "trade" && tradeDisabled)}
           onClick={() => {
             if (buttonState === "login") {

@@ -121,7 +121,7 @@ const StatCard = ({
 
 // ── Badge chip ────────────────────────────────────────────────────────────────
 const BadgeChip = ({ icon, label, color }: { icon: string; label: string; color: string }) => (
-  <div className="group transition-all hover:bg-white/5 flex items-center gap-2.5 py-2.5 px-4 rounded-lg bg-white/7 border border-white/10 font-base font-bold text-white cursor-pointer w-fit">
+  <div className="group transition-all hover:bg-white/5 flex items-center gap-2.5 py-2.5 px-4 rounded-md bg-primary/5 border border-primary/10 font-base font-bold text-white cursor-pointer w-fit">
     <EmojiIcon emoji={icon} size={18} color={color.includes("0.15") ? undefined : color} />
     {label}
   </div>
