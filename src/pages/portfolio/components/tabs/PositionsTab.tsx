@@ -2,12 +2,10 @@
 
 import { useState } from "react"
 
-import { useGetOrdersQuery } from "@/features/api/orders/orderApi"
 import {
-  type ApiOrder,
-  ORDER_STATUS_PARAM,
-  ORDER_TYPE_PARAM,
-} from "@/features/api/orders/orderApiTypes"
+  type ApiPortfolioPosition,
+  useGetPortfolioPositionsQuery,
+} from "@/features/api/portfolio/portfolioApi"
 import { useRedeem } from "@/hooks/useRedeem"
 import { MOCK_POSITIONS, type Position } from "@/mocks/mockPortfolio"
 
@@ -20,52 +18,33 @@ const PAGE_SIZE = 10
 // ── Column layout ─────────────────────────────────────────────────────────────
 const COL = "1fr 80px 80px 80px 80px 110px 150px"
 
-// ── Map filled orders → Position (aggregate by market + side) ─────────────────
-const aggregateFilledOrders = (orders: ApiOrder[]): Position[] => {
-  const map = new Map<string, Position>()
+// ── Map API portfolio position → Position ─────────────────────────────────────
+const mapApiPosition = (p: ApiPortfolioPosition): Position => {
+  const side = p.token.name.toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO
+  const shares = Number(p.sharesOwned) / 100
+  const avgPrice = Number(p.avgPrice) / 10000 // raw → cents
+  const invested = Number(p.totalInvested) / 1_000_000 // micro-USDC → USDC
+  const value = Number(p.currentValue) / 1_000_000
 
-  for (const o of orders) {
-    const side = o.type === ORDER_TYPE_PARAM.BUY ? "YES" : "NO"
-    const key = `${o.market.id}-${side}`
-    const filledShares = Math.max(0, Number(o.shares) - Number(o.remainingShares))
-    if (filledShares === 0) continue
-
-    const priceCents = Math.round(Number(o.price) / 10000) // e.g. 500000 → 50¢
-    const invested = (filledShares * priceCents) / 100 // USDC
-
-    const existing = map.get(key)
-    if (existing) {
-      const newShares = existing.shares + filledShares
-      existing.avgPrice =
-        (existing.avgPrice * existing.shares + priceCents * filledShares) / newShares
-      existing.shares = newShares
-      existing.invested += invested
-      existing.value = existing.invested // use cost basis as value (no live price)
-    } else {
-      map.set(key, {
-        id: key,
-        marketId: o.market.id,
-        marketTitle: o.market.title,
-        category: "",
-        side: side as Position["side"],
-        shares: filledShares,
-        avgPrice: priceCents,
-        nowPrice: priceCents, // live price unavailable; show avg as placeholder
-        invested,
-        value: invested,
-        // blockchain fields — not available from orders API
-        conditionId: "",
-        yesTokenId: "",
-        noTokenId: "",
-        collateralToken: "",
-        isResolved: false,
-        winningOutcome: null,
-        isRedeemed: false,
-      })
-    }
+  return {
+    id: `${p.market.id}-${p.token.id}`,
+    marketId: p.market.id,
+    marketTitle: p.market.title,
+    category: "",
+    side,
+    shares,
+    avgPrice,
+    nowPrice: avgPrice, // live price not in API; use avg as placeholder
+    invested,
+    value,
+    conditionId: "",
+    yesTokenId: "",
+    noTokenId: "",
+    collateralToken: "",
+    isResolved: p.resolved,
+    winningOutcome: p.winningOutcome as Position["winningOutcome"],
+    isRedeemed: false,
   }
-
-  return Array.from(map.values())
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -412,18 +391,15 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
   const [page, setPage] = useState(1)
   const skip = (page - 1) * PAGE_SIZE
 
-  const { data, isLoading } = useGetOrdersQuery({
-    status: ORDER_STATUS_PARAM.FILLED,
-    limit: PAGE_SIZE,
-    skip,
-  })
+  const { data, isLoading } = useGetPortfolioPositionsQuery({ limit: PAGE_SIZE, skip })
 
-  const apiPositions = aggregateFilledOrders(data?.data.data ?? [])
+  const apiPositions = (data?.data.data ?? []).map(mapApiPosition)
   const totalApiCount = data?.data.count ?? 0
-  const totalPages = Math.max(Math.ceil(totalApiCount / PAGE_SIZE), 1)
+  const totalPages = Math.max(Math.ceil((totalApiCount + MOCK_POSITIONS.length) / PAGE_SIZE), 1)
 
-  // combine mock + API positions, then filter by search
-  const combined = [...MOCK_POSITIONS, ...apiPositions].filter((p) =>
+  // mock positions only appear on first page; API positions paginate normally
+  const mockOnPage = page === 1 ? MOCK_POSITIONS : []
+  const combined = [...apiPositions, ...mockOnPage].filter((p) =>
     p.marketTitle.toLowerCase().includes(search.toLowerCase()),
   )
 

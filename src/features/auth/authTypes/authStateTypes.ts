@@ -13,4 +13,5 @@ export interface AuthState {
   token: string | null
   cashLoading: boolean
   isAuthChecking: boolean
+  deviceToken: string | null
 }

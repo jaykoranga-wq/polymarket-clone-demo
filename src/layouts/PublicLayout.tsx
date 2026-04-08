@@ -7,10 +7,12 @@ import { Navbar } from "@/components/layout/Navbar"
 import { useLoginMutation } from "@/features/api/auth/authApi"
 import { useGetMarketsQuery } from "@/features/api/markets/marketApi"
 import { checkAuth } from "@/features/auth/authChecks"
+import { setDeviceToken } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
 import { setMarkets } from "@/features/markets/marketSlice"
 import { useWalletBalance } from "@/hooks/useWalletBalance"
 import { MOCK_MARKETS } from "@/mocks/mockData"
+import { listenToMessages, requestFCMToken } from "@/services/firebase/fcm"
 
 export function PublicLayout() {
   const dispatch = useDispatch()
@@ -33,6 +35,21 @@ export function PublicLayout() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [magic, dispatch, markets])
+
+  //notification
+  useEffect(() => {
+    const setupFCM = async () => {
+      const token = await requestFCMToken()
+
+      if (token) {
+        dispatch(setDeviceToken(token))
+      }
+
+      listenToMessages()
+    }
+
+    setupFCM()
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">

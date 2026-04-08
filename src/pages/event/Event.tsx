@@ -90,13 +90,11 @@ const EventPage = () => {
 
   useEffect(() => {
     if (tradeError) {
-      if (tradeError.includes('reason="rejected"')) {
-        toast.error("User Rejected the request", {
-          duration: 3000,
-          position: "top-right",
-          style: { fontSize: "12px", padding: "8px 12px", maxWidth: "320px" },
-        })
-      }
+      toast.error(tradeError, {
+        duration: 4000,
+        position: "top-right",
+        style: { fontSize: "12px", padding: "8px 12px", maxWidth: "320px" },
+      })
     }
   }, [tradeError])
 

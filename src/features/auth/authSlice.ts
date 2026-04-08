@@ -16,6 +16,7 @@ const initialState: AuthState = {
   loginMethod: null,
   token: null,
   cashLoading: false,
+  deviceToken: null,
 }
 
 const authSlice = createSlice({
@@ -104,6 +105,11 @@ const authSlice = createSlice({
       const reserved = BigInt(state.reservedAmount ?? "0")
       state.availableAmount = (cash - reserved).toString()
     },
+
+    //set device token for notifications
+    setDeviceToken: (state, action: PayloadAction<string>) => {
+      state.deviceToken = action.payload
+    },
   },
 })
 
@@ -119,6 +125,7 @@ export const {
   reserveAmount,
   releaseAmount,
   recalculateAvailable,
+  setDeviceToken,
 } = authSlice.actions
 
 export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated
@@ -130,5 +137,6 @@ export const selectPortfolioAmount = (state: { auth: AuthState }) => state.auth.
 export const selectLoginMethod = (state: { auth: AuthState }) => state.auth.loginMethod
 export const selectAvailableAmount = (state: { auth: AuthState }) => state.auth.availableAmount
 export const selectReservedAmount = (state: { auth: AuthState }) => state.auth.reservedAmount
+export const selectDeviceToken = (state: { auth: AuthState }) => state.auth.deviceToken
 
 export default authSlice.reducer

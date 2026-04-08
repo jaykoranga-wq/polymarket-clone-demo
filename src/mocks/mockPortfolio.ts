@@ -46,6 +46,7 @@ export interface PortfolioOrder {
   marketTitle: string
   category: string
   side: PositionSide
+  direction: "Buy" | "Sell"
   orderType: "Limit" | "Market"
   shares: number
   price: number // cents
@@ -66,6 +67,7 @@ export interface HistoryItem {
   category: string
   type: HistoryType
   side: PositionSide
+  orderType: "Limit" | "Market"
   shares: number
   price: number // cents
   total: number // USDC
@@ -248,6 +250,7 @@ export const MOCK_PORTFOLIO_ORDERS: PortfolioOrder[] = [
     marketTitle: "Will Bitcoin reach $150K by end of 2026?",
     category: "Crypto",
     side: POSITION_SIDE.YES,
+    direction: "Buy",
     orderType: "Limit",
     shares: 200,
     price: 65,
@@ -266,6 +269,7 @@ export const MOCK_PORTFOLIO_ORDERS: PortfolioOrder[] = [
     marketTitle: "Will Fed cut rates before Q3 2026?",
     category: "Economy",
     side: POSITION_SIDE.NO,
+    direction: "Buy",
     orderType: "Limit",
     shares: 500,
     price: 38,
@@ -283,6 +287,7 @@ export const MOCK_PORTFOLIO_ORDERS: PortfolioOrder[] = [
     marketTitle: "US GDP growth above 3% in 2026?",
     category: "Economy",
     side: POSITION_SIDE.YES,
+    direction: "Sell",
     orderType: "Limit",
     shares: 300,
     price: 44,
@@ -305,6 +310,7 @@ export const MOCK_HISTORY: HistoryItem[] = [
     category: "Tech",
     type: HISTORY_TYPE.REDEEM,
     side: POSITION_SIDE.NO,
+    orderType: "Market",
     shares: 400,
     price: 100,
     total: 400.0,
@@ -318,6 +324,7 @@ export const MOCK_HISTORY: HistoryItem[] = [
     category: "AI",
     type: HISTORY_TYPE.SELL,
     side: POSITION_SIDE.YES,
+    orderType: "Limit",
     shares: 250,
     price: 72,
     total: 180.0,
@@ -331,6 +338,7 @@ export const MOCK_HISTORY: HistoryItem[] = [
     category: "Sports",
     type: HISTORY_TYPE.BUY,
     side: POSITION_SIDE.YES,
+    orderType: "Limit",
     shares: 600,
     price: 58,
     total: 348.0,
@@ -343,6 +351,7 @@ export const MOCK_HISTORY: HistoryItem[] = [
     category: "Business",
     type: HISTORY_TYPE.SELL,
     side: POSITION_SIDE.YES,
+    orderType: "Limit",
     shares: 150,
     price: 81,
     total: 121.5,
