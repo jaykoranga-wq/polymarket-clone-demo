@@ -11,6 +11,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    // Allow requests from any host (required for ngrok / reverse-proxy tunnels).
+    // In Vite 4.x, `true` means "allow all hosts" (equivalent to "all" in Vite 5+).
+    allowedHosts: true,
+  },
   build: {
     sourcemap: true,
     rollupOptions: {

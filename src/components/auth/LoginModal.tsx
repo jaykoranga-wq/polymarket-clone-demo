@@ -1,12 +1,14 @@
 import { useState } from "react"
 import { useDispatch } from "react-redux"
 
+import { useAppSelector } from "@/app/hooks"
 import { Button } from "@/components/ui/button"
 import {
   useLoginMutation,
   useLoginWalletMutation,
   useVerifyWalletMutation,
 } from "@/features/api/auth/authApi"
+import { selectDeviceToken } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
 import {
   handleEmailLogin,
@@ -35,6 +37,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   const [loginToBackend] = useLoginMutation()
   const [loginWallet] = useLoginWalletMutation()
   const [verifyWallet] = useVerifyWalletMutation()
+  const deviceToken = useAppSelector(selectDeviceToken)
 
   if (!open) return null
 
@@ -169,6 +172,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
               loginWallet: loginWallet as any,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               verifyWallet: verifyWallet as any,
+              deviceToken: deviceToken as string,
               onSuccess: () => {
                 setLoading(null)
                 onClose()

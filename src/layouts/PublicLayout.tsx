@@ -7,6 +7,7 @@ import { Navbar } from "@/components/layout/Navbar"
 import { useLoginMutation } from "@/features/api/auth/authApi"
 import { useGetMarketsQuery } from "@/features/api/markets/marketApi"
 import { checkAuth } from "@/features/auth/authChecks"
+import { setDeviceToken } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
 import { setMarkets } from "@/features/markets/marketSlice"
 import { useWalletBalance } from "@/hooks/useWalletBalance"
@@ -35,6 +36,7 @@ export function PublicLayout() {
     requestFCMToken().then((token) => {
       if (token) {
         // 👉 send to backend
+        dispatch(setDeviceToken(token))
       }
     })
 

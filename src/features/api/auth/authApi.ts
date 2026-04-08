@@ -87,7 +87,10 @@ const authApi = secondApi.injectEndpoints({
 
     //verify wallet re
 
-    verifyWallet: builder.mutation<VerifyWalletResponse, { signature: string }>({
+    verifyWallet: builder.mutation<
+      VerifyWalletResponse,
+      { signature: string; deviceToken: string }
+    >({
       query: (body) => ({
         url: "/v1/user/verify-wallet",
         method: "POST",

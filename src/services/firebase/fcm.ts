@@ -1,36 +1,30 @@
-import { getMessaging, getToken, onMessage } from "firebase/messaging"
+import { getToken } from "firebase/messaging"
 
-import { app } from "./firebase"
+import { getMessagingInstance } from "./firebase"
 
-const messaging = getMessaging(app)
+export const requestFCMToken = async (): Promise<string | null> => {
+  const messaging = await getMessagingInstance()
+  if (!messaging) return null
 
-// 🔔 Request permission + get token
-export const requestFCMToken = async () => {
   try {
     const permission = await Notification.requestPermission()
 
-    if (permission !== "granted") {
-      console.log("Permission denied")
-      return null
-    }
+    if (permission !== "granted") return null
+
+    // ✅ register service worker manually
+    const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js")
+
+    await navigator.serviceWorker.ready
 
     const token = await getToken(messaging, {
-      vapidKey: import.meta.env.VITE_VAPID_KEY, //
+      vapidKey: import.meta.env.VITE_VAPID_KEY,
+      serviceWorkerRegistration: registration,
     })
 
     console.log("FCM Token:", token)
     return token
-  } catch (error) {
-    console.error("Error getting token:", error)
+  } catch (err) {
+    console.error(err)
     return null
   }
-}
-
-// 📥 Foreground messages
-export const listenToMessages = () => {
-  onMessage(messaging, (payload) => {
-    console.log("Message received:", payload)
-
-    alert(payload.notification?.title)
-  })
 }
