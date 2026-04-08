@@ -191,7 +191,7 @@ export const useTrade = () => {
     // spurious extra /100 making usdcRequired 100× too small.
     const usdcRequired = payloadPrice * (payloadShares / 100n) // = price × userShares
     const sharesOnChain = payloadShares * 10_000n // = userShares × 1_000_000
-
+    console.log("sending sharesonchain: ", sharesOnChain)
     const isBuy = order.action === "Buy"
     const nonce = await getNonce(signer)
 
@@ -248,7 +248,7 @@ export const useTrade = () => {
         // Backend expects price in 1e6 units and shares in userShares×100 units.
         // These must match what was used to build the signed struct above.
         price: ((order.limitCents ?? 0) * 10_000).toString(), // e.g. "500000"
-        shares: (Math.round(order.shares ?? 0) * 100).toString(), // e.g. "100"
+        shares: (Math.round(order.shares ?? 0) * 10_00_000).toString(), // e.g. "1000000"
         type: order.action === "Buy" ? 1 : 2,
         nonce: orderStruct.nonce.toString(),
         salt: orderStruct.salt.toString(),
