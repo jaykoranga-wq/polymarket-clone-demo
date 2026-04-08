@@ -1,3 +1,12 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+  "rewrites": [
+    {
+      "source": "/firebase-messaging-sw.js",
+      "destination": "/firebase-messaging-sw.js"
+    },
+    {
+      "source": "/((?!assets|favicon.ico|robots.txt|firebase-messaging-sw.js).*)",
+      "destination": "/"
+    }
+  ]
 }
