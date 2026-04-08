@@ -27,7 +27,7 @@ type LoginFn = (args: { didToken: string }) => Promise<{ data: { data: { token: 
 type LoginWalletFn = (args: { publicAddress: string }) => Promise<{
   data: { data: { nonce: string; token: string } }
 }>
-type VerifyWalletFn = (args: { signature: string }) => Promise<{
+type VerifyWalletFn = (args: { signature: string; deviceToken: string | null }) => Promise<{
   data: { data: { token: string } }
 }>
 
@@ -128,12 +128,14 @@ export async function handleMetaMaskLogin({
   verifyWallet,
   onSuccess,
   onError,
+  deviceToken,
 }: {
   dispatch: AppDispatch
   loginWallet: LoginWalletFn
   verifyWallet: VerifyWalletFn
   onSuccess: () => void
   onError: () => void
+  deviceToken: string
 }): Promise<void> {
   if (!window.ethereum) {
     toast.error("MetaMask not installed!", {
@@ -147,6 +149,7 @@ export async function handleMetaMaskLogin({
   }
 
   dispatch(loadingTrue())
+
   try {
     // switching the chain to amoy
     await switchToAmoy()
@@ -170,7 +173,8 @@ export async function handleMetaMaskLogin({
     })) as unknown as string
 
     // Step 4: verify signature with backend
-    const result = await verifyWallet({ signature }).then((r) => r.data)
+    console.log("device token while verifying meta mask :", deviceToken)
+    const result = await verifyWallet({ signature, deviceToken }).then((r) => r.data)
 
     // Step 5: store session
     clearMetaMaskLoggedOut()
