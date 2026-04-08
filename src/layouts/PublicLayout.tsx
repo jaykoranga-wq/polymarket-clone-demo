@@ -32,18 +32,24 @@ export function PublicLayout() {
     if (markets) {
       dispatch(setMarkets([...markets, ...MOCK_MARKETS]))
     } else dispatch(setMarkets(MOCK_MARKETS))
-    //notification
-    requestFCMToken().then((token) => {
-      if (token) {
-        // 👉 send to backend
-        dispatch(setDeviceToken(token))
-      }
-    })
-
-    listenToMessages()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [magic, dispatch, markets])
+
+  //notification
+  useEffect(() => {
+    const setupFCM = async () => {
+      const token = await requestFCMToken()
+
+      if (token) {
+        dispatch(setDeviceToken(token))
+      }
+
+      listenToMessages()
+    }
+
+    setupFCM()
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">
