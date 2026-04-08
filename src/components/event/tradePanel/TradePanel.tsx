@@ -658,7 +658,6 @@ const TradePanel = ({
 
           {/* label */}
           {buttonState === "login" && "Place Order"}
-          {buttonState === "login" && "Place Order"}
           {buttonState === "deposit" && "Deposit"}
           {buttonState === "trade" &&
             {

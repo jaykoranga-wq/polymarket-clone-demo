@@ -71,7 +71,7 @@ const EmojiIcon = ({
 const BigAvatar = ({ name }: { name: string }) => {
   const initials = name.slice(0, 2).toUpperCase()
   return (
-    <div className="w-40 h-40 rounded-lg bg-primary/10 flex items-center justify-center text-7xl  font-extrabold text-white  shrink-0 ">
+    <div className="w-40 h-40 rounded-lg bg-primary/10 flex items-center justify-center text-6xl border border-white/5 font-extrabold text-white  shrink-0 ">
       {initials}
     </div>
   )

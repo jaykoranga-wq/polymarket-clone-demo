@@ -1,9 +1,12 @@
 import {
+  BarChart3,
   ChevronDown,
   ChevronRight,
   Heart,
   Info,
   Link,
+  LogOut,
+  Medal,
   Moon,
   Search,
   Settings,
@@ -43,15 +46,34 @@ import { AuthLoader } from "../ui/AuthLoader"
 import { CategoryTabs } from "./CategoryTabs"
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
-const Avatar = ({ email, address }: { email: string | null; address: string | null }) => {
+const Avatar = ({
+  email,
+  address,
+  size = "sm",
+  square = false,
+}: {
+  email: string | null
+  address: string | null
+  size?: "sm" | "md" | "lg"
+  square?: boolean
+}) => {
   const initials = email
     ? email.slice(0, 2).toUpperCase()
     : address
       ? address.slice(2, 4).toUpperCase()
       : "??"
+
+  const sizeClasses = {
+    sm: "w-8 h-8 text-[10px]",
+    md: "w-10 h-10 text-[12px]",
+    lg: "w-14 h-14 text-[16px]",
+  }
+
   return (
-    <div className="w-8 h-8 rounded-full bg-primary/10 border border-border flex items-center justify-center">
-      <div className="w-4 h-4  flex items-center justify-center text-muted-foreground font-base font-bold shrink-0 cursor-pointer">
+    <div
+      className={`${sizeClasses[size]} ${square ? "rounded-lg" : "rounded-full"} bg-primary/10 border border-white/5 flex items-center justify-center overflow-hidden shrink-0`}
+    >
+      <div className="flex items-center justify-center text-white font-bold cursor-pointer">
         {initials}
       </div>
     </div>
@@ -65,25 +87,23 @@ const MenuItem = ({
   onClick,
   red = false,
   rightIcon,
+  className = "",
 }: {
   icon?: React.ReactNode
   label: string
   onClick?: () => void
   red?: boolean
   rightIcon?: React.ReactNode
+  className?: string
 }) => (
   <button
     onClick={onClick}
-    className={`group cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-all hover:bg-primary hover:text-black rounded-none
-      ${red ? "text-red-500 hover:bg-red-500 hover:text-white" : "text-white text-opacity-90 grayscale-0"}`}
+    className={`group cursor-pointer w-full flex items-center gap-3.5 px-5 py-3 text-sm font-bold transition-all hover:bg-white/5
+      ${red ? "text-red-500" : className ? className : "text-white/60 hover:text-white"}`}
   >
-    {icon && (
-      <span className="text-base w-5 flex items-center justify-center transition-colors group-hover:text-black">
-        {icon}
-      </span>
-    )}
+    {icon && <span className="w-5 flex items-center justify-center transition-colors">{icon}</span>}
     <span className="flex-1 text-left">{label}</span>
-    {rightIcon && <span className="text-white/30 group-hover:text-black">{rightIcon}</span>}
+    {rightIcon && <span className="text-white/30 group-hover:text-white">{rightIcon}</span>}
   </button>
 )
 
@@ -98,7 +118,7 @@ const DarkModeRow = () => {
       <span className="flex-1 text-sm font-medium text-white/80">Dark mode</span>
       <button
         onClick={() => setDark((p) => !p)}
-        className={`relative w-10 h-6 rounded-full transition-colors ${dark ? "bg-blue-500" : "bg-white/20"}`}
+        className={`relative w-10 h-6 rounded-full transition-colors ${dark ? "bg-primary" : "bg-white/20"}`}
       >
         <div
           className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${dark ? "translate-x-4" : "translate-x-0.5"}`}
@@ -131,14 +151,14 @@ const Dropdown = ({
   return (
     <div
       ref={ref}
-      className={`absolute bg-[#191c22] border border-white/10 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] z-50 py-0 overflow-hidden ${className}`}
+      className={`fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-16 md:top-[calc(100%+8px)] mx-auto md:mx-0 bg-slate border border-white/10 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.6),0_0_20px_rgba(0,200,83,0.1)] z-50 py-0 overflow-hidden flex flex-col max-h-[calc(100vh-80px)] ${className}`}
     >
-      {children}
+      <div className="flex-1 overflow-y-auto no-scrollbar">{children}</div>
     </div>
   )
 }
 
-const Divider = () => <div className="my-1.5 mx-4 h-px bg-white/8" />
+const Divider = () => <div className="mx-5 h-px bg-white/5" />
 
 // ── SearchBar ─────────────────────────────────────────────────────────────────
 // Separate component so it can manage its own state cleanly
@@ -184,6 +204,50 @@ const SearchBar = () => {
   )
 }
 
+// ── MobileSearchBar ──────────────────────────────────────────────────────────
+const MobileSearchBar = ({ onClose }: { onClose: () => void }) => {
+  const navigate = useNavigate()
+  const [query, setQuery] = useState("")
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = query.trim()
+    if (!trimmed) return
+    navigate(`${ROUTES.MarketSearch}?q=${encodeURIComponent(trimmed)}`)
+    onClose()
+  }
+
+  return (
+    <form onSubmit={handleSearch} className="relative w-full">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search markets"
+        className="w-full bg-slate border border-progress-bar rounded-2sm py-2 px-8.5 text-sm text-white focus:outline-none placeholder-[#6B7280]"
+      />
+      {query && (
+        <button
+          type="button"
+          onClick={() => setQuery("")}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+        >
+          <X size={14} />
+        </button>
+      )}
+    </form>
+  )
+}
+
+const NAV_LINKS = [
+  { label: "Trending", path: "/markets/trending" },
+  { label: "Breaking", path: "/markets/category/Breaking" },
+  { label: "New", path: "/markets/new_market" },
+  { label: "Hollywood", path: "/markets/category/Hollywood" },
+  { label: "Awards", path: "/markets/category/Awards" },
+]
+
 // ── Main Navbar ───────────────────────────────────────────────────────────────
 export const Navbar: FC = () => {
   const dispatch = useDispatch()
@@ -199,6 +263,7 @@ export const Navbar: FC = () => {
 
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [authMenuOpen, setAuthMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [depositLoading, setDepositLoading] = useState(false)
   const [metamaskDepositOpen, setMetamaskDepositOpen] = useState(false)
@@ -289,7 +354,7 @@ export const Navbar: FC = () => {
               <img src="/logo.svg" alt="Polymarket" className=" h-4 sm:h-5.5 w-auto" />
             </div>
 
-            <nav className="hidden lg:flex items-center gap-6 py-1.5 px-3 text-sm font-bold  ">
+            <nav className="hidden xl:flex items-center gap-6 py-1.5 px-3 text-sm font-bold  ">
               <button
                 className="text-secondary transition-colors hover:text-white"
                 onClick={(e) => {
@@ -334,7 +399,7 @@ export const Navbar: FC = () => {
                 </button>
 
                 {moreOpen && (
-                  <Dropdown onClose={() => setMoreOpen(false)} className="left-0 mt-2 w-48">
+                  <Dropdown onClose={() => setMoreOpen(false)} className="w-48 md:left-0 md:mt-2">
                     <MenuItem
                       label="Hollywood"
                       onClick={() => {
@@ -363,7 +428,7 @@ export const Navbar: FC = () => {
             ) : isAuthenticated ? (
               <>
                 {/* Portfolio + Cash */}
-                <div className="hidden sm:flex items-center gap-4 font-base font-bold ">
+                <div className="hidden md:flex items-center gap-4 font-base font-bold ">
                   <div
                     className="flex flex-col items-start cursor-pointer"
                     onClick={handlePortfolioClick}
@@ -384,12 +449,12 @@ export const Navbar: FC = () => {
                 </div>
 
                 {/* Vertical Divider */}
-                <div className={`hidden sm:block w-px bg-vertical-divider h-4 mx-1 `} />
+                <div className={`hidden md:block w-px bg-vertical-divider h-4 mx-1 `} />
 
                 <Button
                   onClick={debouncedHandleDeposit}
                   disabled={isLoginOpen || depositLoading}
-                  className={`bg-primary text-background text-xs font-bold hover:bg-primary/90 px-4 rounded-sm h-8`}
+                  className={`bg-primary text-background text-xs font-bold hover:bg-primary/90 px-4 rounded-sm h-8 cursor-pointer`}
                 >
                   {depositLoading ? "Opening wallet" : "Deposit"}
                 </Button>
@@ -404,6 +469,73 @@ export const Navbar: FC = () => {
                 </Button> */}
                 <NotificationBell />
 
+                {/* Auth Burger */}
+                <div className="relative xl:hidden">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-white h-9 w-9 flex items-center justify-center p-0 cursor-pointer"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setAuthMenuOpen((p) => !p)
+                    }}
+                  >
+                    {authMenuOpen ? <X className="size-5" /> : <HamburgerIcon />}
+                  </Button>
+
+                  {authMenuOpen && (
+                    <Dropdown
+                      onClose={() => setAuthMenuOpen(false)}
+                      className="w-72 md:right-0 md:top-11"
+                    >
+                      <div className="p-4">
+                        <MobileSearchBar onClose={() => setAuthMenuOpen(false)} />
+                      </div>
+                      <div className="md:hidden">
+                        <Divider />
+                        <div className="px-5 py-4 flex flex-col gap-4">
+                          <div
+                            className="flex flex-col items-start"
+                            onClick={() => {
+                              handlePortfolioClick()
+                              setAuthMenuOpen(false)
+                            }}
+                          >
+                            <span className="text-secondary text-[10px] uppercase tracking-wide leading-none mb-1">
+                              Portfolio
+                            </span>
+                            <span className="text-primary text-sm font-bold">
+                              {formatPortfolio(portfolioAmount)}
+                            </span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-secondary text-[10px] uppercase tracking-wide leading-none mb-1">
+                              Cash
+                            </span>
+                            <span className="text-primary text-sm font-bold">
+                              {formatCash(cashAmount)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <Divider />
+                      <div className="py-2">
+                        {NAV_LINKS.map((link) => (
+                          <MenuItem
+                            key={link.path}
+                            label={link.label}
+                            onClick={() => {
+                              navigate(link.path)
+                              setAuthMenuOpen(false)
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </Dropdown>
+                  )}
+                </div>
+
                 {/* Profile avatar + dropdown */}
                 <div className="relative ">
                   <div
@@ -417,48 +549,78 @@ export const Navbar: FC = () => {
                   </div>
 
                   {profileOpen && (
-                    <Dropdown onClose={() => setProfileOpen(false)}>
-                      <div className="flex items-center justify-between px-4 py-3">
-                        <div
-                          className="flex items-center gap-2 cursor-pointer"
-                          onClick={() => navigate(`/profile/${user.publicAddress}`)}
-                        >
-                          <Avatar email={email} address={publicAddress} />
-                          <span className="text-sm font-semibold text-white">{displayName}</span>
-                        </div>
-                        <button className="text-white/40 hover:text-white transition-colors">
+                    <Dropdown
+                      onClose={() => setProfileOpen(false)}
+                      className="w-72 md:right-0 md:top-11"
+                    >
+                      <div className="p-5 flex items-start gap-4 relative">
+                        {/* Settings button top right */}
+                        <button className="absolute top-5 right-5 text-white/40 hover:text-white transition-colors">
                           <Settings size={16} />
                         </button>
+
+                        <div
+                          className="flex items-center gap-4 cursor-pointer group flex-1"
+                          onClick={() => {
+                            setProfileOpen(false)
+                            navigate(`/profile/${user.publicAddress}`)
+                          }}
+                        >
+                          <Avatar email={email} address={publicAddress} size="lg" square />
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-md font-bold text-white truncate capitalize">
+                              {displayName}
+                            </span>
+                            <div className="flex gap-4 mt-2 items-center">
+                              <div className="flex flex-col">
+                                <span className="font-xs font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
+                                  Rank
+                                </span>
+                                <span className="font-base font-extrabold text-primary leading-none">
+                                  #412
+                                </span>
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="font-xs font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
+                                  Win Rate
+                                </span>
+                                <span className="font-base font-extrabold text-primary leading-none">
+                                  78.4%
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <Divider />
+                      <div className="py-2">
+                        <MenuItem
+                          icon={<BarChart3 size={20} className="text-primary" />}
+                          label="Leaderboard"
+                          onClick={() => {
+                            setProfileOpen(false)
+                            navigate(`/leaderboard/${user.publicAddress}`)
+                          }}
+                        />
+                        <MenuItem
+                          icon={<Medal size={20} className="text-primary fill-primary/10" />}
+                          label="Rewards"
+                          onClick={() => {
+                            setProfileOpen(false)
+                            navigate(`/rewards/${user.publicAddress}`)
+                          }}
+                        />
                       </div>
                       <Divider />
-                      <MenuItem
-                        icon={
-                          <Trophy
-                            size={16}
-                            className="text-primary transition-colors group-hover:text-white"
-                          />
-                        }
-                        label="Leaderboard"
-                        onClick={() => {
-                          setProfileOpen(false)
-                          navigate(`/leaderboard/${user.publicAddress}`)
-                        }}
-                      />
-                      <MenuItem
-                        icon={
-                          <Heart
-                            size={16}
-                            className="text-primary transition-colors group-hover:text-white fill-current"
-                          />
-                        }
-                        label="Rewards"
-                        onClick={() => {
-                          setProfileOpen(false)
-                          navigate(`/rewards/${user.publicAddress}`)
-                        }}
-                      />
-                      <Divider />
-                      <MenuItem label="Logout" red onClick={handleLogout} />
+                      <div className="py-2 ">
+                        <MenuItem
+                          icon={<LogOut size={20} className="text-no/70" />}
+                          label="Logout"
+                          onClick={handleLogout}
+                          className="text-no/70 hover:text-no"
+                        />
+                      </div>
                     </Dropdown>
                   )}
                 </div>
@@ -466,7 +628,7 @@ export const Navbar: FC = () => {
             ) : (
               <>
                 {/* How it works */}
-                <div className="hidden lg:flex items-center gap-2 text-secondary cursor-pointer hover:opacity-80 transition-opacity">
+                <div className="hidden xl:flex items-center gap-2 text-secondary cursor-pointer hover:opacity-80 transition-opacity">
                   <Info className="size-4" />
                   <span className="text-sm font-medium text-nowrap">How it works</span>
                 </div>
@@ -485,19 +647,42 @@ export const Navbar: FC = () => {
                   Sign Up
                 </Button>
 
-                <div className="relative">
+                <div className="relative xl:hidden">
                   <Button
                     variant="ghost"
                     size="icon"
                     className="text-muted-foreground hover:text-white h-10 w-10 cursor-pointer"
                     onMouseDown={(e) => e.stopPropagation()}
-                    onClick={() => setMenuOpen((p) => !p)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setMenuOpen((p) => !p)
+                    }}
                   >
                     {menuOpen ? <X className="size-5" /> : <HamburgerIcon />}
                   </Button>
 
                   {menuOpen && (
-                    <Dropdown onClose={() => setMenuOpen(false)}>
+                    <Dropdown
+                      onClose={() => setMenuOpen(false)}
+                      className="w-72 md:right-0 md:top-11"
+                    >
+                      <div className="p-4">
+                        <MobileSearchBar onClose={() => setMenuOpen(false)} />
+                      </div>
+                      <Divider />
+                      <div className="py-2">
+                        {NAV_LINKS.map((link) => (
+                          <MenuItem
+                            key={link.path}
+                            label={link.label}
+                            onClick={() => {
+                              navigate(link.path)
+                              setMenuOpen(false)
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <Divider />
                       <MenuItem
                         icon={
                           <Trophy

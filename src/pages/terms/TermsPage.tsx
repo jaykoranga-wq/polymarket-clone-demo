@@ -44,36 +44,10 @@ const TermsPage = () => {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: C.bg,
-        color: C.text,
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1100,
-          margin: "0 auto",
-          padding: "48px 24px 100px",
-          display: "flex",
-          gap: 48,
-          alignItems: "flex-start",
-        }}
-      >
+    <div className="text-white ">
+      <div className="container mt-6 mb-20 flex gap-7 lg:gap-14 items-start">
         {/* ── Sidebar ── */}
-        <aside
-          style={{
-            width: 240,
-            flexShrink: 0,
-            position: "sticky",
-            top: 96,
-            display: "flex",
-            flexDirection: "column",
-            gap: 4,
-          }}
-        >
+        <aside className="hidden w-50 lg:w-60 shrink-0 sticky top-24 md:flex flex-col gap-1">
           <div
             style={{
               fontSize: 11,

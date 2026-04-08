@@ -92,7 +92,7 @@ const PodiumCard = ({ entry }: { entry: LeaderboardEntry }) => {
 
       {/* avatar container */}
       <div className="relative mb-3 w-fit mx-auto">
-        <div className="w-16 h-16 rounded-xxl border-4 border-primary overflow-hidden flex items-center justify-center">
+        <div className="w-16 h-16 rounded-lg border-4 border-primary overflow-hidden flex items-center justify-center">
           <Avatar name={entry.displayName} size={56} square />
         </div>
         {/* rank bubble */}
@@ -231,7 +231,7 @@ const BiggestWinItem = ({
 }: {
   entry: { rank: number; displayName: string; subtitle: string; initial: number; profit: number }
 }) => (
-  <div className="flex flex-col gap-4 p-4 rounded-2xl transition-all duration-200 cursor-pointer relative group bg-linear-to-b from-white/5 to-white/2 border border-white/10 hover:border-primary/30 hover:bg-primary/15">
+  <div className="flex flex-col gap-4 p-4 rounded-lg transition-all duration-200 cursor-pointer relative group bg-linear-to-b from-white/5 to-white/2 border border-white/10 hover:border-primary/30 hover:bg-primary/15">
     {/* Top Row: Avatar, Info, Rank */}
     <div className="flex items-start gap-3">
       {/* Avatar */}
