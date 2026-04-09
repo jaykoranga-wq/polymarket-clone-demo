@@ -47,35 +47,17 @@ const TermsPage = () => {
     <div className="text-white ">
       <div className="container mt-6 mb-20 flex gap-7 lg:gap-14 items-start">
         {/* ── Sidebar ── */}
-        <aside className="hidden w-50 lg:w-60 shrink-0 sticky top-24 md:flex flex-col gap-1">
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: C.muted2,
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-              marginBottom: 10,
-            }}
-          >
-            Contents
-          </div>
+        <aside className="hidden w-50 lg:w-60 shrink-0 sticky top-24 md:flex flex-col gap-3">
+          <div className="font-sm font-bold text-white uppercase mb-2.5">Contents</div>
           {TERMS_SECTIONS.map((s) => (
             <button
               key={s.id}
               onClick={() => scrollTo(s.id)}
+              className="text-left  py-1.5 px-3 rounded-md font-base cursor-pointer  transition-all duration-100"
               style={{
-                textAlign: "left",
-                padding: "7px 12px",
-                borderRadius: 8,
-                fontSize: 12,
                 fontWeight: activeSection === s.id ? 700 : 500,
                 color: activeSection === s.id ? C.green : C.muted,
                 background: activeSection === s.id ? "rgba(0,200,83,0.08)" : "transparent",
-                borderLeft: `2px solid ${activeSection === s.id ? C.green : "transparent"}`,
-                cursor: "pointer",
-                transition: "all 0.15s",
-                lineHeight: 1.4,
               }}
               onMouseEnter={(e) => {
                 if (activeSection !== s.id) e.currentTarget.style.color = C.text
@@ -92,63 +74,33 @@ const TermsPage = () => {
         {/* ── Main content ── */}
         <main style={{ flex: 1, minWidth: 0 }}>
           {/* page header */}
-          <div
-            style={{ marginBottom: 40, paddingBottom: 32, borderBottom: `1px solid ${C.border}` }}
-          >
-            <h1
-              style={{
-                fontSize: 36,
-                fontWeight: 800,
-                margin: "0 0 10px",
-                letterSpacing: "-0.02em",
-                color: C.text,
-              }}
-            >
-              Terms and Conditions
-            </h1>
-            <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 13, color: C.muted }}>
-                Last updated: <strong style={{ color: C.text }}>{TERMS_META.lastUpdated}</strong>
+          <div className="mb-10 pb-8 border-b border-b-white/10">
+            <h2 className="font-2xl font-bold mb-2.5">Terms and Conditions</h2>
+            <div className="flex gap-4 flex-wrap">
+              <span className="font-sm text-white/60">
+                Last updated: <strong className="text-primary">{TERMS_META.lastUpdated}</strong>
               </span>
-              <span style={{ fontSize: 13, color: C.muted }}>
-                Effective: <strong style={{ color: C.text }}>{TERMS_META.effectiveDate}</strong>
+              <span className="font-sm text-white/60">
+                Effective: <strong className="text-primary">{TERMS_META.effectiveDate}</strong>
               </span>
-              <span style={{ fontSize: 13, color: C.muted }}>
-                Version: <strong style={{ color: C.text }}>{TERMS_META.version}</strong>
+              <span className="font-sm text-white/60">
+                Version: <strong className=" text-primary">{TERMS_META.version}</strong>
               </span>
             </div>
-            <p style={{ fontSize: 14, color: C.body, marginTop: 16, lineHeight: 1.7 }}>
+            <p className="font-sm text-white/60 mt-4">
               Please read these Terms and Conditions carefully before using the OutcomeX platform.
               By accessing or using our service, you agree to be bound by these terms.
             </p>
           </div>
 
           {/* sections */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+          <div className="flex flex-col gap-11">
             {TERMS_SECTIONS.map((section) => (
               <section key={section.id} id={section.id} style={{ scrollMarginTop: 96 }}>
-                <h2
-                  style={{
-                    fontSize: 20,
-                    fontWeight: 700,
-                    color: C.text,
-                    margin: "0 0 16px",
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {section.title}
-                </h2>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <h2 className="font-md font-bold text-white mb-4">{section.title}</h2>
+                <div className="flex flex-col gap-3">
                   {section.content.map((para, i) => (
-                    <p
-                      key={i}
-                      style={{
-                        fontSize: 14,
-                        lineHeight: 1.8,
-                        color: C.body,
-                        margin: 0,
-                      }}
-                    >
+                    <p key={i} className="font-sm text-white/60 ">
                       {para}
                     </p>
                   ))}
@@ -158,18 +110,7 @@ const TermsPage = () => {
           </div>
 
           {/* footer note */}
-          <div
-            style={{
-              marginTop: 48,
-              padding: "20px 24px",
-              background: C.surface,
-              border: `1px solid ${C.border}`,
-              borderRadius: 12,
-              fontSize: 13,
-              color: C.muted,
-              lineHeight: 1.6,
-            }}
-          >
+          <div className="mt-14 py-4 px-6 bg-white/5 border border-white/10 rounded-md font-base text-white/50">
             Questions about these terms? Contact us at{" "}
             <a
               href={`mailto:${TERMS_META.contactEmail}`}

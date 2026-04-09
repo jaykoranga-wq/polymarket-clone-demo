@@ -71,7 +71,7 @@ const EmojiIcon = ({
 const BigAvatar = ({ name }: { name: string }) => {
   const initials = name.slice(0, 2).toUpperCase()
   return (
-    <div className="w-40 h-40 rounded-lg bg-primary/10 flex items-center justify-center text-6xl border border-white/5 font-extrabold text-white  shrink-0 ">
+    <div className="w-20 h-20 rounded-full md:w-30 md:h-30 lg:w-40 lg:h-40 md:rounded-lg bg-primary/10 flex items-center justify-center  text-3xl md:text-5xl lg:text-6xl border border-white/5 font-extrabold text-white  shrink-0 ">
       {initials}
     </div>
   )
@@ -203,7 +203,13 @@ const ProfilePage = () => {
           <BigAvatar name={profile.displayName} />
 
           <div className="mt-2">
-            <h1 className="font-2xl font-black mb-4 tracking-tight">{profile.displayName}</h1>
+            <div className=" flex flex-wrap gap-3 mb-4 ">
+              <h1 className="font-2xl font-black  tracking-tight">{profile.displayName} </h1>
+              <div className="block lg:hidden bg-primary/10 border border-primary/70 rounded-md h-fit mt-1 w-fit py-0.5 px-3  ">
+                <span className="font-base text-primary uppercase font-bold">Global Rank</span>
+                <span className="font-base text-primary font-bold"> #{profile.rank}</span>
+              </div>
+            </div>
 
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -228,7 +234,7 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          <div className="flex bg-primary/10 border border-primary/20 rounded-md py-4 px-6 items-center gap-7 justify-between lg:ml-auto max-h-21 ">
+          <div className="hidden lg:flex bg-primary/10 border border-primary/20 rounded-md py-4 px-6 items-center gap-7 justify-between lg:ml-auto max-h-21 ">
             <div className="flex flex-col gap-1">
               <span className="font-base text-primary uppercase font-bold">Global Rank</span>
               <span className="font-xl text-primary font-black">#{profile.rank}</span>

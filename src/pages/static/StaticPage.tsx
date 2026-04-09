@@ -76,12 +76,12 @@ const StaticPage = () => {
   }
 
   return (
-    <div className="text-white bg-background min-h-screen">
+    <div className="text-white bg-background ">
       <div className="container mt-6 mb-20 ">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 py-2 px-4 rounded-sm font-base font-bold bg-primary  text-black hover:text-white transition-colors mb-8 cursor-pointer  border-none"
+          className="flex items-center gap-1.5 py-2 px-4 rounded-sm font-base font-bold bg-primary  text-black hover:bg-primary/90 transition-colors mb-8 cursor-pointer  border-none"
         >
           <ArrowLeft size={16} strokeWidth={2.5} />
           <span>Back</span>

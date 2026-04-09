@@ -42,7 +42,7 @@ export const MarketRulesTab = ({
           )}
         </>
       ) : (
-        <p className="font-sm text-white/6 ">No description provided.</p>
+        <p className="font-sm text-white/60 ">No description provided.</p>
       )}
 
       {/* ── Market meta grid ── */}

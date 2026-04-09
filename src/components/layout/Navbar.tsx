@@ -502,7 +502,7 @@ export const Navbar: FC = () => {
                               setAuthMenuOpen(false)
                             }}
                           >
-                            <span className="text-secondary text-[10px] uppercase tracking-wide leading-none mb-1">
+                            <span className="text-secondary font-xs uppercase tracking-wide leading-none mb-1">
                               Portfolio
                             </span>
                             <span className="text-primary text-sm font-bold">
@@ -510,7 +510,7 @@ export const Navbar: FC = () => {
                             </span>
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-secondary text-[10px] uppercase tracking-wide leading-none mb-1">
+                            <span className="text-secondary font-xs uppercase tracking-wide leading-none mb-1">
                               Cash
                             </span>
                             <span className="text-primary text-sm font-bold">
