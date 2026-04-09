@@ -4,12 +4,12 @@ import {
   ChevronDown,
   Film,
   Flame,
-  Globe,
-  Info,
+  // Globe,
+  // Info,
   Link,
   LogOut,
   Medal,
-  Moon,
+  // Moon,
   Search,
   Settings,
   Sparkles,
@@ -111,25 +111,25 @@ const MenuItem = ({
 )
 
 // ── DarkModeRow ───────────────────────────────────────────────────────────────
-const DarkModeRow = () => {
-  const [dark, setDark] = useState(true)
-  return (
-    <div className="flex items-center gap-3 px-5 py-3">
-      <span className="text-base w-5 flex items-center justify-center">
-        <Moon size={16} className="text-white/60" />
-      </span>
-      <span className="flex-1 text-sm font-medium text-white/80">Dark mode</span>
-      <button
-        onClick={() => setDark((p) => !p)}
-        className={`relative w-10 h-6 rounded-full transition-colors ${dark ? "bg-primary" : "bg-white/20"}`}
-      >
-        <div
-          className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${dark ? "translate-x-4" : "translate-x-0.5"}`}
-        />
-      </button>
-    </div>
-  )
-}
+// const DarkModeRow = () => {
+//   const [dark, setDark] = useState(true)
+//   return (
+//     <div className="flex items-center gap-3 px-5 py-3">
+//       <span className="text-base w-5 flex items-center justify-center">
+//         <Moon size={16} className="text-white/60" />
+//       </span>
+//       <span className="flex-1 text-sm font-medium text-white/80">Dark mode</span>
+//       <button
+//         onClick={() => setDark((p) => !p)}
+//         className={`relative w-10 h-6 rounded-full transition-colors ${dark ? "bg-primary" : "bg-white/20"}`}
+//       >
+//         <div
+//           className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${dark ? "translate-x-4" : "translate-x-0.5"}`}
+//         />
+//       </button>
+//     </div>
+//   )
+// }
 
 // ── SectionHeader ─────────────────────────────────────────────────────────────
 const SectionHeader = ({ title }: { title: string }) => (
@@ -428,10 +428,10 @@ export const Navbar: FC = () => {
               <div className="px-5 py-4 flex justify-around">
                 <div
                   className="flex flex-col cursor-pointer"
-                  onClick={() => {
-                    handlePortfolioClick()
-                    closeSidebar()
-                  }}
+                  // onClick={() => {
+                  //   handlePortfolioClick()
+                  //   closeSidebar()
+                  // }}
                 >
                   <span className="text-secondary font-xs uppercase tracking-wide leading-none mb-1">
                     Portfolio
@@ -484,10 +484,17 @@ export const Navbar: FC = () => {
               else navigate("/rewards/guest")
             }}
           />
-          <SidebarItem icon={<Link size={16} className="text-primary" />} label="APIs" />
+          <SidebarItem
+            icon={<Link size={16} className="text-primary" />}
+            label="Portfolio"
+            onClick={() => {
+              handlePortfolioClick()
+              closeSidebar()
+            }}
+          />
 
           {/* SYSTEM */}
-          <SectionHeader title="System" />
+          {/* <SectionHeader title="System" />
           <DarkModeRow />
           <div className="flex items-center gap-3 px-5 py-3">
             <span className="w-5 flex items-center justify-center">
@@ -495,7 +502,7 @@ export const Navbar: FC = () => {
             </span>
             <span className="flex-1 text-sm font-medium text-white/80">Language</span>
             <span className="text-lg">🇺🇸</span>
-          </div>
+          </div> */}
 
           {/* MOBILE AUTH/PROFILE SECTION */}
           <div className="md:hidden mt-auto ">
@@ -798,10 +805,10 @@ export const Navbar: FC = () => {
             ) : (
               <>
                 {/* How it works */}
-                <div className="hidden xl:flex items-center gap-2 text-secondary cursor-pointer hover:opacity-80 transition-opacity">
+                {/* <div className="hidden xl:flex items-center gap-2 text-secondary cursor-pointer hover:opacity-80 transition-opacity">
                   <Info className="size-4" />
                   <span className="text-sm font-medium text-nowrap">How it works</span>
-                </div>
+                </div> */}
                 <Button
                   variant="default"
                   className="hidden md:inline-flex bg-accent text-white font-base font-bold text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7  cursor-pointer"
