@@ -14,6 +14,7 @@ import { MarketResolvedCard } from "@/components/market/MarketResolvedCard"
 import { PriceChart } from "@/components/market/priceChart/PriceChart"
 import { ShareModal } from "@/components/market/ShareModal"
 import { ActivityTab, MarketRulesTab, OrderBookTab } from "@/components/market/tabs"
+import { TokenBalanceChecker } from "@/components/market/TokenBalanceChecker"
 import { EventPageSkeleton } from "@/components/ui/MarketSkeleton"
 import { useGetMarketByIdQuery } from "@/features/api/markets/marketApi"
 import { useMagic } from "@/features/auth/lib/magic"
@@ -253,15 +254,21 @@ const EventPage = () => {
                     resolutionTime={market.resolutionTime}
                   />
                 ) : (
-                  <TradePanel
-                    yesProbability={market.yesProbability ?? 50}
-                    noProbability={market.noProbability ?? 50}
-                    isCrypto={false}
-                    onLoginRequired={() => setIsLoginOpen(true)}
-                    onDepositRequired={() => magic?.wallet?.showUI()}
-                    onTrade={handleTrade}
-                    approvalState={approvalState}
-                  />
+                  <>
+                    <TokenBalanceChecker
+                      yesTokenOnChainId={market.yesTokenOnChainId ?? null}
+                      noTokenOnChainId={market.noTokenOnChainId ?? null}
+                    />
+                    <TradePanel
+                      yesProbability={market.yesProbability ?? 50}
+                      noProbability={market.noProbability ?? 50}
+                      isCrypto={false}
+                      onLoginRequired={() => setIsLoginOpen(true)}
+                      onDepositRequired={() => magic?.wallet?.showUI()}
+                      onTrade={handleTrade}
+                      approvalState={approvalState}
+                    />
+                  </>
                 )}
               </div>
             </div>
@@ -294,7 +301,10 @@ const EventPage = () => {
             <div className="px-2.5 pb-7.5">
               {isResolved ? (
                 <div className="p-4">
-                  <MarketResolvedCard winningOutcome="NO" resolutionTime={market.resolutionTime} />
+                  <MarketResolvedCard
+                    winningOutcome={`NO`}
+                    resolutionTime={market.resolutionTime}
+                  />
                 </div>
               ) : (
                 <TradePanel
