@@ -126,6 +126,19 @@ const marketApi = secondApi.injectEndpoints({
 
       providesTags: ["Markets"],
     }),
+
+    // ─────────────────────────────────────────────
+    // GET ORACLE TIMELINE
+    // ─────────────────────────────────────────────
+    getOracleTimeline: builder.query<
+      { data: { action: number; bondAmount: string; timestamp: number; identifier: string }[] },
+      string
+    >({
+      query: (marketId) => ({
+        url: `/v1/user/marketplace/oracle-timeline`,
+        params: { marketId },
+      }),
+    }),
   }),
 })
 
@@ -134,4 +147,5 @@ export const {
   useGetMarketByIdQuery,
   useSearchMarketsQuery,
   useGetMarketsByCategoryQuery,
+  useGetOracleTimelineQuery,
 } = marketApi

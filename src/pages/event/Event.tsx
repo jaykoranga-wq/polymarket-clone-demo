@@ -252,6 +252,7 @@ const EventPage = () => {
                     winningOutcome="NO"
                     // winningOutcome={market.winningOutcome as "YES" | "NO"}
                     resolutionTime={market.resolutionTime}
+                    marketId={market.id}
                   />
                 ) : (
                   <>
