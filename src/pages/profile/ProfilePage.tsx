@@ -92,7 +92,7 @@ const StatCard = ({
   trend?: string
   accentColor?: string
 }) => (
-  <div className="bg-white/5  py-4 px-5 flex rounded-lg flex-col gap-1 justify-center min-h-24 border border-white/10">
+  <div className="bg-white/5  py-4 px-5 flex rounded-lg flex-col gap-1 justify-center min-h-24 border border-white/10 hover:translate-y-[-4px] hover:border-primary transition-all duration-200 ease-in-out cursor-pointer">
     <span className="font-base font-bold text-white/45 uppercase tracking-widest">{label}</span>
     <span
       className="font-lg font-black tracking-tight my-1 "

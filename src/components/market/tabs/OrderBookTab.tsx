@@ -41,17 +41,22 @@ const OBRow = ({
   maxShares: number
   isBid: boolean // bid = green, ask = red+dimmed
 }) => (
-  <div className="ep-ob-row" style={{ opacity: isBid ? 1 : 0.5, position: "relative" }}>
+  <div
+    className={`grid grid-cols-2 px-2 py-1 rounded-md relative overflow-hidden font-mono font-base ${
+      isBid ? "opacity-100" : "opacity-50"
+    }`}
+  >
     {/* depth bar */}
     <div
-      className="ep-ob-depth"
+      className={`absolute inset-0 opacity-7 pointer-events-none ${isBid ? "bg-yes" : "bg-no"}`}
       style={{
         width: `${(row.shares / maxShares) * 100}%`,
-        background: isBid ? "#00c853" : "#e53935",
       }}
     />
-    <span className={`ep-ob-price ${isBid ? "yes" : "no"}`}>{row.price}¢</span>
-    <span className="ep-ob-shares">{row.shares.toLocaleString()}</span>
+
+    <span className={`font-bold relative z-1 ${isBid ? "text-yes" : "text-no"}`}>{row.price}¢</span>
+
+    <span className="text-gray-400 text-right relative z-1">{row.shares.toLocaleString()}</span>
   </div>
 )
 
@@ -116,10 +121,10 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
   const maxShares = getMaxShares([...bids, ...asks])
 
   return (
-    <div className="ep-section">
+    <div className="mb-4">
       {/* ── Header ── */}
-      <div className="ep-section-header">
-        <span className="ep-section-title">Order Book</span>
+      <div className="flex items-center justify-between mb-3.5">
+        <span className="font-base font-bold text-white uppercase tracking-wider">Order Book</span>
         <span className="font-base text-muted-foreground">PRICE · SHARES</span>
       </div>
 
@@ -142,15 +147,9 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
       </div>
 
       {/* ── Column headers ── */}
-      <div
-        className="grid font-base font-bold text-muted-foreground uppercase pb-1.5 px-2 "
-        style={{
-          marginBottom: 4,
-          gridTemplateColumns: "1fr 1fr",
-        }}
-      >
+      <div className="grid grid-cols-2 mb-1 font-base font-bold text-muted-foreground uppercase pb-1.5 px-2 ">
         <span>Price</span>
-        <span style={{ textAlign: "right" }}>Shares</span>
+        <span className="text-right">Shares</span>
       </div>
 
       {/* ── Order rows ── */}

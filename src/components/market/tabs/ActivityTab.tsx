@@ -21,7 +21,7 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
 
       {/* Scrollable table container */}
       <div className="overflow-x-auto no-scrollbar -mx-1   border border-white/10 bg-linear-to-b from-white/5 to-white/2 rounded-md">
-        <div className="min-w-sm">
+        <div className="min-w-[590px]">
           {/* Column headers */}
           <div
             className="grid font-base text-white/60 font-medium uppercase tracking-widest py-4 px-6 pt-8 border-b border-white/6 mb-1 "

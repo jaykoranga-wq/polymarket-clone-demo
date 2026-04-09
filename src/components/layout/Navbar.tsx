@@ -1,8 +1,10 @@
 import {
+  Award,
   BarChart3,
   ChevronDown,
-  ChevronRight,
-  Heart,
+  Film,
+  Flame,
+  Globe,
   Info,
   Link,
   LogOut,
@@ -10,8 +12,9 @@ import {
   Moon,
   Search,
   Settings,
-  Trophy,
+  Sparkles,
   X,
+  Zap,
 } from "lucide-react"
 import { type FC, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
@@ -111,7 +114,7 @@ const MenuItem = ({
 const DarkModeRow = () => {
   const [dark, setDark] = useState(true)
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5">
+    <div className="flex items-center gap-3 px-5 py-3">
       <span className="text-base w-5 flex items-center justify-center">
         <Moon size={16} className="text-white/60" />
       </span>
@@ -128,7 +131,51 @@ const DarkModeRow = () => {
   )
 }
 
-// ─── Dropdown wrapper ─────────────────────────────────────────────────────────
+// ── SectionHeader ─────────────────────────────────────────────────────────────
+const SectionHeader = ({ title }: { title: string }) => (
+  <div className="px-5 pt-6 pb-2">
+    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">{title}</span>
+  </div>
+)
+
+// ── SidebarItem ───────────────────────────────────────────────────────────────
+const SidebarItem = ({
+  icon,
+  label,
+  onClick,
+  active = false,
+  rightContent,
+}: {
+  icon?: React.ReactNode
+  label: string
+  onClick?: () => void
+  active?: boolean
+  rightContent?: React.ReactNode
+}) => (
+  <button
+    onClick={onClick}
+    className={`group cursor-pointer w-full flex items-center gap-3.5 px-5 py-3 text-sm font-medium transition-all relative
+      ${active ? "text-white bg-primary/10" : "text-white/60 hover:text-white hover:bg-white/5"}`}
+  >
+    {icon && <span className="w-5 flex items-center justify-center">{icon}</span>}
+    <span className="flex-1 text-left">{label}</span>
+    {rightContent}
+    {active && (
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-7 bg-primary rounded-l-full" />
+    )}
+  </button>
+)
+
+// ── Nav icons map ─────────────────────────────────────────────────────────────
+const NAV_ICONS: Record<string, React.ReactNode> = {
+  Trending: <Flame size={16} />,
+  Breaking: <Zap size={16} />,
+  New: <Sparkles size={16} />,
+  Hollywood: <Film size={16} />,
+  Awards: <Award size={16} />,
+}
+
+// ─── Dropdown wrapper (kept for profile dropdown) ─────────────────────────────
 const Dropdown = ({
   children,
   onClose,
@@ -161,7 +208,6 @@ const Dropdown = ({
 const Divider = () => <div className="mx-5 h-px bg-white/5" />
 
 // ── SearchBar ─────────────────────────────────────────────────────────────────
-// Separate component so it can manage its own state cleanly
 const SearchBar = () => {
   const navigate = useNavigate()
   const [query, setQuery] = useState("")
@@ -170,7 +216,6 @@ const SearchBar = () => {
     e.preventDefault()
     const trimmed = query.trim()
     if (!trimmed) return
-    // navigate to markets page with search query param
     navigate(`${ROUTES.MarketSearch}?q=${encodeURIComponent(trimmed)}`)
   }
 
@@ -190,7 +235,6 @@ const SearchBar = () => {
         placeholder="Search markets"
         className="w-full bg-slate border border-progress-bar rounded-2sm py-2.5 pl-8.5 pr-2.5 text-sm leading-4 text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all placeholder-[#6B7280] max-w-67.5 "
       />
-      {/* clear button */}
       {query && (
         <button
           type="button"
@@ -272,6 +316,13 @@ export const Navbar: FC = () => {
   const navigate = useNavigate()
   const [logoutToBackend] = useLogoutMutation()
 
+  // Derived sidebar state
+  const sidebarOpen = isAuthenticated ? authMenuOpen : menuOpen
+  const closeSidebar = () => {
+    setAuthMenuOpen(false)
+    setMenuOpen(false)
+  }
+
   const displayName = email
     ? email.split("@")[0]
     : publicAddress
@@ -334,27 +385,219 @@ export const Navbar: FC = () => {
 
   return (
     <>
-      {/* <header className=" sticky top-0 z-50  border-b border-border bg-background/80 backdrop-blur-md font-liberation md:px-20">
-        <div className=" container  flex h-14 items-center gap-4 justify-between "> */}
       <MetaMaskDepositModal
         open={metamaskDepositOpen}
         onClose={() => setMetamaskDepositOpen(false)}
       />
 
-      <header className="sticky top-0 z-50  border-b border-border bg-background/80 backdrop-blur-md font-liberation">
-        <div className=" container  flex h-14 items-center gap-4 justify-between">
-          {/* ── Logo + Nav ── */}
-          <div
-            className="flex items-center gap-8 cursor-pointer"
+      {/* ── Sidebar Overlay ── */}
+      <div
+        className={`fixed inset-0 bg-black/60  z-60 transition-opacity duration-300 ${
+          sidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={closeSidebar}
+      />
+
+      {/* ── Sidebar Panel ── */}
+      <aside
+        className={`fixed top-0 left-0 h-full w-[270px] bg-[#121417] border-r border-white/10 z-70 transform transition-transform duration-300 ease-in-out flex flex-col ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex-1 overflow-y-auto no-scrollbar pb-6">
+          {/* Sidebar Logo + Close Button */}
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <img src="/logo.svg" alt="OutcomeX" className="h-5 w-auto" />
+            <button
+              onClick={closeSidebar}
+              className="text-white/40 hover:text-white transition-colors p-1"
+            >
+              <X size={22} />
+            </button>
+          </div>
+
+          {/* Sidebar Search */}
+          <div className="px-4 pb-2">
+            <MobileSearchBar onClose={closeSidebar} />
+          </div>
+
+          {/* Portfolio/Cash — only when authenticated & on mobile (hidden md+) */}
+          {isAuthenticated && (
+            <div className="md:hidden ">
+              <Divider />
+              <div className="px-5 py-4 flex justify-around">
+                <div
+                  className="flex flex-col cursor-pointer"
+                  onClick={() => {
+                    handlePortfolioClick()
+                    closeSidebar()
+                  }}
+                >
+                  <span className="text-secondary font-xs uppercase tracking-wide leading-none mb-1">
+                    Portfolio
+                  </span>
+                  <span className="text-primary text-sm font-bold">
+                    {formatPortfolio(portfolioAmount)}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-secondary font-xs uppercase tracking-wide leading-none mb-1">
+                    Cash
+                  </span>
+                  <span className="text-primary text-sm font-bold">{formatCash(cashAmount)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* NAVIGATION */}
+          <SectionHeader title="Navigation" />
+          {NAV_LINKS.map((link) => (
+            <SidebarItem
+              key={link.path}
+              icon={NAV_ICONS[link.label]}
+              label={link.label}
+              onClick={() => {
+                navigate(link.path)
+                closeSidebar()
+              }}
+            />
+          ))}
+
+          {/* ENGAGEMENT */}
+          <SectionHeader title="Engagement" />
+          <SidebarItem
+            icon={<BarChart3 size={16} className="text-primary" />}
+            label="Leaderboard"
             onClick={() => {
-              navigate("/")
+              closeSidebar()
+              if (isAuthenticated) navigate(`/leaderboard/${user.publicAddress}`)
+              else navigate("/leaderboard/guest")
             }}
-          >
-            <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="Polymarket" className=" h-4 sm:h-5.5 w-auto" />
+          />
+          <SidebarItem
+            icon={<Medal size={16} className="text-primary fill-primary/10" />}
+            label="Rewards"
+            onClick={() => {
+              closeSidebar()
+              if (isAuthenticated) navigate(`/rewards/${user.publicAddress}`)
+              else navigate("/rewards/guest")
+            }}
+          />
+          <SidebarItem icon={<Link size={16} className="text-primary" />} label="APIs" />
+
+          {/* SYSTEM */}
+          <SectionHeader title="System" />
+          <DarkModeRow />
+          <div className="flex items-center gap-3 px-5 py-3">
+            <span className="w-5 flex items-center justify-center">
+              <Globe size={16} className="text-white/60" />
+            </span>
+            <span className="flex-1 text-sm font-medium text-white/80">Language</span>
+            <span className="text-lg">🇺🇸</span>
+          </div>
+
+          {/* MOBILE AUTH/PROFILE SECTION */}
+          <div className="md:hidden mt-auto ">
+            <Divider />
+            {!isAuthenticated ? (
+              <div className="px-5 pt-6 flex flex-col gap-3">
+                <Button
+                  variant="default"
+                  className="w-full bg-accent text-white font-bold text-sm hover:bg-accent/90 h-11 rounded-sm cursor-pointer"
+                  onClick={() => {
+                    setIsLoginOpen(true)
+                    closeSidebar()
+                  }}
+                >
+                  Log In
+                </Button>
+                <Button
+                  variant="default"
+                  className="w-full bg-accent text-primary font-bold border-black/20 border text-sm hover:bg-accent/90 h-11 rounded-sm cursor-pointer"
+                  onClick={() => {
+                    setIsLoginOpen(true)
+                    closeSidebar()
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </div>
+            ) : (
+              <div className="px-5 pt-6 flex flex-col gap-4">
+                {/* Mobile Profile Info */}
+                <div
+                  className="flex items-center gap-4 cursor-pointer"
+                  onClick={() => {
+                    navigate(`/profile/${user.publicAddress}`)
+                    closeSidebar()
+                  }}
+                >
+                  <Avatar email={email} address={publicAddress} size="md" />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-bold text-white capitalize truncate max-w-[150px]">
+                      {displayName}
+                    </span>
+                    <span className="text-[10px] text-white/40 uppercase tracking-wider">
+                      View Profile
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => {
+                    debouncedHandleDeposit()
+                    closeSidebar()
+                  }}
+                  disabled={depositLoading}
+                  className="w-full bg-primary text-background text-sm font-bold hover:bg-primary/90 h-11 rounded-sm cursor-pointer"
+                >
+                  {depositLoading ? "Opening wallet" : "Deposit"}
+                </Button>
+
+                <button
+                  onClick={() => {
+                    handleLogout()
+                    closeSidebar()
+                  }}
+                  className="flex items-center gap-3 px-1 py-2 text-sm font-bold text-red-500/80 hover:text-red-500 transition-colors w-full"
+                >
+                  <LogOut size={18} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* ── Header ── */}
+      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md font-liberation">
+        <div className="container flex h-14 items-center gap-4 justify-between">
+          {/* ── Left: Burger + Logo + Desktop Nav ── */}
+          <div className="flex items-center gap-3">
+            {/* Burger — visible below xl */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="xl:hidden text-muted-foreground hover:text-white h-9 w-9 flex items-center justify-center p-0 cursor-pointer"
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (isAuthenticated) setAuthMenuOpen((p) => !p)
+                else setMenuOpen((p) => !p)
+              }}
+            >
+              {sidebarOpen ? <X className="size-5" /> : <HamburgerIcon />}
+            </Button>
+
+            {/* Logo */}
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+              <img src="/logo.svg" alt="Polymarket" className="h-4 sm:h-5.5 w-auto" />
             </div>
 
-            <nav className="hidden xl:flex items-center gap-6 py-1.5 px-3 text-sm font-bold  ">
+            {/* Desktop nav — xl+ */}
+            <nav className="hidden xl:flex items-center gap-6 py-1.5 px-3 text-sm font-bold">
               <button
                 className="text-secondary transition-colors hover:text-white"
                 onClick={(e) => {
@@ -420,7 +663,7 @@ export const Navbar: FC = () => {
             </nav>
           </div>
 
-          {/* ── Right side with search ── */}
+          {/* ── Right side ── */}
           <div className="flex items-center gap-2 sm:gap-3">
             <SearchBar />
             {showAuthLoader ? (
@@ -454,90 +697,17 @@ export const Navbar: FC = () => {
                 <Button
                   onClick={debouncedHandleDeposit}
                   disabled={isLoginOpen || depositLoading}
-                  className={`bg-primary text-background text-xs font-bold hover:bg-primary/90 px-4 rounded-sm h-8 cursor-pointer`}
+                  className="hidden md:inline-flex bg-primary text-background text-xs font-bold hover:bg-primary/90 px-4 rounded-sm h-8 cursor-pointer"
                 >
                   {depositLoading ? "Opening wallet" : "Deposit"}
                 </Button>
 
-                {/* Bell
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground hover:text-white h-9 w-9 flex items-center justify-center p-0"
-                >
-                  <Bell width={16} height={20} className="shrink-0" />
-                </Button> */}
-                <NotificationBell />
-
-                {/* Auth Burger */}
-                <div className="relative xl:hidden">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground hover:text-white h-9 w-9 flex items-center justify-center p-0 cursor-pointer"
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setAuthMenuOpen((p) => !p)
-                    }}
-                  >
-                    {authMenuOpen ? <X className="size-5" /> : <HamburgerIcon />}
-                  </Button>
-
-                  {authMenuOpen && (
-                    <Dropdown
-                      onClose={() => setAuthMenuOpen(false)}
-                      className="w-72 md:right-0 md:top-11"
-                    >
-                      <div className="p-4">
-                        <MobileSearchBar onClose={() => setAuthMenuOpen(false)} />
-                      </div>
-                      <div className="md:hidden">
-                        <Divider />
-                        <div className="px-5 py-4 flex flex-col gap-4">
-                          <div
-                            className="flex flex-col items-start"
-                            onClick={() => {
-                              handlePortfolioClick()
-                              setAuthMenuOpen(false)
-                            }}
-                          >
-                            <span className="text-secondary font-xs uppercase tracking-wide leading-none mb-1">
-                              Portfolio
-                            </span>
-                            <span className="text-primary text-sm font-bold">
-                              {formatPortfolio(portfolioAmount)}
-                            </span>
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-secondary font-xs uppercase tracking-wide leading-none mb-1">
-                              Cash
-                            </span>
-                            <span className="text-primary text-sm font-bold">
-                              {formatCash(cashAmount)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <Divider />
-                      <div className="py-2">
-                        {NAV_LINKS.map((link) => (
-                          <MenuItem
-                            key={link.path}
-                            label={link.label}
-                            onClick={() => {
-                              navigate(link.path)
-                              setAuthMenuOpen(false)
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </Dropdown>
-                  )}
+                <div>
+                  <NotificationBell />
                 </div>
 
                 {/* Profile avatar + dropdown */}
-                <div className="relative ">
+                <div className="relative hidden md:block">
                   <div
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
@@ -634,111 +804,18 @@ export const Navbar: FC = () => {
                 </div>
                 <Button
                   variant="default"
-                  className="bg-accent text-white font-base font-bold text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7  cursor-pointer"
+                  className="hidden md:inline-flex bg-accent text-white font-base font-bold text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7  cursor-pointer"
                   onClick={() => setIsLoginOpen(true)}
                 >
                   Log In
                 </Button>
                 <Button
                   variant="default"
-                  className="bg-accent text-primary font-bold border-black border text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7 cursor-pointer"
+                  className="hidden md:inline-flex bg-accent text-primary font-bold border-black border text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7 cursor-pointer"
                   onClick={() => setIsLoginOpen(true)}
                 >
                   Sign Up
                 </Button>
-
-                <div className="relative xl:hidden">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground hover:text-white h-10 w-10 cursor-pointer"
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setMenuOpen((p) => !p)
-                    }}
-                  >
-                    {menuOpen ? <X className="size-5" /> : <HamburgerIcon />}
-                  </Button>
-
-                  {menuOpen && (
-                    <Dropdown
-                      onClose={() => setMenuOpen(false)}
-                      className="w-72 md:right-0 md:top-11"
-                    >
-                      <div className="p-4">
-                        <MobileSearchBar onClose={() => setMenuOpen(false)} />
-                      </div>
-                      <Divider />
-                      <div className="py-2">
-                        {NAV_LINKS.map((link) => (
-                          <MenuItem
-                            key={link.path}
-                            label={link.label}
-                            onClick={() => {
-                              navigate(link.path)
-                              setMenuOpen(false)
-                            }}
-                          />
-                        ))}
-                      </div>
-                      <Divider />
-                      <MenuItem
-                        icon={
-                          <Trophy
-                            size={16}
-                            className="text-primary transition-colors group-hover:text-white"
-                          />
-                        }
-                        label="Leaderboard"
-                        onClick={() => {
-                          setMenuOpen(false)
-                          navigate("/leaderboard/guest")
-                        }}
-                      />
-                      <MenuItem
-                        icon={
-                          <Heart
-                            size={16}
-                            className="text-primary transition-colors group-hover:text-white fill-current"
-                          />
-                        }
-                        label="Rewards"
-                        onClick={() => {
-                          setMenuOpen(false)
-                          navigate("/rewards/guest")
-                        }}
-                      />
-                      <MenuItem
-                        icon={
-                          <Link
-                            size={16}
-                            className="text-primary transition-colors group-hover:text-white"
-                          />
-                        }
-                        label="APIs"
-                      />
-                      <Divider />
-                      <DarkModeRow />
-                      <Divider />
-                      <MenuItem
-                        label="Help Center"
-                        onClick={() => {
-                          setMenuOpen(false)
-                          navigate("/page/help")
-                        }}
-                      />
-                      <MenuItem
-                        label="Terms of Use"
-                        onClick={() => {
-                          setMenuOpen(false)
-                          navigate("/terms")
-                        }}
-                      />
-                      <MenuItem label="Language" rightIcon={<ChevronRight size={14} />} />
-                    </Dropdown>
-                  )}
-                </div>
               </>
             )}
           </div>

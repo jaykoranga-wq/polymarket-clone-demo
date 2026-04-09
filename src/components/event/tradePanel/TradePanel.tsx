@@ -1,5 +1,3 @@
-import "./TradePanel.css"
-
 import { TrendingUp } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router"
@@ -211,32 +209,52 @@ const TradePanel = ({
       {/* ── Top: Place Bet + Buy/Sell + Order Type ── */}
       <div className="flex items-end justify-between p-6 pt-4.5 gap-2">
         <div className="flex flex-col gap-2.5">
-          <h2 className="tp-title">Place Bet</h2>
-          <div className="tp-action-tabs">
-            {(["Buy", "Sell"] as Action[]).map((a) => (
-              <button
-                key={a}
-                className={`tp-action-tab${a === "Sell" ? " sell" : ""}${action === a ? " active" : ""}`}
-                onClick={() => handleAction(a)}
-              >
-                {a.toUpperCase()}
-              </button>
-            ))}
+          <h2 className="max-lg:hidden text-white font-black text-sm">Place Bet</h2>
+
+          <div className="flex gap-1.5">
+            {(["Buy", "Sell"] as Action[]).map((a) => {
+              const isActive = action === a
+              const isSell = a === "Sell"
+
+              return (
+                <button
+                  key={a}
+                  onClick={() => handleAction(a)}
+                  className={`
+            px-4 py-1.5 font-xs font-black
+             border border-white/10 rounded-2sm
+            text-white cursor-pointer transition-all duration-150
+
+            ${isActive && !isSell ? "bg-primary text-black! " : ""}
+
+            ${isActive && isSell ? "bg-no  " : ""}
+          `}
+                >
+                  {a.toUpperCase()}
+                </button>
+              )
+            })}
           </div>
         </div>
 
-        <div className="tp-dropdown-wrap" ref={dropRef}>
-          <div className="tp-order-type" onClick={() => setDropOpen((p) => !p)}>
+        <div className="relative" ref={dropRef}>
+          <div
+            className=" flex items-center gap-1 font-sm font-bold  text-white  py-1 px-2 rounded-md cursor-pointer transition-all duration-150 whitespace-nowrap hover-text-white [&svg]:size-3"
+            onClick={() => setDropOpen((p) => !p)}
+          >
             {orderType} <ChevronDown />
           </div>
           {dropOpen && (
-            <div className="tp-dropdown-menu">
+            <div
+              className=" absolute right-0 bg-slate  border border-white/10 rounded-2md  overflow-hidden z-50 min-w-[130px] shadow-[0_8px_32px_rgba(0, 0, 0, 0.5)]"
+              style={{ top: "calc(100% + 6px)" }}
+            >
               {/* commenting market for now as it is not made currently , but if market is ready please add it below .... */}
 
               {(["Market", "Limit"] as OrderType[]).map((t) => (
                 <button
                   key={t}
-                  className={`tp-dropdown-item${orderType === t ? " active" : ""}`}
+                  className={`block w-full py-2.5 px-3.5 font-sm font-semibold text-muted-foreground text-left transition-all duration-150 hover:bg-white/5 hover:text-white active:bg-white/5 active:text-white ${orderType === t ? " bg-white/5 text-white" : ""}`}
                   onClick={() => handleOrderType(t)}
                 >
                   {t}
@@ -247,9 +265,9 @@ const TradePanel = ({
         </div>
       </div>
 
-      <div className="tp-divider" />
+      <div className="h-px bg-white/10 mx-6" />
 
-      <div className="tp-body">
+      <div className="p-6 pt-4">
         {/* ── Balance row ── */}
         {/* {isAuthenticated && (
           <div className="tp-balance-row">
@@ -292,7 +310,7 @@ const TradePanel = ({
         {orderType === "Market" && action === "Buy" && (
           <>
             {/* Amount header */}
-            <div className="tp-amount-header">
+            <div className="flex items-center justify-between mb-3">
               <span className="font-base font-bold uppercase text-white">Amount</span>
               <span className=" font-sm text-white text-nowrap">
                 Balance: {formatCash(balance)}
@@ -367,7 +385,7 @@ const TradePanel = ({
                 {labelB}
               </button>
             </div> */}
-            <div className="tp-field-row">
+            <div className="flex items-center justify-between mb-3.5 gap-4">
               <span className=" font-sm font-semibold text-white  ">Shares</span>
               <input
                 type="text"
@@ -416,18 +434,21 @@ const TradePanel = ({
               </button>
             </div> */}
 
-            <div className="tp-field-row">
+            <div className="flex items-center justify-between mb-3.5 gap-4">
               <span className="  font-semibold text-white">Limit Price</span>
               <div className="flex items-center gap-2.5 py-3 px-2 rounded-md w-45/100 justify-between bg-white/5 border border-white/10">
                 <button
-                  className="tp-stepper-btn"
+                  className="w-6 h-6 rounded-2sm text-black font-default flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90
+"
                   onClick={() => setLimitCents((p) => Math.max(1, p - 1))}
                 >
                   −
                 </button>
-                <span className="tp-stepper-val">{limitCents}¢</span>
+                <span className=" font-mono font-default font-medium text-white min-w-8  text-center ">
+                  {limitCents}¢
+                </span>
                 <button
-                  className="tp-stepper-btn"
+                  className="w-6 h-6 rounded-2sm text-black font-default flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
                   onClick={() => setLimitCents((p) => Math.min(99, p + 1))}
                 >
                   +
@@ -435,7 +456,7 @@ const TradePanel = ({
               </div>
             </div>
 
-            <div className="tp-field-row">
+            <div className="flex items-center justify-between mb-3.5 gap-4">
               <span className="  font-semibold text-white">Shares</span>
               <div
                 className="flex w-45/100 items-center bg-white/5 border border-white/10 rounded-md py-3 px-4 mb-3"
@@ -468,31 +489,39 @@ const TradePanel = ({
 
             <div className="flex items-center justify-between font-base font-bold uppercase mb-2">
               <span>Set Expiration</span>
+
               <div
-                className={`tp-switch${expiry ? " on" : ""}`}
                 onClick={() => setExpiry((p) => !p)}
+                className="w-[38px] h-[22px] rounded-full border border-white/10 cursor-pointer relative shrink-0 transition-colors duration-200 bg-[#10d26006]"
               >
-                <div className="tp-switch-knob" />
+                <div
+                  className={`absolute top-[2px] left-[2px] w-[16px] h-[16px] rounded-full shadow-md transition-all duration-200 ${
+                    expiry ? "translate-x-[16px] bg-green-500" : "translate-x-0 bg-white"
+                  }`}
+                />
               </div>
             </div>
 
             {expiry && (
-              <div className="tp-expiry-box" ref={expiryRef}>
+              <div className=" relative w-full mt-3 mb-5" ref={expiryRef}>
                 <div
                   className="w-full py-4 px-2.5 bg-white/5 border border-white/10 rounded-2md text-white font-sm font-medium cursor-pointer flex items-center justify-between transition-all duration-75 ease hover:border-white/20  "
                   onClick={() => setExpiryDropOpen((p) => !p)}
                 >
                   <span>In {expiryDuration}</span>
-                  <div className="tp-expiry-chevron">
+                  <div className="text-white/80 flex items-center">
                     <ChevronDown />
                   </div>
                 </div>
                 {expiryDropOpen && (
-                  <div className="tp-expiry-menu">
+                  <div
+                    className="absolute left-0 right-0 bg-slate border border-white/10 rounded-2md z-50 shadow-[0_8px_24px_rgba(0, 0, 0, 0.5)] max-h-40 overflow-y-auto"
+                    style={{ top: "calc(100% + 6px)" }}
+                  >
                     {["1 Day", "7 Days", "30 Days", "Custom"].map((d) => (
                       <button
                         key={d}
-                        className={`tp-expiry-item${expiryDuration === d ? " active" : ""}`}
+                        className={`w-full  py-3 px-3.5 font-sm rounded-md font-medium text-left text-white  cursor-pointer  transition-all hover:bg-primary hover:text-black  ${expiryDuration === d ? " bg-primary text-black" : ""}`}
                         onClick={() => {
                           setExpiryDuration(d)
                           setExpiryDropOpen(false)
@@ -507,13 +536,13 @@ const TradePanel = ({
             )}
 
             <div className="flex flex-col gap-2 bg-black border border-border rounded-md p-4 mb-4 ">
-              <div className="tp-summary-row">
-                <span className="tp-summary-label ">Total</span>
+              <div className="flex items-center justify-between gap-3.5">
+                <span className=" flex items-center gap-1 text-white ">Total</span>
                 <span className="font-sm font-bold text-white">${total}</span>
               </div>
 
-              <div className="tp-summary-row">
-                <span className="tp-summary-label">To win</span>
+              <div className="flex items-center justify-between gap-3.5">
+                <span className=" flex items-center gap-1 text-white ">To win</span>
                 <span className="font-sm font-semibold text-primary">${toWin}</span>
               </div>
             </div>
@@ -540,18 +569,20 @@ const TradePanel = ({
               </button>
             </div> */}
 
-            <div className="tp-field-row">
+            <div className="flex items-center justify-between mb-3.5 gap-4">
               <span className=" font-semibold text-white">Limit Price</span>
               <div className="flex items-center gap-2.5 py-3 px-2 rounded-md justify-between w-45/100 bg-white/5 border border-white/10">
                 <button
-                  className="tp-stepper-btn"
+                  className="w-6 h-6 rounded-2sm text-black font-default flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
                   onClick={() => setLimitCents((p) => Math.max(1, p - 1))}
                 >
                   −
                 </button>
-                <span className="tp-stepper-val">{limitCents}¢</span>
+                <span className="font-mono font-default font-medium text-white min-w-8  text-center">
+                  {limitCents}¢
+                </span>
                 <button
-                  className="tp-stepper-btn"
+                  className="w-6 h-6 rounded-2sm text-black font-default flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
                   onClick={() => setLimitCents((p) => Math.min(99, p + 1))}
                 >
                   +
@@ -559,7 +590,7 @@ const TradePanel = ({
               </div>
             </div>
 
-            <div className="tp-field-row">
+            <div className="flex items-center justify-between mb-3.5 gap-4">
               <span className="font-semibold text-white">Shares</span>
               <div
                 className="flex w-45/100 items-center bg-white/5 border border-white/10 rounded-md py-3 px-4 mb-3"
@@ -592,31 +623,39 @@ const TradePanel = ({
 
             <div className="flex items-center justify-between font-base font-bold uppercase mb-2">
               <span>Set Expiration</span>
+
               <div
-                className={`tp-switch${expiry ? " on" : ""}`}
                 onClick={() => setExpiry((p) => !p)}
+                className="w-[38px] h-[22px] rounded-full border border-white/10 cursor-pointer relative shrink-0 transition-colors duration-200 bg-[#10d26006]"
               >
-                <div className="tp-switch-knob" />
+                <div
+                  className={`absolute top-[2px] left-[2px] w-[16px] h-[16px] rounded-full shadow-md transition-all duration-200 ${
+                    expiry ? "translate-x-[16px] bg-green-500" : "translate-x-0 bg-white"
+                  }`}
+                />
               </div>
             </div>
 
             {expiry && (
-              <div className="tp-expiry-box" ref={expiryRef}>
+              <div className="relative w-full mt-3 mb-5" ref={expiryRef}>
                 <div
-                  className="tp-expiry-select-custom"
+                  className="w-full py-4 px-2.5 bg-white/5 border border-white/10 rounded-2md text-white font-sm font-medium cursor-pointer flex items-center justify-between transition-all duration-75 ease hover:border-white/20  "
                   onClick={() => setExpiryDropOpen((p) => !p)}
                 >
                   <span>In {expiryDuration}</span>
-                  <div className="tp-expiry-chevron">
+                  <div className="text-white/80 flex items-center">
                     <ChevronDown />
                   </div>
                 </div>
                 {expiryDropOpen && (
-                  <div className="tp-expiry-menu">
+                  <div
+                    className="absolute left-0 right-0 bg-slate border border-white/10 rounded-2md z-50 shadow-[0_8px_24px_rgba(0, 0, 0, 0.5)] max-h-40 overflow-y-auto"
+                    style={{ top: "calc(100% + 6px)" }}
+                  >
                     {["1 Day", "7 Days", "30 Days", "Custom"].map((d) => (
                       <button
                         key={d}
-                        className={`tp-expiry-item${expiryDuration === d ? " active" : ""}`}
+                        className={`w-full  py-3 px-3.5 font-sm font-medium rounded-md text-left text-white  cursor-pointer  transition-all hover:bg-primary hover:text-black  ${expiryDuration === d ? " bg-primary text-black" : ""}`}
                         onClick={() => {
                           setExpiryDuration(d)
                           setExpiryDropOpen(false)
@@ -630,8 +669,11 @@ const TradePanel = ({
               </div>
             )}
 
-            <div className="tp-summary-row" style={{ marginBottom: 16 }}>
-              <span className="tp-summary-label">You'll receive</span>
+            <div
+              className="flex items-center justify-between mb-3.5 gap-4"
+              style={{ marginBottom: 16 }}
+            >
+              <span className=" flex items-center gap-1 text-white ">You'll receive</span>
               <span className="font-sm font-semibold text-primary"> ${youReceive}</span>
             </div>
           </>
@@ -654,7 +696,9 @@ const TradePanel = ({
           }}
         >
           {/* spinner — only shown when processing */}
-          {approvalState !== "idle" && <span className="tp-spinner" />}
+          {approvalState !== "idle" && (
+            <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-black" />
+          )}
 
           {/* label */}
           {buttonState === "login" && "Place Order"}

@@ -1,5 +1,3 @@
-import "./eventPage.css"
-
 import { CheckCircle, TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
@@ -102,7 +100,7 @@ const EventPage = () => {
   if (isLoading) return <EventPageSkeleton />
   if (!market)
     return (
-      <div className="flex items-center justify-center h-[60vh] text-[#5a6478] text-[13px] tracking-[0.06em]">
+      <div className="flex items-center justify-center h-[60vh] text-tab-text font-sm tracking-[0.06em]">
         Market not found.
       </div>
     )
@@ -111,7 +109,7 @@ const EventPage = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-background text-white selection:bg-primary/30 my-7.5 overflow-x-hidden">
+      <div className=" bg-background text-white selection:bg-primary/30 my-7.5 overflow-x-hidden">
         <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <ShareModal
           open={shareOpen}
@@ -156,13 +154,13 @@ const EventPage = () => {
 
             <div className="flex gap-3 pt-0.5 shrink-0">
               <button
-                className="w-9 h-9 rounded-[6px] border border-[#2A2A2A] text-[#CBD5E1] flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-[#e2e8f0] hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
+                className="w-9 h-9 rounded-[6px] border border-white/10 text-tab-text flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-white hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
                 onClick={() => setShareOpen(true)}
               >
                 <IcoShareSm />
               </button>
               <button
-                className="w-9 h-9 rounded-[6px] border border-[#2A2A2A] text-[#CBD5E1] flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-[#e2e8f0] hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
+                className="w-9 h-9 rounded-[6px] border border-white/10 text-tab-text flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-white hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
                 onClick={saveAsBookmark}
               >
                 <IcoBookmarkSm />
@@ -279,7 +277,7 @@ const EventPage = () => {
             onClick={() => setIsMobileTradeOpen(false)}
           />
           <div
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#11141b] border-t border-white/10 rounded-[20px] z-201 max-h-[90vh] w-auto overflow-y-auto"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#11141b] border-t border-white/10 rounded-[20px] z-201 max-h-[90vh] w-auto overflow-y-auto no-scrollbar max-w-[436px] min-w-[313px]"
             // style={{ animation: "slideUp 0.3s ease-out" }}
           >
             <div className="flex justify-between items-center px-6 pt-5 pb-2.5 ">

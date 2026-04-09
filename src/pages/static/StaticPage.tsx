@@ -34,7 +34,7 @@ const StaticPage = () => {
 
     if (isCallout) {
       return (
-        <div className="bg-slate border border-white/10 rounded-xl p-6 mt-4 mb-2 flex gap-5 items-start shadow-2xl relative overflow-hidden group">
+        <div className="bg-slate border border-white/10 rounded-xl p-6 mt-4 mb-2 flex flex-col md:flex-row gap-5 items-start shadow-2xl relative overflow-hidden group">
           <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="p-2.5 bg-primary/10 rounded-lg text-primary shrink-0 z-10 relative">
             <TrendingUp size={22} strokeWidth={2.5} />

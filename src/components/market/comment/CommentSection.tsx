@@ -1,5 +1,3 @@
-import "./commentSection.css"
-
 import { useState } from "react"
 
 import type { Comment } from "@/mocks/mockComments"
@@ -117,7 +115,7 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
           <LikeBtn count={likes} liked={liked} onToggle={handleLike} />
           {depth === 0 && (
             <button
-              className="font-base font-semibold text-muted-foreground transition-all"
+              className="font-base font-semibold text-muted-foreground transition-all cursor-pointer"
               onClick={() => setShowReply((p) => !p)}
             >
               Reply
@@ -129,15 +127,15 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
         {showReply && (
           <div className="flex flex-col gap-2 mt-2">
             <input
-              className="width-full bg-slate border rounded-[6px] border-white/8 py-2.5 px-3.5 font-sm text-tab-text outline-none transition-all placeholder:text-muted-foreground focus:border-white/18 focus:bg-white/6"
+              className="width-full bg-slate border rounded-[6px] border-white/8 py-2.5 px-3.5 font-sm text-tab-text outline-none transition-all placeholder:text-tab-text focus:border-white/18 focus:bg-white/6"
               placeholder="Write a reply..."
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               autoFocus
             />
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 mt-2">
               <button
-                className="py-1.5 px-3.5  font-base font-semibold text-white rounded-md transition-all"
+                className="py-1.5 px-3.5  font-base font-semibold text-white rounded-sm transition-all cursor-pointer"
                 onClick={() => {
                   setShowReply(false)
                   setReplyText("")
@@ -146,7 +144,7 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
                 Cancel
               </button>
               <button
-                className="py-1.5 px-3.5 bg-primary font-base font-bold text-white rounded-md transition-all"
+                className="py-1.5 px-3.5 bg-primary font-base font-bold text-black hover:bg-primary/90s rounded-sm transition-all cursor-pointer"
                 disabled={!replyText.trim()}
                 onClick={() => {
                   setShowReply(false)
@@ -235,7 +233,7 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
           {(["top", "new"] as const).map((s) => (
             <button
               key={s}
-              className={`py-1 px-3.5 font-base font-semibold  rounded-[6px] transition-all duration-200 ease-in-out capitalize${sortBy === s ? " bg-primary text-black" : ""}`}
+              className={`py-1 px-3.5 font-base font-semibold  rounded-2sm transition-all duration-200 ease-in-out capitalize${sortBy === s ? " bg-primary text-black" : ""}`}
               onClick={() => setSortBy(s)}
             >
               {s === "top" ? "Top" : "New"}
@@ -249,22 +247,22 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
         {/* <Avatar author="You" size={41} /> */}
         <div className="flex flex-col flex-1 gap-2">
           <input
-            className="width-full bg-slate border min-h-18  rounded-[6px] border-white/8 py-2.5 px-3.5 font-sm text-white outline-none transition-all placeholder:text-tab-text focus:border-white/18 focus:bg-white/6 "
+            className="width-full bg-slate border  rounded-2sm border-white/8 py-2.5 px-3.5 font-sm text-white outline-none transition-all placeholder:text-tab-text focus:border-white/18 focus:bg-white/6 "
             placeholder="Enter comment"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handlePost()}
           />
           {text.trim() && (
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 mt-2">
               <button
-                className="py-1.5 px-3.5 font-base font-semi-bold text-white rounded-md transition-all hover:bg-white/6"
+                className="py-1.5 px-3.5 font-base font-semi-bold text-white rounded-sm transition-all hover:bg-white/6 cursor-pointer"
                 onClick={() => setText("")}
               >
                 Cancel
               </button>
               <button
-                className="py-1.5 px-4 font-base font-semibold bg-primary text-white rounded-md transition-all "
+                className="py-1.5 px-4 font-base font-semibold bg-primary hover:bg-primary/90 text-black rounded-sm transition-all cursor-pointer"
                 onClick={handlePost}
               >
                 Post
