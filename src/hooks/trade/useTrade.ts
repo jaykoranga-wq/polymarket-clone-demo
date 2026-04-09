@@ -41,17 +41,18 @@ const EXCHANGE_ABI = ["function nonces(address) external view returns (uint256)"
 
 // ── Unit conversion reference ─────────────────────────────────────────────────
 //
-//  UI layer          Backend payload          On-chain (contract)
-//  ─────────────     ───────────────          ───────────────────
-//  limitCents  50    price  = 500_000         same (1e6 USDC units)
-//  shares       1    shares = 100             sharesOnChain = 100 × 10_000 = 1_000_000
+//  UI layer      Payload to backend         buildOrderStruct (backend)
+//  ──────────    ─────────────────          ──────────────────────────
+//  limitCents    price = limitCents×10_000  price  (already 1e6)
+//  shares (raw)  shares = raw × 1_000_000  tokens (already 1e6 minor units)
 //
-//  Backend reconstructs:
-//    usdcRequired   = (price × shares) / 100   → (500_000 × 100) / 100 = 500_000
-//    sharesOnChain  = shares × 10_000           → 100 × 10_000 = 1_000_000
+//  Backend formula (must match exactly):
+//    usdc  = (tokens × price) / 1_000_000
+//    e.g.  = (1_000_000 × 500_000) / 1_000_000 = 500_000  ✓
 //
-//  So the struct must be signed with EXACTLY those values, and the payload
-//  must carry the pre-scaled price/shares so the backend can reproduce them.
+//  Signed struct:
+//    BUY:  makerAmount = usdc,   takerAmount = tokens
+//    SELL: makerAmount = tokens, takerAmount = usdc
 
 export const useTrade = () => {
   const { magic } = useMagic()
@@ -170,34 +171,25 @@ export const useTrade = () => {
       ],
     }
 
-    // ── Derive the two values the backend will independently reconstruct ─────
+    // ── Mirror backend buildOrderStruct exactly ──────────────────────────────
     //
-    //  payloadShares = userShares × 100          (e.g. 1 share → 100)
-    //  payloadPrice  = limitCents × 10_000        (e.g. $0.50  → 500_000)
+    //  tokens = rawShares × 1_000_000  (1e6 minor units — same as backend "shares")
+    //  price  = limitCents × 10_000    (1e6 USDC units)
+    //  usdc   = (tokens × price) / 1_000_000
     //
-    //  Backend formula:
-    //    usdcRequired  = (payloadPrice × payloadShares) / 100
-    //                  = (500_000 × 100) / 100 = 500_000          ✓
-    //    sharesOnChain = payloadShares × 10_000
-    //                  = 100 × 10_000 = 1_000_000                 ✓
-    //
-    //  The struct must be signed with EXACTLY usdcRequired / sharesOnChain
-    //  so the backend's signature verification reproduces the same hash.
+    //  e.g. 5 shares at 50¢:
+    //    tokens = 5 × 1_000_000 = 5_000_000
+    //    price  = 50 × 10_000  =   500_000
+    //    usdc   = (5_000_000 × 500_000) / 1_000_000 = 2_500_000  ✓
 
-    const payloadPrice = BigInt((order.limitCents ?? 0) * 10_000) // 1e6 USDC units
-    const payloadShares = BigInt(Math.round(order.shares ?? 0) * 100) // backend shares unit
+    const tokens = BigInt(Math.round(order.shares ?? 0)) * 1_000_000n // rawShares × 1e6
+    const price = BigInt(Math.round((order.limitCents ?? 0) * 10_000)) // limitCents → 1e6
+    const usdc = (tokens * price) / 1_000_000n // matches backend formula exactly
 
-    // FIX: was `(payloadPrice * payloadShares) / 100n` which introduced a
-    // spurious extra /100 making usdcRequired 100× too small.
-    const usdcRequired = payloadPrice * (payloadShares / 100n) // = price × userShares
-    const sharesOnChain = payloadShares * 10_000n // = userShares × 1_000_000
-    console.log("sending sharesonchain: ", sharesOnChain)
     const isBuy = order.action === "Buy"
     const nonce = await getNonce(signer)
 
     const orderStruct = {
-      // FIX: was Date.now() — two orders placed within the same millisecond
-      // would produce identical hashes → second one reverts as OrderFilledOrCancelled.
       salt: BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) + BigInt(Date.now()),
       maker: address!,
       signer: address!,
@@ -205,10 +197,10 @@ export const useTrade = () => {
       collateralToken: ADDRESSES.USDC,
       ctf: ADDRESSES.ConditionalTokens,
       tokenId: BigInt(tokenId as string),
-      // BUY  → maker spends USDC,   taker delivers outcome tokens
-      // SELL → maker delivers tokens, taker pays USDC
-      makerAmount: isBuy ? usdcRequired : sharesOnChain,
-      takerAmount: isBuy ? sharesOnChain : usdcRequired,
+      // BUY:  maker spends USDC,   taker delivers tokens
+      // SELL: maker delivers tokens, taker pays USDC
+      makerAmount: isBuy ? usdc : tokens,
+      takerAmount: isBuy ? tokens : usdc,
       side: isBuy ? 0n : 1n,
       expiry: 0n,
       nonce: BigInt(nonce),
@@ -241,19 +233,21 @@ export const useTrade = () => {
 
       setApprovalState("signing")
       const { orderStruct, signature } = await signOrder(signer, order)
-
+      console.log("shares for payload:", order.shares)
       const payload = {
         tokenId:
           order.outcome === "Yes" ? (order.yesTokenId as string) : (order.noTokenId as string),
-        // Backend expects price in 1e6 units and shares in userShares×100 units.
-        // These must match what was used to build the signed struct above.
-        price: ((order.limitCents ?? 0) * 10_000).toString(), // e.g. "500000"
-        shares: (Math.round(order.shares ?? 0) * 10_00_000).toString(), // e.g. "1000000"
+        // Must match exactly what signOrder used to build the struct:
+        //   price  = limitCents × 10_000  (1e6 units)
+        //   shares = rawShares  × 1_000_000 (1e6 minor units — backend "tokens")
+        price: Math.round((order.limitCents ?? 0) * 10_000).toString(),
+        shares: (Math.round(order.shares ?? 0) * 1_000_000).toString(),
         type: order.action === "Buy" ? 1 : 2,
         nonce: orderStruct.nonce.toString(),
         salt: orderStruct.salt.toString(),
         signature,
       }
+      console.log("payload:", payload)
 
       setApprovalState("submitting")
       await createOrder(payload).unwrap()
