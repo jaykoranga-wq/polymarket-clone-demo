@@ -27,7 +27,7 @@ export const MarketRulesTab = ({
     rules.length > RULES_MAX && !rulesOpen ? rules.slice(0, RULES_MAX) + "…" : rules
 
   return (
-    <div className="mb-4">
+    <div className="">
       {/* ── Description / Rules text ── */}
       {rules ? (
         <>

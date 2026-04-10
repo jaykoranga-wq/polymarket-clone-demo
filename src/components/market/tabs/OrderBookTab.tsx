@@ -121,7 +121,7 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
   const maxShares = getMaxShares([...bids, ...asks])
 
   return (
-    <div className="mb-4">
+    <div className="">
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-3.5">
         <span className="font-base font-bold text-white uppercase tracking-wider">Order Book</span>

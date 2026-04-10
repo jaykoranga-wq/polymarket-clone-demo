@@ -77,7 +77,7 @@ const StaticPage = () => {
 
   return (
     <div className="text-white bg-background ">
-      <div className="container mt-6 mb-20 ">
+      <div className="container mt-4 md:mt-6 mb-14 md:mb-20 ">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
@@ -88,7 +88,7 @@ const StaticPage = () => {
         </button>
 
         {/* Page Header */}
-        <div className="mb-16">
+        <div className="mb-10 md:mb-16">
           <h2 className="font-2xl font-bold text-white mb-1.5 tracking-tighter">{page.title}</h2>
           <p className="font-default text-white/60 mb-6 ">{page.subtitle}</p>
           <div className="w-16 h-1 bg-primary rounded-full shadow-[0_0_15px_rgba(0,200,83,0.3)]" />

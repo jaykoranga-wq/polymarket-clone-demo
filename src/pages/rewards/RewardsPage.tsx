@@ -130,8 +130,8 @@ const XPCard = () => {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-px">
-          <span className="text-[17px] font-black text-white leading-none">{pct}%</span>
-          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">
+          <span className="text-[16px] font-black text-white leading-none">{pct}%</span>
+          <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">
             Progress
           </span>
         </div>
@@ -168,7 +168,7 @@ const XPCard = () => {
 const RewardCard = ({ item }: { item: RewardItem }) => {
   if (item.completed) {
     return (
-      <div className="bg-primary/2 border border-primary/20 rounded-md p-6 flex flex-col gap-4 transition-all duration-300 hover:border-primary/20 group h-full">
+      <div className="bg-primary/2 border border-primary/20 rounded-lg p-6 flex flex-col gap-4 transition-all duration-300 hover:border-primary/20 group h-full">
         {/* top row: icon + xp with check */}
         <div className="flex justify-between items-start w-full">
           <div className="w-10 h-10 bg-primary/10 rounded-sm flex items-center justify-center text-primary/50">
@@ -197,7 +197,7 @@ const RewardCard = ({ item }: { item: RewardItem }) => {
   const targetUnit = targetParts.slice(1).join(" ")
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-md p-6 flex flex-col gap-4 transition-all duration-300 hover:border-white/10 group h-full">
+    <div className="bg-white/5 border border-white/10 rounded-lg p-6 flex flex-col gap-4 transition-all duration-300 hover:border-white/10 group h-full">
       {/* top row: icon + xp */}
       <div className="flex justify-between items-start w-full">
         <div className="w-8.5 h-8.5 bg-primary/10 rounded-sm flex items-center justify-center">
@@ -281,7 +281,7 @@ const RewardsPage = () => {
   }
 
   return (
-    <div className="container mt-6 mb-20 text-white">
+    <div className="container mt-4 md:mt-6 mb-12 md:mb-18.5 text-white">
       <div>
         <div className="flex flex-row flex-wrap justify-between items-center gap-12 mb-10">
           {/* header */}

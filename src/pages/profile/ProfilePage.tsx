@@ -197,7 +197,7 @@ const ProfilePage = () => {
 
   return (
     <div className="container font-inter">
-      <div className="mt-6 mb-20">
+      <div className=" mt-4 md:mt-6 mb-12 md:mb-18.5">
         {/* ── Header card ── */}
         <div className="flex  flex-wrap justify-start items-center gap-10 mb-14">
           <BigAvatar name={profile.displayName} />

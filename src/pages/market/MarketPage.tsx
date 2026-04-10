@@ -5,8 +5,6 @@
 //   2. /markets/SomeCategory                                   → filter by category
 //   3. /markets/search?q=bitcoin                              → search results from API
 
-import "./marketPage.css"
-
 import { useEffect, useMemo } from "react"
 import { useSelector } from "react-redux"
 import { useParams, useSearchParams } from "react-router"
@@ -135,17 +133,21 @@ const MarketsPage = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="container  bg-background text-foreground mx-auto mt-2  mb-20">
-      <div className="flex items-baseline gap-3 pb-4 pt-4 ml-1 mb-6 capitalize  border-b border-b-white/7 ">
+    <div className="container min-h-[calc(100vh-450px)] bg-background text-foreground mx-auto mt-2 mb-12 md:mb-18.5">
+      <div className="flex items-baseline-last gap-3 pb-4 pt-4 ml-1 mb-6 capitalize  border-b border-b-white/7 ">
         <div>
           <h1 className="text-lg md:text-xl  font-bold text-white">{title as string}</h1>
           {isSearch && (
-            <p className="text-[13px] text-white/40 mt-1">
+            <p className="font-sm text-white/40 mt-1">
               Search results for markets matching your query
             </p>
           )}
         </div>
-        {!isLoading && <span className="mp-count">{markets.length} markets</span>}
+        {!isLoading && (
+          <span className="font-base font-medium text-muted-foreground">
+            {markets.length} markets
+          </span>
+        )}
       </div>
 
       {isLoading ? (
@@ -153,11 +155,11 @@ const MarketsPage = () => {
           <MarketGridSkeleton count={8} />
         </div>
       ) : markets.length === 0 ? (
-        <div className="mp-empty">
+        <div className="text-center py-20 font-sm text-muted-foreground">
           {isSearch ? `No markets found for "${searchQuery}".` : "No markets found."}
         </div>
       ) : (
-        <div className="mp-list">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {markets.map((market) => (
             <BinaryMarketCard key={market.id} market={market} />
           ))}

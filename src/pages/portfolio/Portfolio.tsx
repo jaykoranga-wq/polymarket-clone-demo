@@ -91,7 +91,7 @@ const PortfolioPage = () => {
         }}
       >
         <div
-          className="mt-6 mb-20 "
+          className="mt-4 md:mt-6 mb-12 md:mb-18.5 "
           //  style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px 80px" }}
         >
           {/* ── Page header ── */}

@@ -13,7 +13,7 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
   const items = MOCK_ACTIVITY
 
   return (
-    <div className="mb-4">
+    <div>
       <div className="flex items-center justify-between mb-3.5">
         {/* <span className="font-base font-bold text-white uppercase ">Recent Activity</span> */}
         <span className="font-sm text-primary">{items.length} trades</span>

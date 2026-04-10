@@ -224,7 +224,7 @@ export const PortfolioChart = memo(
           {/* Custom Tooltip */}
           <div
             ref={tooltipRef}
-            className="absolute z-50 pointer-events-none bg-[#102218] border border-[#00c853] rounded-md p-2.5 shadow-2xl space-y-0.5"
+            className="absolute z-10 pointer-events-none bg-[#102218] border border-[#00c853] rounded-md p-2.5 shadow-2xl space-y-0.5"
             style={{ display: "none", width: "140px" }}
           >
             <div className="font-xs font-bold text-muted-foreground uppercase tracking-wider">

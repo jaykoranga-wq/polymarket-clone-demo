@@ -45,7 +45,7 @@ const TermsPage = () => {
 
   return (
     <div className="text-white ">
-      <div className="container mt-6 mb-20 flex gap-7 lg:gap-14 items-start">
+      <div className="container mt-4 md:mt-6 mb-12 md:mb-18.5 flex gap-7 lg:gap-14 items-start">
         {/* ── Sidebar ── */}
         <aside className="hidden w-50 lg:w-60 shrink-0 sticky top-24 md:flex flex-col gap-3">
           <div className="font-sm font-bold text-white uppercase mb-2.5">Contents</div>
@@ -110,7 +110,7 @@ const TermsPage = () => {
           </div>
 
           {/* footer note */}
-          <div className="mt-14 py-4 px-6 bg-white/5 border border-white/10 rounded-md font-base text-white/50">
+          <div className=" mt-8 md:mt-14 py-4 px-6 bg-white/5 border border-white/10 rounded-md font-base text-white/50">
             Questions about these terms? Contact us at{" "}
             <a
               href={`mailto:${TERMS_META.contactEmail}`}

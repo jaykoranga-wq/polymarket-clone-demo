@@ -292,7 +292,7 @@ const LeaderboardPage = () => {
 
   return (
     <div className="text-white">
-      <div className="container mt-6 mb-20">
+      <div className="container mt-4 md:mt-6 mb-12 md:mb-18.5">
         {/* header */}
         <div className="flex justify-between items-end flex-wrap mb-8 gap-5">
           <div>

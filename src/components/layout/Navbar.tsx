@@ -11,7 +11,7 @@ import {
   Medal,
   // Moon,
   Search,
-  Settings,
+  // Settings,
   Sparkles,
   X,
   Zap,
@@ -138,7 +138,7 @@ const MenuItem = ({
 
 // ── SectionHeader ─────────────────────────────────────────────────────────────
 const SectionHeader = ({ title }: { title: string }) => (
-  <div className="px-5 pt-6 pb-2">
+  <div className="px-5 pt-4 md:pt-6 pb-2">
     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">{title}</span>
   </div>
 )
@@ -612,7 +612,7 @@ export const Navbar: FC = () => {
 
             {/* Logo */}
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-              <img src="/logo.svg" alt="Polymarket" className="h-4 sm:h-5.5 w-auto" />
+              <img src="/logo.svg" alt="Polymarket" className="h-4.5 sm:h-5.5 w-auto" />
             </div>
 
             {/* Desktop nav — xl+ */}
@@ -750,9 +750,9 @@ export const Navbar: FC = () => {
                     >
                       <div className="p-5 flex items-start gap-4 relative">
                         {/* Settings button top right */}
-                        <button className="absolute top-5 right-5 text-white/40 hover:text-white transition-colors">
+                        {/* <button className="absolute top-5 right-5 text-white/40 hover:text-white transition-colors">
                           <Settings size={16} />
-                        </button>
+                        </button> */}
 
                         <div
                           className="flex items-center gap-4 cursor-pointer group flex-1"

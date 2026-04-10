@@ -109,7 +109,7 @@ const EventPage = () => {
 
   return (
     <>
-      <div className=" bg-background text-white selection:bg-primary/30 mt-6 mb-10 overflow-x-hidden">
+      <div className=" bg-background text-white selection:bg-primary/30 mt-4 md:mt-6 mb-12 md:mb-18.5 overflow-x-hidden">
         <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <ShareModal
           open={shareOpen}
@@ -121,7 +121,7 @@ const EventPage = () => {
         <Toaster richColors position="top-center" />
         <div className="container">
           {/* ── Breadcrumb ── */}
-          <div className="flex items-start space-x-2 font-sm  mt-2">
+          <div className="flex items-start space-x-2 font-sm mb-4 mt-2">
             <span className="text-gray-400 capitalize">{market.category}</span>
             <span className=" text-gray-500">›</span>
             <span className="text-white capitalize font-medium">
@@ -190,7 +190,7 @@ const EventPage = () => {
           <div
             className="grid ep-layout-inner items-start gap-5 max-[1479px]:gap-4"
             style={{
-              gridTemplateColumns: "1fr 340px",
+              gridTemplateColumns: "1fr 430px",
             }}
           >
             {/* ══ LEFT ══ */}
@@ -219,7 +219,7 @@ const EventPage = () => {
               </div>
 
               {/* Tab content */}
-              <div className="py-4">
+              <div className="pt-4">
                 {activeTab === "rules" && (
                   <MarketRulesTab
                     description={market.description}

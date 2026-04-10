@@ -97,7 +97,7 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
   }
 
   return (
-    <div className={`flex gap-2.5 py-4  ${depth > 0 ? " pt-3 mt-1" : ""}`}>
+    <div className={`flex gap-2.5 py-4 last:pb-0 ${depth > 0 ? " pt-3 mt-1" : ""}`}>
       <Avatar author={comment.author} size={depth > 0 ? 28 : 34} />
 
       <div className="flex-1 flex flex-col gap-1.5 ">
@@ -226,7 +226,7 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
   }
 
   return (
-    <div className="flex flex-col gap-5 mb-4">
+    <div className="flex flex-col gap-5 ">
       {/* Header */}
       <div className="flex items-center">
         <div className=" flex gap-1 bg-white/4 rounded-md p-1  ">
