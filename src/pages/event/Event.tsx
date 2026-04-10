@@ -109,7 +109,7 @@ const EventPage = () => {
 
   return (
     <>
-      <div className=" bg-background text-white selection:bg-primary/30 my-7.5 overflow-x-hidden">
+      <div className=" bg-background text-white selection:bg-primary/30 mt-6 mb-10 overflow-x-hidden">
         <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <ShareModal
           open={shareOpen}
@@ -281,9 +281,9 @@ const EventPage = () => {
             // style={{ animation: "slideUp 0.3s ease-out" }}
           >
             <div className="flex justify-between items-center px-6 pt-5 pb-2.5 ">
-              <span className="font-bold text-lg">Place Bet</span>
+              <span className="font-lg font-bold">Place Bet</span>
               <button
-                className="bg-white/5 border-none text-[#888] w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer"
+                className="border-none text-[#888] w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer"
                 onClick={() => setIsMobileTradeOpen(false)}
               >
                 ✕

@@ -33,7 +33,7 @@ const Home: FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-white selection:bg-primary/30">
+    <div className="bg-background text-white selection:bg-primary/30">
       <Toaster richColors position="top-center" />
       {/* {userLoading && <AuthLoader />} */}
 

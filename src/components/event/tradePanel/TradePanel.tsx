@@ -1,11 +1,12 @@
 import { TrendingUp } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router"
 
 import { useAppSelector } from "@/app/hooks"
 import { selectAvailableAmount, selectIsAuthenticated } from "@/features/auth/authSlice"
 import { useDebouncedCallback } from "@/hooks/custom/useDebounce"
 import type { TradePanelOrder } from "@/hooks/trade/TradeTypes"
+import { useDropdown } from "@/hooks/ui/useDropdown"
 import { formatCash } from "@/libs/formatCurrency"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -64,7 +65,12 @@ const TradePanel = ({
   const [action, setAction] = useState<Action>("Buy")
   const [orderType, setOrderType] = useState<OrderType>("Limit")
   const [outcome, setOutcome] = useState(labelA)
-  const [dropOpen, setDropOpen] = useState(false)
+  const {
+    isOpen: dropOpen,
+    toggle: toggleDrop,
+    close: closeDrop,
+    ref: dropRef,
+  } = useDropdown("trade-panel-order-type")
   const [activePct, setActivePct] = useState<string | null>(null)
   const navigate = useNavigate()
 
@@ -80,7 +86,12 @@ const TradePanel = ({
   const [shares, setShares] = useState(0)
   const [expiry, setExpiry] = useState(false)
   const [expiryDuration, setExpiryDuration] = useState("7 Days")
-  const [expiryDropOpen, setExpiryDropOpen] = useState(false)
+  const {
+    isOpen: expiryDropOpen,
+    toggle: toggleExpiryDrop,
+    close: closeExpiryDrop,
+    ref: expiryRef,
+  } = useDropdown("trade-panel-expiry")
 
   const handleAction = (a: Action) => {
     setAction(a)
@@ -89,19 +100,19 @@ const TradePanel = ({
     setSellPct(null)
     setShares(0)
     setExpiry(false)
-    setExpiryDropOpen(false)
+    closeExpiryDrop()
     setActivePct(null)
     setLimitCents(outcome === labelA ? priceA : priceB)
   }
   const handleOrderType = (t: OrderType) => {
     setOrderType(t)
-    setDropOpen(false)
+    closeDrop()
     setAmount(0)
     setSellShares(0)
     setSellPct(null)
     setShares(0)
     setExpiry(false)
-    setExpiryDropOpen(false)
+    closeExpiryDrop()
     setActivePct(null)
   }
   const handleOutcome = (o: string) => {
@@ -114,24 +125,7 @@ const TradePanel = ({
   }
 
   // close dropdown on outside click
-  const dropRef = useRef<HTMLDivElement>(null)
-  const expiryRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const h = (e: MouseEvent) => {
-      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropOpen(false)
-    }
-    document.addEventListener("mousedown", h)
-    return () => document.removeEventListener("mousedown", h)
-  }, [])
-
-  useEffect(() => {
-    const h = (e: MouseEvent) => {
-      if (expiryRef.current && !expiryRef.current.contains(e.target as Node))
-        setExpiryDropOpen(false)
-    }
-    document.addEventListener("mousedown", h)
-    return () => document.removeEventListener("mousedown", h)
-  }, [])
+  // (Handled by useDropdown hook now)
 
   // ── Market Buy: percentage presets ──
   const handlePctPreset = (pct: string) => {
@@ -240,7 +234,7 @@ const TradePanel = ({
         <div className="relative" ref={dropRef}>
           <div
             className=" flex items-center gap-1 font-sm font-bold  text-white  py-1 px-2 rounded-md cursor-pointer transition-all duration-150 whitespace-nowrap hover-text-white [&svg]:size-3"
-            onClick={() => setDropOpen((p) => !p)}
+            onClick={toggleDrop}
           >
             {orderType} <ChevronDown />
           </div>
@@ -312,7 +306,7 @@ const TradePanel = ({
             {/* Amount header */}
             <div className="flex items-center justify-between mb-3">
               <span className="font-base font-bold uppercase text-white">Amount</span>
-              <span className=" font-sm text-white text-nowrap">
+              <span className=" font-base text-white text-nowrap">
                 Balance: {formatCash(balance)}
               </span>
             </div>
@@ -444,7 +438,7 @@ const TradePanel = ({
                 >
                   −
                 </button>
-                <span className=" font-mono font-default font-medium text-white min-w-8  text-center ">
+                <span className=" font-mono font-default font-bold text-white min-w-8  text-center ">
                   {limitCents}¢
                 </span>
                 <button
@@ -506,7 +500,7 @@ const TradePanel = ({
               <div className=" relative w-full mt-3 mb-5" ref={expiryRef}>
                 <div
                   className="w-full py-4 px-2.5 bg-white/5 border border-white/10 rounded-2md text-white font-sm font-medium cursor-pointer flex items-center justify-between transition-all duration-75 ease hover:border-white/20  "
-                  onClick={() => setExpiryDropOpen((p) => !p)}
+                  onClick={toggleExpiryDrop}
                 >
                   <span>In {expiryDuration}</span>
                   <div className="text-white/80 flex items-center">
@@ -515,16 +509,16 @@ const TradePanel = ({
                 </div>
                 {expiryDropOpen && (
                   <div
-                    className="absolute left-0 right-0 bg-slate border border-white/10 rounded-2md z-50 shadow-[0_8px_24px_rgba(0, 0, 0, 0.5)] max-h-40 overflow-y-auto"
+                    className="absolute left-0 right-0 bg-slate border border-white/10 rounded-2md z-50 shadow-[0_8px_24px_rgba(0, 0, 0, 0.5)] max-h-40 overflow-y-auto no-scrollbar"
                     style={{ top: "calc(100% + 6px)" }}
                   >
                     {["1 Day", "7 Days", "30 Days", "Custom"].map((d) => (
                       <button
                         key={d}
-                        className={`w-full  py-3 px-3.5 font-sm rounded-md font-medium text-left text-white  cursor-pointer  transition-all hover:bg-primary hover:text-black  ${expiryDuration === d ? " bg-primary text-black" : ""}`}
+                        className={`w-full  py-3 px-3.5 font-sm rounded-md font-medium text-left text-white  cursor-pointer  transition-all hover:bg-white/8   ${expiryDuration === d ? " bg-primary text-black!" : ""}`}
                         onClick={() => {
                           setExpiryDuration(d)
-                          setExpiryDropOpen(false)
+                          closeExpiryDrop()
                         }}
                       >
                         In {d}
@@ -537,12 +531,12 @@ const TradePanel = ({
 
             <div className="flex flex-col gap-2 bg-black border border-border rounded-md p-4 mb-4 ">
               <div className="flex items-center justify-between gap-3.5">
-                <span className=" flex items-center gap-1 text-white ">Total</span>
+                <span className=" flex items-center gap-1 text-tabs font-sm">Total</span>
                 <span className="font-sm font-bold text-white">${total}</span>
               </div>
 
               <div className="flex items-center justify-between gap-3.5">
-                <span className=" flex items-center gap-1 text-white ">To win</span>
+                <span className=" flex items-center gap-1 text-tabs font-sm">To win</span>
                 <span className="font-sm font-semibold text-primary">${toWin}</span>
               </div>
             </div>
@@ -640,7 +634,7 @@ const TradePanel = ({
               <div className="relative w-full mt-3 mb-5" ref={expiryRef}>
                 <div
                   className="w-full py-4 px-2.5 bg-white/5 border border-white/10 rounded-2md text-white font-sm font-medium cursor-pointer flex items-center justify-between transition-all duration-75 ease hover:border-white/20  "
-                  onClick={() => setExpiryDropOpen((p) => !p)}
+                  onClick={toggleExpiryDrop}
                 >
                   <span>In {expiryDuration}</span>
                   <div className="text-white/80 flex items-center">
@@ -658,7 +652,7 @@ const TradePanel = ({
                         className={`w-full  py-3 px-3.5 font-sm font-medium rounded-md text-left text-white  cursor-pointer  transition-all hover:bg-primary hover:text-black  ${expiryDuration === d ? " bg-primary text-black" : ""}`}
                         onClick={() => {
                           setExpiryDuration(d)
-                          setExpiryDropOpen(false)
+                          closeExpiryDrop()
                         }}
                       >
                         In {d}
@@ -715,7 +709,7 @@ const TradePanel = ({
         </button>
 
         <div
-          className="text-center font-sm text-white "
+          className="text-center font-sm text-tab-text "
           onClick={() => {
             navigate("/terms")
           }}

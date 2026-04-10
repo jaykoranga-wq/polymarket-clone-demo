@@ -39,6 +39,11 @@ import {
 } from "@/features/auth/authSlice"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import { useMagic } from "@/features/auth/lib/magic"
+import {
+  clearActiveDropdown,
+  selectActiveDropdownId,
+  toggleDropdown as toggleGlobalDropdown,
+} from "@/features/ui/uiSlice"
 import { useDebouncedCallback } from "@/hooks/custom/useDebounce"
 import { formatCash, formatPortfolio } from "@/libs/formatCurrency"
 import { setMetaMaskLoggedOut } from "@/routes/utils"
@@ -308,13 +313,17 @@ export const Navbar: FC = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [authMenuOpen, setAuthMenuOpen] = useState(false)
-  const [profileOpen, setProfileOpen] = useState(false)
   const [depositLoading, setDepositLoading] = useState(false)
   const [metamaskDepositOpen, setMetamaskDepositOpen] = useState(false)
 
-  const [moreOpen, setMoreOpen] = useState(false)
+  const activeDropdown = useAppSelector(selectActiveDropdownId)
   const navigate = useNavigate()
   const [logoutToBackend] = useLogoutMutation()
+
+  // Toggles dropdowns and ensures only one is open
+  const toggleDropdown = (name: string) => {
+    dispatch(toggleGlobalDropdown(name))
+  }
 
   // Derived sidebar state
   const sidebarOpen = isAuthenticated ? authMenuOpen : menuOpen
@@ -332,7 +341,7 @@ export const Navbar: FC = () => {
   // ── Logout ────────────────────────────────────────────────────────────────
   const handleLogout = async () => {
     dispatch(loadingTrue())
-    setProfileOpen(false)
+    dispatch(clearActiveDropdown())
 
     try {
       if (user.loginMethod === LOGIN_METHODS.Email || user.loginMethod === LOGIN_METHODS.Google) {
@@ -484,14 +493,16 @@ export const Navbar: FC = () => {
               else navigate("/rewards/guest")
             }}
           />
-          <SidebarItem
-            icon={<Link size={16} className="text-primary" />}
-            label="Portfolio"
-            onClick={() => {
-              handlePortfolioClick()
-              closeSidebar()
-            }}
-          />
+          {isAuthenticated && (
+            <SidebarItem
+              icon={<Link size={16} className="text-primary" />}
+              label="Portfolio"
+              onClick={() => {
+                handlePortfolioClick()
+                closeSidebar()
+              }}
+            />
+          )}
 
           {/* SYSTEM */}
           {/* <SectionHeader title="System" />
@@ -591,6 +602,7 @@ export const Navbar: FC = () => {
               onMouseDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation()
+                dispatch(clearActiveDropdown()) // Close any open dropdowns when sidebar toggles
                 if (isAuthenticated) setAuthMenuOpen((p) => !p)
                 else setMenuOpen((p) => !p)
               }}
@@ -637,30 +649,33 @@ export const Navbar: FC = () => {
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.stopPropagation()
-                    setMoreOpen((p) => !p)
+                    toggleDropdown("more")
                   }}
                   className="flex items-center gap-1 text-secondary transition-colors hover:text-white ml-0"
                 >
                   More{" "}
                   <ChevronDown
                     size={14}
-                    className={`transition-transform ${moreOpen ? "rotate-180" : ""}`}
+                    className={`transition-transform ${activeDropdown === "more" ? "rotate-180" : ""}`}
                   />
                 </button>
 
-                {moreOpen && (
-                  <Dropdown onClose={() => setMoreOpen(false)} className="w-48 md:left-0 md:mt-2">
+                {activeDropdown === "more" && (
+                  <Dropdown
+                    onClose={() => dispatch(clearActiveDropdown())}
+                    className="w-48 md:left-0 md:mt-2.5"
+                  >
                     <MenuItem
                       label="Hollywood"
                       onClick={() => {
-                        setMoreOpen(false)
+                        dispatch(clearActiveDropdown())
                         navigate("/markets/category/Hollywood")
                       }}
                     />
                     <MenuItem
                       label="Awards"
                       onClick={() => {
-                        setMoreOpen(false)
+                        dispatch(clearActiveDropdown())
                         navigate("/markets/category/Awards")
                       }}
                     />
@@ -710,7 +725,10 @@ export const Navbar: FC = () => {
                 </Button>
 
                 <div>
-                  <NotificationBell />
+                  <NotificationBell
+                    isOpen={activeDropdown === "notifications"}
+                    onToggle={() => toggleDropdown("notifications")}
+                  />
                 </div>
 
                 {/* Profile avatar + dropdown */}
@@ -719,15 +737,15 @@ export const Navbar: FC = () => {
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation()
-                      setProfileOpen((p) => !p)
+                      toggleDropdown("profile")
                     }}
                   >
                     <Avatar email={email} address={publicAddress} />
                   </div>
 
-                  {profileOpen && (
+                  {activeDropdown === "profile" && (
                     <Dropdown
-                      onClose={() => setProfileOpen(false)}
+                      onClose={() => dispatch(clearActiveDropdown())}
                       className="w-72 md:right-0 md:top-11"
                     >
                       <div className="p-5 flex items-start gap-4 relative">
@@ -739,7 +757,7 @@ export const Navbar: FC = () => {
                         <div
                           className="flex items-center gap-4 cursor-pointer group flex-1"
                           onClick={() => {
-                            setProfileOpen(false)
+                            dispatch(clearActiveDropdown())
                             navigate(`/profile/${user.publicAddress}`)
                           }}
                         >
@@ -776,7 +794,7 @@ export const Navbar: FC = () => {
                           icon={<BarChart3 size={20} className="text-primary" />}
                           label="Leaderboard"
                           onClick={() => {
-                            setProfileOpen(false)
+                            dispatch(clearActiveDropdown())
                             navigate(`/leaderboard/${user.publicAddress}`)
                           }}
                         />
@@ -784,7 +802,7 @@ export const Navbar: FC = () => {
                           icon={<Medal size={20} className="text-primary fill-primary/10" />}
                           label="Rewards"
                           onClick={() => {
-                            setProfileOpen(false)
+                            dispatch(clearActiveDropdown())
                             navigate(`/rewards/${user.publicAddress}`)
                           }}
                         />
@@ -823,6 +841,45 @@ export const Navbar: FC = () => {
                 >
                   Sign Up
                 </Button>
+
+                {!isAuthenticated && (
+                  <div className="hidden xl:block relative" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleDropdown("loggedOutMenu")
+                      }}
+                      className="flex items-center gap-1 text-secondary transition-colors hover:text-white ml-2"
+                    >
+                      <HamburgerIcon />
+                    </button>
+
+                    {activeDropdown === "loggedOutMenu" && (
+                      <Dropdown
+                        onClose={() => dispatch(clearActiveDropdown())}
+                        className="w-48 md:right-0 md:left-auto md:mt-2.5"
+                      >
+                        <MenuItem
+                          icon={<BarChart3 size={20} className="text-primary" />}
+                          label="Leaderboard"
+                          onClick={() => {
+                            dispatch(clearActiveDropdown())
+                            navigate("/leaderboard/guest")
+                          }}
+                        />
+                        <MenuItem
+                          icon={<Medal size={20} className="text-primary fill-primary/10" />}
+                          label="Rewards"
+                          onClick={() => {
+                            dispatch(clearActiveDropdown())
+                            navigate("/rewards/guest")
+                          }}
+                        />
+                      </Dropdown>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </div>

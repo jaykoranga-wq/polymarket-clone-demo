@@ -128,7 +128,7 @@ const BadgeChip = ({ icon, label, color }: { icon: string; label: string; color:
 )
 
 const AccuracySection = ({ winRate, trades }: { winRate: number; trades: number }) => (
-  <div className="bg-white/5 border border-white/10 rounded-md py-4 px-6 flex-2">
+  <div className="bg-white/5 border border-white/10 rounded-lg py-4 px-6 flex-2">
     <div className="flex justify-between flex-col md:flex-row items-start md:items-center gap-4 mb-8">
       <div>
         <h2 className="text-xl font-bold mb-1.5">Trading Accuracy</h2>
@@ -164,7 +164,7 @@ const AccuracySection = ({ winRate, trades }: { winRate: number; trades: number 
 )
 
 const BadgesSection = ({ badges }: { badges: Badge[] }) => (
-  <div className="bg-white/5 border border-white/10 rounded-md py-4 px-6 flex-1 lg:min-w-[380px] min-w-0">
+  <div className="bg-white/5 border border-white/10 rounded-lg py-4 px-6 flex-1 lg:min-w-[380px] min-w-0">
     <div className="flex justify-between items-center mb-6">
       <h2 className="font-sm font-bold uppercase tracking-[0.2em]  shrink-0">Badges Earned</h2>
     </div>
@@ -197,7 +197,7 @@ const ProfilePage = () => {
 
   return (
     <div className="container font-inter">
-      <div className="mt-7.5 mb-18">
+      <div className="mt-6 mb-20">
         {/* ── Header card ── */}
         <div className="flex  flex-wrap justify-start items-center gap-10 mb-14">
           <BigAvatar name={profile.displayName} />
@@ -228,13 +228,13 @@ const ProfilePage = () => {
               )}
 
               {/* Share Button Below Email */}
-              <button className="flex items-center gap-2.5 text-black py-2 px-5 bg-primary border border-white/10 rounded-md font-bold font-sm hover:bg-primary/60 w-fit transition-all mt-1">
+              <button className="flex items-center gap-2.5 text-black py-2 px-5 bg-primary border border-white/10 rounded-sm font-bold font-sm hover:bg-primary/60 w-fit transition-all mt-1">
                 <Share2 size={15} className="text-black [&_svg]:[stroke:2.5px]" /> Share Profile
               </button>
             </div>
           </div>
 
-          <div className="hidden lg:flex bg-primary/10 border border-primary/20 rounded-md py-4 px-6 items-center gap-7 justify-between lg:ml-auto max-h-21 ">
+          <div className="hidden lg:flex bg-primary/10 border border-primary/20 rounded-lg py-4 px-6 items-center gap-7 justify-between lg:ml-auto max-h-21 ">
             <div className="flex flex-col gap-1">
               <span className="font-base text-primary uppercase font-bold">Global Rank</span>
               <span className="font-xl text-primary font-black">#{profile.rank}</span>

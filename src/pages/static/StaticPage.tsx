@@ -58,7 +58,7 @@ const StaticPage = () => {
   // ── 404 ──
   if (!page) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+      <div className="bg-background flex flex-col items-center justify-center gap-4">
         <span className="text-5xl">🔍</span>
         <h1 className="text-2xl font-bold text-white m-0">Page not found</h1>
         <p className="text-base text-white/50">

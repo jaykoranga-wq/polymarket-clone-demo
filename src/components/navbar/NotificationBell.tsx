@@ -1,7 +1,6 @@
 // src/components/navbar/NotificationBell.tsx
 
 import { Bell, Trash2, X } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
 import {
@@ -17,6 +16,7 @@ import {
   selectNotifications,
   selectUnreadCount,
 } from "@/features/notifications/notificationSlice"
+import { useDropdown } from "@/hooks/ui/useDropdown"
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const timeAgo = (iso: string): string => {
@@ -176,27 +176,29 @@ const DropdownHeader = ({
   )
 }
 // ── Main component ────────────────────────────────────────────────────────────
-export const NotificationBell = () => {
+interface NotificationBellProps {
+  isOpen?: boolean
+  onToggle?: () => void
+}
+
+export const NotificationBell = ({ onToggle }: NotificationBellProps) => {
   //   const dispatch      = useDispatch()
   const notifications = useSelector(selectNotifications)
   const unreadCount = useSelector(selectUnreadCount)
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
 
-  // close on outside click
-  useEffect(() => {
-    const h = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener("mousedown", h)
-    return () => document.removeEventListener("mousedown", h)
-  }, [])
+  const { isOpen: open, toggle, ref } = useDropdown("notifications")
+
+  // For backward compatibility / controlled mode (though useDropdown handles it now)
+  const handleToggle = () => {
+    if (onToggle) onToggle()
+    else toggle()
+  }
 
   return (
     <div ref={ref} className="relative">
       {/* Bell button */}
       <button
-        onClick={() => setOpen((p) => !p)}
+        onClick={handleToggle}
         className="relative w-9 h-9 rounded-md flex items-center justify-center transition-all duration-75  cursor-pointer"
         style={{
           color: open ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)",
