@@ -893,10 +893,4 @@ export const Navbar: FC = () => {
 }
 
 // ── Hamburger ─────────────────────────────────────────────────────────────────
-const HamburgerIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-    <rect y="3" width="20" height="2" rx="1" fill="currentColor" />
-    <rect y="9" width="20" height="2" rx="1" fill="currentColor" />
-    <rect y="15" width="20" height="2" rx="1" fill="currentColor" />
-  </svg>
-)
+const HamburgerIcon = () => <img src="/icons/hamburger.svg" alt="Menu" className="size-5" />

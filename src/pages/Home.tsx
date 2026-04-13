@@ -54,7 +54,7 @@ const Home: FC = () => {
         {/* ─── STATIC SECTION: LAST CHANCE TO MAKE YOUR PREDICTIONS ─── */}
         <section className="pt-4">
           <div className="flex items-end justify-between mb-4">
-            <h2 className="text-[13px] sm:text-lg md:text-xl  font-bold uppercase tracking-[2px] text-white">
+            <h2 className="h2 font-bold uppercase tracking-[2px] text-white">
               LAST CHANCE TO MAKE YOUR PREDICTIONS
             </h2>
             <span className="font-base flex items-center gap-1 flex-nowrap font-bold uppercase text-muted-foreground hover:text-primary text-nowrap transition-colors cursor-pointer">

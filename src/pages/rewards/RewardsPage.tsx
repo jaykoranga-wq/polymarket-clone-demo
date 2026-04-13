@@ -283,7 +283,7 @@ const RewardsPage = () => {
   return (
     <div className="container mt-4 md:mt-6 mb-12 md:mb-18.5 text-white">
       <div>
-        <div className="flex flex-row flex-wrap justify-between items-center gap-12 mb-10">
+        <div className="flex flex-row flex-wrap justify-between items-center gap-x-12 gap-y-5 mb-10">
           {/* header */}
           <div className="max-w-xl">
             <h2 className="font-xxl font-bold text-white tracking-tighter mb-1.5 leading-tight">
@@ -348,7 +348,7 @@ const RewardsPage = () => {
           {/* empty state */}
           {displayActive.length === 0 && displayCompleted.length === 0 && (
             <div className="py-20 text-center">
-              <div className="text-white/20 text-4xl mb-4">🏆</div>
+              {/* <div className="text-white/20 text-4xl mb-4">🏆</div> */}
               <h3 className="text-white/40 font-bold text-lg">No challenges available</h3>
               <p className="text-white/20 text-sm mt-1">Check back later for new rewards!</p>
             </div>

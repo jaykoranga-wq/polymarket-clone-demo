@@ -81,15 +81,7 @@ const Tab = ({
 
 // ─── Sort icon ────────────────────────────────────────────────────────────────
 const SortIcon = () => (
-  <svg
-    className="inline ml-1 opacity-40"
-    width="10"
-    height="10"
-    viewBox="0 0 10 10"
-    fill="currentColor"
-  >
-    <path d="M5 1L8 4H2L5 1zM5 9L2 6H8L5 9z" />
-  </svg>
+  <img src="/icons/sort.svg" alt="" className="inline ml-1 opacity-40 w-[10px] h-[10px]" />
 )
 
 // ─── Time range button ────────────────────────────────────────────────────────
@@ -275,18 +267,11 @@ const PortfolioPage = () => {
             {/* Search + filter row */}
             <div className="flex items-center justify-between px-6 py-4 gap-3">
               <div className="relative flex-1 max-w-md">
-                <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="M21 21l-4.35-4.35" />
-                </svg>
+                <img
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 w-[14px] h-[14px]"
+                  src="/icons/search.svg"
+                  alt=""
+                />
                 <input
                   type="text"
                   placeholder="Search"
@@ -298,21 +283,7 @@ const PortfolioPage = () => {
 
               {tab === "positions" && (
                 <button className="flex items-center gap-1.5 text-xs text-white/50 font-semibold border border-white/10 rounded-lg px-3 py-2 hover:bg-white/5 transition-colors whitespace-nowrap">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <line x1="8" y1="6" x2="21" y2="6" />
-                    <line x1="8" y1="12" x2="21" y2="12" />
-                    <line x1="8" y1="18" x2="21" y2="18" />
-                    <line x1="3" y1="6" x2="3.01" y2="6" />
-                    <line x1="3" y1="12" x2="3.01" y2="12" />
-                    <line x1="3" y1="18" x2="3.01" y2="18" />
-                  </svg>
+                  <img src="/icons/list.svg" alt="" className="w-3 h-3" />
                   Current value
                 </button>
               )}
@@ -342,18 +313,11 @@ const PortfolioPage = () => {
                 {/* Empty state */}
                 <div className="py-16 flex flex-col items-center justify-center text-center">
                   <div className="w-12 h-12 rounded-2xl bg-white/4 flex items-center justify-center mb-4">
-                    <svg
-                      width="22"
-                      height="22"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      className="text-white/20"
-                    >
-                      <rect x="2" y="3" width="20" height="14" rx="2" />
-                      <path d="M8 21h8M12 17v4" />
-                    </svg>
+                    <img
+                      src="/icons/monitor-empty.svg"
+                      alt=""
+                      className="w-[22px] h-[22px] opacity-20"
+                    />
                   </div>
                   <p className="text-sm text-white/30 font-medium">No positions found.</p>
                   <p className="text-xs text-white/15 mt-1">
@@ -367,18 +331,11 @@ const PortfolioPage = () => {
               <div className="px-6 pb-16">
                 <div className="py-16 flex flex-col items-center justify-center text-center">
                   <div className="w-12 h-12 rounded-2xl bg-white/4 flex items-center justify-center mb-4">
-                    <svg
-                      width="22"
-                      height="22"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      className="text-white/20"
-                    >
-                      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
-                      <rect x="9" y="3" width="6" height="4" rx="1" />
-                    </svg>
+                    <img
+                      src="/icons/clipboard-empty.svg"
+                      alt=""
+                      className="w-[22px] h-[22px] opacity-20"
+                    />
                   </div>
                   <p className="text-sm text-white/30 font-medium">No open orders.</p>
                   <p className="text-xs text-white/15 mt-1">
@@ -401,18 +358,11 @@ const PortfolioPage = () => {
                 {/* Empty state */}
                 <div className="py-14 flex flex-col items-center justify-center text-center">
                   <div className="w-12 h-12 rounded-2xl bg-white/4 flex items-center justify-center mb-4">
-                    <svg
-                      width="22"
-                      height="22"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      className="text-white/20"
-                    >
-                      <path d="M12 8v4l3 3" />
-                      <circle cx="12" cy="12" r="9" />
-                    </svg>
+                    <img
+                      src="/icons/history-empty.svg"
+                      alt=""
+                      className="w-[22px] h-[22px] opacity-20"
+                    />
                   </div>
                   <p className="text-sm text-white/30 font-medium">No trade history.</p>
                   <p className="text-xs text-white/15 mt-1">

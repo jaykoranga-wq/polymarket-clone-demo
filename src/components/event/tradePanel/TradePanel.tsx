@@ -27,17 +27,7 @@ type OrderType = "Market" | "Limit"
 // ─── Chevron icon ─────────────────────────────────────────────────────────────
 
 const ChevronDown = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    style={{ width: 13, height: 13 }}
-  >
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
+  <img src="/icons/chevron-down.svg" alt="" style={{ width: 13, height: 13 }} />
 )
 
 // ─── Component ────────────────────────────────────────────────────────────────

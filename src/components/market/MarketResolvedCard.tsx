@@ -19,13 +19,13 @@ export const MarketResolvedCard = ({ winningOutcome, resolutionTime }: MarketRes
 
   return (
     <div
-      className="border  border-primary/50 rounded-2xl overflow-hidden  bg-linear-to-b from primary/10 to bg-primary/5 "
+      className="border  border-primary/50 rounded-2xl overflow-hidden lg:mx-10 bg-linear-to-b from primary/10 to bg-primary/5 "
       // style={{
       //   background: bg,
       // }}
     >
       {/* Header */}
-      <div className="p-4 text-center">
+      <div className="p-4 lg:pt-6 text-center">
         <div
           className="font-base font-extrabold uppercase mb-1.5 text-primary/70  text-nowrap"
           // style={{
@@ -39,7 +39,7 @@ export const MarketResolvedCard = ({ winningOutcome, resolutionTime }: MarketRes
       </div>
 
       {/* Body */}
-      <div className="p-5 text-center">
+      <div className="p-5 lg:pb-6 text-center">
         <div className="font-default fnt-bold  text-white mb-2.5">Outcome:</div>
 
         <div

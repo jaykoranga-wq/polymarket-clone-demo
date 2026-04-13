@@ -31,7 +31,7 @@ export const HeroBanner: FC<HeroBannerProps> = ({
   }
 
   return (
-    <section className="relative w-full h-[220x] lg:h-62.5 flex items-center overflow-hidden rounded-2xl bg-background border border-border mt-6">
+    <section className="relative w-full h-[215x] lg:h-62.5 flex items-center overflow-hidden rounded-2xl bg-background border border-border mt-6">
       {/* Background Gradient */}
       <div className="absolute inset-0 z-10" />
       <div
