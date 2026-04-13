@@ -37,9 +37,9 @@ function getAvatarColor(author: string): string {
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
-const Avatar = ({ author, size = 32 }: { author: string; size?: number }) => (
+const Avatar = ({ author, size = 46 }: { author: string; size?: number }) => (
   <div
-    className="rounded-sm flex items-center justify-center text-white font-bold shrink-0"
+    className="rounded-md flex items-center justify-center text-white font-bold shrink-0"
     style={{
       width: size,
       height: size,
@@ -98,7 +98,7 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
 
   return (
     <div className={`flex gap-2.5 py-4 last:pb-0 ${depth > 0 ? " pt-3 mt-1" : ""}`}>
-      <Avatar author={comment.author} size={depth > 0 ? 28 : 34} />
+      <Avatar author={comment.author} size={depth > 0 ? 32 : 46} />
 
       <div className="flex-1 flex flex-col gap-1.5 ">
         {/* Header */}
