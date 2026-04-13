@@ -36,6 +36,8 @@ export interface Market {
   // ── On-chain / trade fields ────────────────────────────────────────────────
   collateralToken: string
   conditionId: string
+  oracleIdentifier?: string // bytes32 — used for dispute flow
+  winningOutcome?: string | null
   yesTokenId: string | null
   noTokenId: string | null
   yesTokenOnChainId: string | null

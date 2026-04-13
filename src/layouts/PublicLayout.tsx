@@ -9,14 +9,14 @@ import { useLoginMutation } from "@/features/api/auth/authApi"
 import { useGetMarketsQuery } from "@/features/api/markets/marketApi"
 import { useGetNotificationsQuery } from "@/features/api/notifications/notificationApi"
 import { checkAuth } from "@/features/auth/authChecks"
-import { setDeviceToken } from "@/features/auth/authSlice"
+// import { setDeviceToken } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
 import { setMarkets } from "@/features/markets/marketSlice"
 import { setNotifications } from "@/features/notifications/notificationSlice"
 import { useWalletBalance } from "@/hooks/useWalletBalance"
 import { MOCK_MARKETS } from "@/mocks/mockData"
 import { MOCK_NOTIFICATIONS } from "@/mocks/mockNotifications"
-import { listenToMessages, requestFCMToken } from "@/services/firebase/fcm"
+// import { listenToMessages, requestFCMToken } from "@/services/firebase/fcm"
 
 export function PublicLayout() {
   const dispatch = useDispatch()
@@ -59,17 +59,14 @@ export function PublicLayout() {
 
   //notification
   useEffect(() => {
-    const setupFCM = async () => {
-      const token = await requestFCMToken()
-
-      if (token) {
-        dispatch(setDeviceToken(token))
-      }
-
-      listenToMessages()
-    }
-
-    setupFCM()
+    // const setupFCM = async () => {
+    //   const token = await requestFCMToken()
+    //   if (token) {
+    //     dispatch(setDeviceToken(token))
+    //   }
+    //   listenToMessages()
+    // }
+    // setupFCM()
   }, [])
 
   return (

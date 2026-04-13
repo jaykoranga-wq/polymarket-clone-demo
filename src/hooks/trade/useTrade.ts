@@ -123,9 +123,15 @@ export const useTrade = () => {
   const approveUSDC = async (signer: ethers.JsonRpcSigner, amount: bigint) => {
     const usdc = new ethers.Contract(ADDRESSES.USDC, ERC20_ABI, signer) as unknown as USDCContract
     const allowance = await usdc.allowance(address!, ADDRESSES.CTFExchange)
-    if (allowance >= amount) return
+    console.log(`[useTrade] USDC Allowance for ${ADDRESSES.CTFExchange}: ${allowance.toString()}`)
+    if (allowance >= amount && amount > 0n) {
+      console.log("[useTrade] Sufficient USDC allowance found.")
+      return
+    }
+    console.log("[useTrade] Requesting USDC approval...")
     const tx = await usdc.approve(ADDRESSES.CTFExchange, ethers.MaxUint256)
     await tx.wait()
+    console.log("[useTrade] USDC approval successful.")
   }
 
   // ── Step 3: approve CTF token transfers ──────────────────────────────────
@@ -136,9 +142,15 @@ export const useTrade = () => {
       signer,
     ) as unknown as CTFContract
     const approved = await ctf.isApprovedForAll(address!, ADDRESSES.CTFExchange)
-    if (approved) return
+    console.log(`[useTrade] CTF isApprovedForAll for ${ADDRESSES.CTFExchange}: ${approved}`)
+    if (approved) {
+      console.log("[useTrade] CTF already approved.")
+      return
+    }
+    console.log("[useTrade] Requesting CTF approval...")
     const tx = await ctf.setApprovalForAll(ADDRESSES.CTFExchange, true)
     await tx.wait()
+    console.log("[useTrade] CTF approval successful.")
   }
 
   // ── Step 4: sign order (EIP-712) ──────────────────────────────────────────
@@ -214,6 +226,7 @@ export const useTrade = () => {
 
   // ── Main: executeTrade ────────────────────────────────────────────────────
   const executeTrade = async (order: TradeOrder) => {
+    console.log("[useTrade] CTFExchange at runtime:", ADDRESSES.CTFExchange)
     if (!address) return
 
     setIsTrading(true)
@@ -222,14 +235,28 @@ export const useTrade = () => {
     try {
       const signer = await getSigner()
 
-      setApprovalState("approving-usdc")
       if (order.action === "Buy") {
-        const usdcAmount = BigInt(Math.round(order.amount ?? 0))
-        await approveUSDC(signer, usdcAmount)
-      }
+        setApprovalState("approving-usdc")
+        // Calculate required USDC in micro-units (1e6)
+        let usdcAmount: bigint
+        if (order.orderType === "Market") {
+          // order.amount is in dollars (e.g., 5.0)
+          usdcAmount = BigInt(Math.round((order.amount ?? 0) * 1_000_000))
+        } else {
+          // Limit order: (shares * priceInCents / 100) -> dollars. Then * 1e6 -> micro-USDC.
+          const totalDollars = ((order.shares ?? 0) * (order.limitCents ?? 0)) / 100
+          usdcAmount = BigInt(Math.round(totalDollars * 1_000_000))
+        }
 
-      setApprovalState("approving-ctf")
-      await approveCTF(signer)
+        console.log(
+          `[useTrade] Action: Buy | Required USDC: ${usdcAmount.toString()} (micro-units)`,
+        )
+        await approveUSDC(signer, usdcAmount)
+      } else {
+        setApprovalState("approving-ctf")
+        console.log(`[useTrade] Action: Sell | Checking CTF approval`)
+        await approveCTF(signer)
+      }
 
       setApprovalState("signing")
       const { orderStruct, signature } = await signOrder(signer, order)

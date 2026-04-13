@@ -7,7 +7,8 @@ import {
   useGetPortfolioPositionsQuery,
 } from "@/features/api/portfolio/portfolioApi"
 import { useRedeem } from "@/hooks/useRedeem"
-import { MOCK_POSITIONS, type Position } from "@/mocks/mockPortfolio"
+import { ADDRESSES } from "@/libs/contracts"
+import { type Position } from "@/mocks/mockPortfolio"
 
 import { PORTFOLIO_COLORS, POSITION_SIDE } from "../../portfolioConstants"
 import { Pagination } from "./OrdersAndHistoryTabs"
@@ -20,33 +21,36 @@ const COL = "1fr 80px 80px 80px 80px 110px 150px"
 
 // ── Map API portfolio position → Position ─────────────────────────────────────
 const mapApiPosition = (p: ApiPortfolioPosition): Position => {
-  const side = p.token.name.toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO
-  const shares = Number(p.sharesOwned) / 100
-  const avgPrice = Number(p.avgPrice) / 10000 // raw → cents
-  const invested = Number(p.totalInvested) / 1_000_000 // micro-USDC → USDC
-  const value = Number(p.currentValue) / 1_000_000
-
+  const side = (p.token?.name ?? "").toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO
+  const shares = Number(p.sharesOwned ?? 0) / 1000000
+  const avgPrice = Number(p.avgPrice ?? 0) / 1000000
+  const invested = Number(p.totalInvested ?? 0) / 10000000000 //dividing by 10^8 because
+  const value = Number(p.currentValue ?? 0) / 10000000000
+  const marketId = p.market?.id ?? `unknown-market-${Math.random()}`
+  const tokenId = p.token?.id ?? `unknown-token-${Math.random()}`
   return {
-    id: `${p.market.id}-${p.token.id}`,
-    marketId: p.market.id,
-    marketTitle: p.market.title,
+    id: `${marketId}-${tokenId}`,
+    marketId: p.market?.id ?? "",
+    marketTitle: p.market?.title ?? "Unknown Market",
     category: "",
     side,
     shares,
     avgPrice,
-    nowPrice: avgPrice, // live price not in API; use avg as placeholder
+    nowPrice: avgPrice,
     invested,
     value,
-    conditionId: "",
-    yesTokenId: "",
-    noTokenId: "",
-    collateralToken: "",
-    isResolved: p.resolved,
-    winningOutcome: p.winningOutcome as Position["winningOutcome"],
+    conditionId:
+      p.market.conditionId ?? "0x0000000000000000000000000000000000000000000000000000000000000000",
+    TokenId:
+      p.token.tokenId ?? "0x0000000000000000000000000000000000000000000000000000000000000000",
+
+    collateralToken: ADDRESSES.USDC,
+    isResolved: p.resolved ?? false,
+    winningOutcome: p.winningOutcome === "1" ? "YES" : p.winningOutcome === "0" ? "NO" : null,
     isRedeemed: false,
   }
 }
-
+// console.log(mapApiPositio)
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const canRedeem = (pos: Position): boolean =>
   pos.isResolved && pos.winningOutcome === pos.side && !pos.isRedeemed
@@ -395,15 +399,19 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
 
   const apiPositions = (data?.data.data ?? []).map(mapApiPosition)
   const totalApiCount = data?.data.count ?? 0
-  const totalPages = Math.max(Math.ceil((totalApiCount + MOCK_POSITIONS.length) / PAGE_SIZE), 1)
+  const totalPages = Math.max(Math.ceil(totalApiCount / PAGE_SIZE), 1)
 
-  // mock positions only appear on first page; API positions paginate normally
-  const mockOnPage = page === 1 ? MOCK_POSITIONS : []
-  const combined = [...apiPositions, ...mockOnPage].filter((p) =>
-    p.marketTitle.toLowerCase().includes(search.toLowerCase()),
+  const combined = [...apiPositions].filter((p) =>
+    (p.marketTitle ?? "").toLowerCase().includes(search.toLowerCase()),
   )
 
-  const { redeem, redeemingId, isRedeeming } = useRedeem()
+  const { redeem, redeemingId, isRedeeming, redeemedIds } = useRedeem()
+
+  // Overlay optimistic redeemed state from in-session hook tracking
+  const positionsWithRedeemed = combined.map((p) => ({
+    ...p,
+    isRedeemed: p.isRedeemed || redeemedIds.has(p.id),
+  }))
 
   if (isLoading) return <PositionsSkeleton />
 
@@ -430,10 +438,10 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
         <ColHeader align="right">Value</ColHeader>
       </div>
 
-      {combined.length === 0 ? (
+      {positionsWithRedeemed.length === 0 ? (
         <EmptyState label="No positions found." />
       ) : (
-        combined.map((pos) => (
+        positionsWithRedeemed.map((pos) => (
           <PositionRow
             key={pos.id}
             position={pos}

@@ -38,8 +38,12 @@ export const useDisputeTransactions = () => {
 
       onStatusUpdate("Please confirm the USDC approval in your wallet...")
 
-      // 2. Send approve transaction
-      const approveTx = await usdc.getFunction("approve")(oracleAddress, BigInt(bondAmount))
+      // 2. Send approve transaction — explicit gas overrides bypass Amoy fee estimation errors
+      const approveTx = await usdc.getFunction("approve")(oracleAddress, BigInt(bondAmount), {
+        gasLimit: 100_000n,
+        maxFeePerGas: ethers.parseUnits("50", "gwei"),
+        maxPriorityFeePerGas: ethers.parseUnits("30", "gwei"),
+      })
       setApproveTxHash(approveTx.hash)
 
       onStatusUpdate(`Approval transaction sent! Waiting for confirmation...`)
@@ -93,7 +97,12 @@ export const useDisputeTransactions = () => {
 
       onStatusUpdate("Please confirm the dispute transaction in your wallet...")
 
-      const disputeTx = await oracle.getFunction("disputeAnswer")(identifier, BigInt(bondAmount))
+      // Explicit gas overrides bypass Polygon Amoy's unreliable EIP-1559 fee estimation
+      const disputeTx = await oracle.getFunction("disputeAnswer")(identifier, BigInt(bondAmount), {
+        gasLimit: 300_000n,
+        maxFeePerGas: ethers.parseUnits("50", "gwei"),
+        maxPriorityFeePerGas: ethers.parseUnits("30", "gwei"),
+      })
       setDisputeTxHash(disputeTx.hash)
 
       onStatusUpdate(`Dispute transaction sent! Waiting for confirmation...`)

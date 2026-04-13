@@ -21,12 +21,21 @@ export const DisputePage = () => {
     isLoading: timelineLoading,
     isError: timelineError,
   } = useGetOracleTimelineQuery(id ?? "")
+  console.log("timelinedata", timelineData)
+
+  // Derive the latest oracle state from the timeline
+  const latestOracleAction: number | null = timelineData?.data?.length
+    ? (timelineData.data[timelineData.data.length - 1]?.action ?? null)
+    : null
+
+  // RESOLUTION_ACTION.PROPOSE = 1 — only allow dispute in this state
+  const PROPOSE = 1
+
+  const disputeData = extractDisputeData(timelineData)
 
   const [countdown, setCountdown] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [status, setStatus] = useState<string>("")
-
-  const disputeData = extractDisputeData(timelineData)
 
   useEffect(() => {
     if (!disputeData?.proposedTimestamp) return
@@ -66,13 +75,25 @@ export const DisputePage = () => {
     setIsSubmitting(true)
     setStatus("Initializing...")
 
+    // Identifier must come from market object — timeline action=1 rows don't reliably include it
+    const identifier = market?.oracleIdentifier
+    if (!identifier) {
+      setStatus("❌ Oracle identifier not found. Cannot raise dispute.")
+      setIsSubmitting(false)
+      return
+    }
+
     try {
       // Step 1: Approve
       const oracleAddress =
         import.meta.env.VITE_ORACLE_ADDRESS ||
         import.meta.env.VITE_UMA_ADDRESS ||
         "0x0000000000000000000000000000000000000000"
-      const approvalResult = await approveUSDC(oracleAddress, disputeData.bondAmount, setStatus)
+      const approvalResult = await approveUSDC(
+        oracleAddress,
+        disputeData.bondAmount.toString(),
+        setStatus,
+      )
 
       if (!approvalResult.success) {
         throw new Error("USDC approval failed")
@@ -80,8 +101,8 @@ export const DisputePage = () => {
 
       // Step 2: Submit Dispute
       const disputeResult = await submitDisputeTransaction(
-        disputeData.identifier,
-        disputeData.bondAmount,
+        identifier, // sourced from market.oracleIdentifier — timeline rows don't include this
+        BigInt(disputeData.bondAmount).toString(),
         setStatus,
       )
 
@@ -127,6 +148,23 @@ The backend will automatically detect the AnswerDisputed event and update the da
     return (
       <div className="p-10 mt-10 text-gray-500 text-center min-h-screen">
         No disputable answer found for this market.
+      </div>
+    )
+
+  // ── Guard: only allow dispute when oracle is in PROPOSE state (action=1)
+  if (latestOracleAction !== PROPOSE)
+    return (
+      <div className="p-10 mt-10 text-center min-h-screen">
+        <div className="inline-block bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 rounded-2xl px-8 py-10 max-w-md">
+          <p className="text-lg font-bold mb-2">Dispute Not Available</p>
+          <p className="text-sm text-yellow-400/70">
+            {latestOracleAction === 2 && "A dispute has already been raised for this market."}
+            {latestOracleAction === 3 && "This dispute has already been settled by the admin."}
+            {latestOracleAction === 4 &&
+              "This market has been fully settled. No further disputes are possible."}
+            {latestOracleAction == null && "The market is not in a disputable state."}
+          </p>
+        </div>
       </div>
     )
 
@@ -184,7 +222,7 @@ The backend will automatically detect the AnswerDisputed event and update the da
               <div>
                 <span className="text-gray-500 block mb-1">Oracle Identifier</span>
                 <div className="font-mono text-xs bg-black/40 border border-white/5 rounded p-2 text-gray-400 break-all select-all">
-                  {disputeData.identifier || "N/A"}
+                  {market.oracleIdentifier || "N/A"}
                 </div>
               </div>
               <div>
@@ -194,7 +232,7 @@ The backend will automatically detect the AnswerDisputed event and update the da
                     {disputeData.bondAmountUSDC} USDC
                   </span>
                   <span className="text-gray-500 pb-1 text-xs">
-                    ({disputeData.bondAmount} minor units)
+                    ({Number(disputeData.bondAmount)} minor units)
                   </span>
                 </div>
               </div>
