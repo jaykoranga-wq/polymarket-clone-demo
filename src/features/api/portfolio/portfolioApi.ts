@@ -9,6 +9,7 @@ export interface ApiPortfolioPosition {
     id: string
     title: string
     displayImageUrl: string
+    conditionId: string | null
   }
   token: {
     id: string

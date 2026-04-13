@@ -12,8 +12,9 @@ import { MarketResolvedCard } from "@/components/market/MarketResolvedCard"
 import { PriceChart } from "@/components/market/priceChart/PriceChart"
 import { ShareModal } from "@/components/market/ShareModal"
 import { ActivityTab, MarketRulesTab, OrderBookTab } from "@/components/market/tabs"
+import { TokenBalanceChecker } from "@/components/market/TokenBalanceChecker"
 import { EventPageSkeleton } from "@/components/ui/MarketSkeleton"
-import { useGetMarketByIdQuery } from "@/features/api/markets/marketApi"
+import { useGetMarketByIdQuery, useGetOracleTimelineQuery } from "@/features/api/markets/marketApi"
 import { useMagic } from "@/features/auth/lib/magic"
 import { selectSelectedMarket } from "@/features/markets/marketSelectors"
 import { usePriceChart } from "@/hooks/charts/usePriceChart"
@@ -44,6 +45,13 @@ const EventPage = () => {
 
   // ── Primary data source: real API ──────────────────────────────────────────
   const { data: apiMarket, isLoading, isError } = useGetMarketByIdQuery(id ?? "")
+
+  // ── Oracle timeline — used to determine dispute eligibility ────────────────
+  const { data: oracleTimeline } = useGetOracleTimelineQuery(id ?? "", { skip: !id })
+  // The latest entry's action tells us the current oracle state
+  const latestOracleAction: number | null = oracleTimeline?.data?.length
+    ? (oracleTimeline.data[oracleTimeline.data.length - 1]?.action ?? null)
+    : null
 
   // ── Fallback: Redux selectedMarket set when card was clicked ───────────────
   const reduxMarket = useSelector(selectSelectedMarket)
@@ -85,7 +93,7 @@ const EventPage = () => {
   }
 
   const saveAsBookmark = () => toast.success("Saved")
-
+  let displayWinningOutcome = null
   useEffect(() => {
     if (tradeError) {
       toast.error(tradeError, {
@@ -106,6 +114,12 @@ const EventPage = () => {
     )
 
   const totalVolume = (market.yesVolume ?? 0) + (market.noVolume ?? 0)
+
+  if (apiMarket) {
+    if (apiMarket.winningOutcome !== null) {
+      displayWinningOutcome = apiMarket.winningOutcome === "1" ? "YES" : "NO"
+    }
+  }
 
   return (
     <>
@@ -246,20 +260,32 @@ const EventPage = () => {
               <div className="position-static ">
                 {isResolved ? (
                   <MarketResolvedCard
-                    winningOutcome="NO"
+                    winningOutcome={
+                      displayWinningOutcome == null
+                        ? "To be decided"
+                        : (displayWinningOutcome as "YES" | "NO" | "To be decided")
+                    }
                     // winningOutcome={market.winningOutcome as "YES" | "NO"}
                     resolutionTime={market.resolutionTime}
+                    marketId={market.id}
+                    latestOracleAction={latestOracleAction}
                   />
                 ) : (
-                  <TradePanel
-                    yesProbability={market.yesProbability ?? 50}
-                    noProbability={market.noProbability ?? 50}
-                    isCrypto={false}
-                    onLoginRequired={() => setIsLoginOpen(true)}
-                    onDepositRequired={() => magic?.wallet?.showUI()}
-                    onTrade={handleTrade}
-                    approvalState={approvalState}
-                  />
+                  <>
+                    <TokenBalanceChecker
+                      yesTokenOnChainId={market.yesTokenOnChainId ?? null}
+                      noTokenOnChainId={market.noTokenOnChainId ?? null}
+                    />
+                    <TradePanel
+                      yesProbability={market.yesProbability ?? 50}
+                      noProbability={market.noProbability ?? 50}
+                      isCrypto={false}
+                      onLoginRequired={() => setIsLoginOpen(true)}
+                      onDepositRequired={() => magic?.wallet?.showUI()}
+                      onTrade={handleTrade}
+                      approvalState={approvalState}
+                    />
+                  </>
                 )}
               </div>
             </div>
@@ -292,7 +318,11 @@ const EventPage = () => {
             <div className="px-2.5 pb-7.5">
               {isResolved ? (
                 <div className="p-4">
-                  <MarketResolvedCard winningOutcome="NO" resolutionTime={market.resolutionTime} />
+                  <MarketResolvedCard
+                    winningOutcome={`NO`}
+                    resolutionTime={market.resolutionTime}
+                    latestOracleAction={latestOracleAction}
+                  />
                 </div>
               ) : (
                 <TradePanel

@@ -27,7 +27,9 @@ type LoginFn = (args: { didToken: string }) => Promise<{ data: { data: { token: 
 type LoginWalletFn = (args: { publicAddress: string }) => Promise<{
   data: { data: { nonce: string; token: string } }
 }>
-type VerifyWalletFn = (args: { signature: string; deviceToken: string | null }) => Promise<{
+
+//made device token an optional thing.
+type VerifyWalletFn = (args: { signature: string; deviceToken?: string | null }) => Promise<{
   data: { data: { token: string } }
 }>
 
@@ -174,7 +176,8 @@ export async function handleMetaMaskLogin({
 
     // Step 4: verify signature with backend
     console.log("device token while verifying meta mask :", deviceToken)
-    const result = await verifyWallet({ signature, deviceToken }).then((r) => r.data)
+    //removing device token in the below code form verifywallet
+    const result = await verifyWallet({ signature }).then((r) => r.data)
 
     // Step 5: store session
     clearMetaMaskLoggedOut()

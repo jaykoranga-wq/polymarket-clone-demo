@@ -3,7 +3,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 import type { RootState } from "@/app/store"
-import { MOCK_NOTIFICATIONS, type Notification } from "@/mocks/mockNotifications"
+import { type Notification } from "@/mocks/mockNotifications"
 
 import type { NotificationType } from "./notificationConstants"
 
@@ -15,7 +15,7 @@ interface NotificationState {
 }
 
 const initialState: NotificationState = {
-  list: MOCK_NOTIFICATIONS,
+  list: [],
   // TODO: replace MOCK_NOTIFICATIONS with [] and fetch from API on app load
   // dispatch(setNotifications(apiData)) after useGetNotificationsQuery resolves
 }

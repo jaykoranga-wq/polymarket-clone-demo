@@ -39,6 +39,7 @@ import {
 } from "@/features/auth/authSlice"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import { useMagic } from "@/features/auth/lib/magic"
+import { setNotifications } from "@/features/notifications/notificationSlice"
 import {
   clearActiveDropdown,
   selectActiveDropdownId,
@@ -359,6 +360,7 @@ export const Navbar: FC = () => {
         localStorage.removeItem("auth_method")
         localStorage.removeItem("auth_address")
       }
+      dispatch(setNotifications([]))
     } catch (err) {
       console.error("Logout error:", err)
     } finally {

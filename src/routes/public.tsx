@@ -1,6 +1,7 @@
 import type { RouteObject } from "react-router"
 
 import { ROUTES } from "@/constants/routes"
+import DisputePage from "@/pages/dispute/DisputePage"
 import Event from "@/pages/event/Event"
 import Home from "@/pages/Home"
 import LeaderboardPage from "@/pages/leaderboard/LeaderboardPage"
@@ -44,6 +45,10 @@ export const publicRoutes: RouteObject[] = [
   {
     path: ROUTES.TERMS,
     element: <TermsPage />,
+  },
+  {
+    path: ROUTES.DISPUTE,
+    element: <DisputePage />,
   },
 
   { path: ROUTES.MarketSearch, element: <MarketsPage /> },

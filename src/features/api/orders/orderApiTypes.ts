@@ -82,15 +82,15 @@ import { HISTORY_TYPE, ORDER_STATUS, POSITION_SIDE } from "@/pages/portfolio/por
 
 export const mapApiOrderToPortfolioOrder = (o: ApiOrder): PortfolioOrder => ({
   id: o.id,
-  marketId: o.market.id,
-  marketTitle: o.market.title,
-  category: "", // TODO: add to API response
-  side: o.token.title.toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO,
+  marketId: o.market?.id ?? "",
+  marketTitle: o.market?.title ?? "Unknown Market",
+  category: "",
+  side: (o.token?.title ?? "").toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO,
   direction: o.type === ORDER_TYPE_PARAM.BUY ? "Buy" : "Sell",
-  orderType: "Limit", // TODO: add to API response
-  price: Math.round(Number(o.price) / 10000), // 500000 → 50 cents
-  shares: Math.round(Number(o.shares) / 100),
-  filled: Number(o.shares) - Number(o.remainingShares), // filled = original - remaining
+  orderType: "Limit",
+  price: Math.round(Number(o.price) / 10000), // price in cents
+  shares: Math.round(Number(o.shares) / 1000000),
+  filled: Number(o.shares) - Number(o.remainingShares),
   status: mapOrderStatus(o.status),
   createdAt: o.createdAt,
   token: o.token,
@@ -104,15 +104,15 @@ export const mapApiOrderToHistoryItem = (o: ApiOrder): HistoryItem => {
   const priceCents = rawToCtsCents(o.price)
   return {
     id: o.id,
-    marketId: o.market.id,
-    marketTitle: o.market.title,
+    marketId: o.market?.id ?? "",
+    marketTitle: o.market?.title ?? "Unknown Market",
     category: "",
     type: o.type === ORDER_TYPE_PARAM.BUY ? HISTORY_TYPE.BUY : HISTORY_TYPE.SELL,
-    side: o.token.title.toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO,
-    orderType: "Limit", // TODO: add to API response
-    shares: filledShares / 100,
+    side: (o.token?.title ?? "").toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO,
+    orderType: "Limit",
+    shares: filledShares / 1000000,
     price: priceCents,
-    total: ((filledShares / 100) * priceCents) / 100,
+    total: ((filledShares / 1000000) * priceCents) / 100,
     settledAt: o.createdAt,
   }
 }

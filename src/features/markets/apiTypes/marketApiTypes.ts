@@ -30,6 +30,7 @@ export interface ApiMarket {
 
   status: number
   oracleIdentifier: string
+  winningOutcome?: string | null
 
   optionGroups: ApiOptionGroup[]
 

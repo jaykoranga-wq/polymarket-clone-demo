@@ -19,8 +19,8 @@ const mapApiMarketToMarket = (m: ApiMarketListResponse["data"]["data"][number]):
     category: m.category?.name ?? "Unknown",
     createdAt: m.createdAt,
 
-    yesVolume: yesToken?.volume ?? 0,
-    noVolume: noToken?.volume ?? 0,
+    yesVolume: yesToken?.volume ? yesToken.volume / 1000000 : 0,
+    noVolume: noToken?.volume ? noToken.volume / 1000000 : 0,
 
     yesProbability: 50,
     noProbability: 50,
@@ -31,7 +31,7 @@ const mapApiMarketToMarket = (m: ApiMarketListResponse["data"]["data"][number]):
     noTokenId: noToken?.id ?? null,
     yesTokenOnChainId: yesToken?.tokenId ?? null,
     noTokenOnChainId: noToken?.tokenId ?? null,
-
+    oracleIdentifier: m.oracleIdentifier,
     frequency: "Event",
   } satisfies Market
 }
@@ -61,6 +61,7 @@ const marketApi = secondApi.injectEndpoints({
 
       transformResponse: (res: ApiSingleMarketResponse): Market => {
         const m = res.data.data
+        console.log("Raw API Market Data:", m)
 
         const tokens = m.optionGroups?.[0]?.tokens ?? []
         const yesToken = tokens.find((t) => t.title === "Yes")
@@ -75,14 +76,16 @@ const marketApi = secondApi.injectEndpoints({
           resolutionTime: m.resolutionTime,
           createdAt: m.createdAt,
 
-          yesVolume: yesToken?.volume ?? 0,
-          noVolume: noToken?.volume ?? 0,
+          yesVolume: yesToken?.volume ? yesToken.volume / 1000000 : 0,
+          noVolume: noToken?.volume ? noToken.volume / 1000000 : 0,
 
           yesProbability: 50,
           noProbability: 50,
 
           collateralToken: "dummy",
           conditionId: "dummy",
+          oracleIdentifier: m.oracleIdentifier,
+          winningOutcome: m.winningOutcome,
           yesTokenId: yesToken?.id ?? null,
           noTokenId: noToken?.id ?? null,
           yesTokenOnChainId: yesToken?.tokenId ?? null,
@@ -126,6 +129,29 @@ const marketApi = secondApi.injectEndpoints({
 
       providesTags: ["Markets"],
     }),
+
+    // ─────────────────────────────────────────────
+    // GET ORACLE TIMELINE
+    // ─────────────────────────────────────────────
+    getOracleTimeline: builder.query<
+      {
+        data: {
+          id: string
+          action: number
+          bondAmount: string | null
+          response: number | null
+          createdAt: string
+          proposerAddress: string | null
+          disputerAddress: string | null
+        }[]
+      },
+      string
+    >({
+      query: (marketId) => ({
+        url: `/v1/user/marketplace/oracle-timeline`,
+        params: { marketId },
+      }),
+    }),
   }),
 })
 
@@ -134,4 +160,5 @@ export const {
   useGetMarketByIdQuery,
   useSearchMarketsQuery,
   useGetMarketsByCategoryQuery,
+  useGetOracleTimelineQuery,
 } = marketApi

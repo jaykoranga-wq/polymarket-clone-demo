@@ -55,6 +55,7 @@ const authSlice = createSlice({
       state.loginMethod = null
       state.token = null
       state.isAuthChecking = false
+      state.deviceToken = null
     },
 
     loadingTrue(state) {
