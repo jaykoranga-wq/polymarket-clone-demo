@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react"
 
 import { useAppSelector } from "@/app/hooks"
 import { selectUserData } from "@/features/auth/authSlice"
-import { ADDRESSES } from "@/libs/contracts"
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const NETWORK_INFO = {
@@ -282,7 +281,12 @@ export const MetaMaskDepositModal = ({ open, onClose }: MetaMaskDepositModalProp
           />
 
           {/* USDC contract */}
-          <InfoRow label="USDC Contract Address" value={ADDRESSES.USDC} copyable mono />
+          <InfoRow
+            label="USDC Contract Address"
+            value={import.meta.env.VITE_USDC_ADDRESS}
+            copyable
+            mono
+          />
 
           {/* steps */}
           <div

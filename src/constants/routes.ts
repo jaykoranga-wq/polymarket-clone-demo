@@ -10,6 +10,7 @@ export const ROUTES = {
   LEADERBOARD: "/leaderboard/:id",
   TERMS: "/terms",
   STATIC_PAGE: "/page/:slug",
+  DISPUTE: "/dispute/:id",
 } as const
 
 export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES]

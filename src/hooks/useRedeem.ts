@@ -33,7 +33,9 @@ export const useRedeem = () => {
 
   const [redeemState, setRedeemState] = useState<RedeemState>("idle")
   const [redeemError, setRedeemError] = useState<string | null>(null)
-  const [redeemingId, setRedeemingId] = useState<string | null>(null) // position id being redeemed
+  const [redeemingId, setRedeemingId] = useState<string | null>(null)
+  // Optimistic local tracking — avoids needing a backend "mark as redeemed" call
+  const [redeemedIds, setRedeemedIds] = useState<Set<string>>(new Set())
 
   // ── get signer (same pattern as useTrade) ────────────────────────────────
   const getSigner = async (): Promise<ethers.JsonRpcSigner> => {
@@ -82,25 +84,28 @@ export const useRedeem = () => {
 
       setRedeemState("redeeming")
 
-      // this sends an on-chain tx — MetaMask/Magic shows confirmation popup
-      const tx = await ctf.redeemPositions?.(
+      // getFunction() is safer than optional chaining — throws clearly if ABI is wrong
+      // Explicit gas overrides bypass Polygon Amoy's unreliable EIP-1559 fee estimation
+      const tx = await ctf.getFunction("redeemPositions")(
         position.collateralToken,
-        // PARENT_COLLECTION_ID,
         position.conditionId,
         [indexSet],
+        {
+          gasLimit: 500_000n,
+          maxFeePerGas: ethers.parseUnits("50", "gwei"),
+          maxPriorityFeePerGas: ethers.parseUnits("30", "gwei"),
+        },
       )
 
       await tx.wait()
 
       setRedeemState("done")
 
-      // TODO: replace with API call to mark as redeemed on backend
-      // await markRedeemed({ positionId: position.id }).unwrap()
+      // Optimistic update — mark this position as redeemed locally so the button disappears
+      // TODO: also call backend API to persist this when the endpoint is available
+      setRedeemedIds((prev) => new Set(prev).add(position.id))
 
       toast.success(`Redeemed! USDC sent to your wallet.`)
-
-      // optimistic update — mark as redeemed in local state
-      // TODO: dispatch(markPositionRedeemed(position.id)) when slice is ready
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Redeem failed"
       const short = msg.split("(")[0]?.trim().slice(0, 60)
@@ -122,7 +127,8 @@ export const useRedeem = () => {
     redeem,
     redeemState,
     redeemError,
-    redeemingId, // which position is currently being redeemed
+    redeemingId,
+    redeemedIds, // Set<string> of position IDs successfully redeemed this session
     isRedeeming: redeemState === "redeeming" || redeemState === "waiting-signature",
   }
 }
