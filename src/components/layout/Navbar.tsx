@@ -620,7 +620,7 @@ export const Navbar: FC = () => {
             {/* Desktop nav — xl+ */}
             <nav className="hidden xl:flex items-center gap-6 py-1.5 px-3 text-sm font-bold">
               <button
-                className="text-secondary transition-colors hover:text-white"
+                className="text-secondary transition-colors cursor-pointer hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation()
                   navigate("/markets/trending")
@@ -629,7 +629,7 @@ export const Navbar: FC = () => {
                 Trending
               </button>
               <button
-                className="text-secondary transition-colors hover:text-white"
+                className="text-secondary transition-colors cursor-pointer hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation()
                   navigate("/markets/category/Breaking")
@@ -638,7 +638,7 @@ export const Navbar: FC = () => {
                 Breaking
               </button>
               <button
-                className="text-secondary transition-colors hover:text-white"
+                className="text-secondary transition-colors cursor-pointer hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation()
                   navigate("/markets/new_market")
@@ -653,7 +653,7 @@ export const Navbar: FC = () => {
                     e.stopPropagation()
                     toggleDropdown("more")
                   }}
-                  className="flex items-center gap-1 text-secondary transition-colors hover:text-white ml-0"
+                  className="flex items-center gap-1 text-secondary cursor-pointer transition-colors hover:text-white ml-0"
                 >
                   More{" "}
                   <ChevronDown
@@ -665,7 +665,7 @@ export const Navbar: FC = () => {
                 {activeDropdown === "more" && (
                   <Dropdown
                     onClose={() => dispatch(clearActiveDropdown())}
-                    className="w-48 md:left-0 md:mt-2.5"
+                    className="w-48 md:left-0 md:mt-2.5 cursor-pointer"
                   >
                     <MenuItem
                       label="Hollywood"
