@@ -2,44 +2,34 @@
 // Polymarket-style order book:
 //   - YES / NO toggle at top
 //   - Single column: asks (dimmed) above spread, bids below
-//   - Two API calls per token (bids + asks)
+//   - Seeded from REST, patched in real-time via socket
 
 import { useState } from "react"
 
-import {
-  mapApiEntryToRow,
-  type OrderBookRow,
-  useGetOrderBookQuery,
-} from "@/features/api/orderBook/orderBookApi"
-
-// ── Constants ─────────────────────────────────────────────────────────────────
-const ORDER_BOOK_TYPE = {
-  BUY: 1,
-  SELL: 2,
-} as const
+import { type BookEntry, useOrderBook } from "@/hooks/socket/useOrderBook"
 
 type TokenSide = "YES" | "NO"
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 interface OrderBookTabProps {
   marketId: string
-  yesTokenId: string // backend UUID for YES token
-  noTokenId: string // backend UUID for NO token
+  optionGroupId: string
+  yesTokenId: string
+  noTokenId: string
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-// calculates max shares across all rows for depth bar width
-const getMaxShares = (rows: OrderBookRow[]) => rows.reduce((max, r) => Math.max(max, r.shares), 1)
+const getMaxShares = (rows: BookEntry[]) => rows.reduce((max, r) => Math.max(max, r.shares), 1)
 
 const OBRow = ({
   row,
   maxShares,
   isBid,
 }: {
-  row: OrderBookRow
+  row: BookEntry
   maxShares: number
-  isBid: boolean // bid = green, ask = red+dimmed
+  isBid: boolean
 }) => (
   <div
     className={`grid grid-cols-2 px-2 py-1 rounded-md relative overflow-hidden font-mono font-base ${
@@ -89,35 +79,24 @@ const SkeletonRows = () => (
 )
 
 // ── Main component ────────────────────────────────────────────────────────────
-export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTabProps) => {
+export const OrderBookTab = ({
+  marketId: _,
+  optionGroupId,
+  yesTokenId,
+  noTokenId,
+}: OrderBookTabProps) => {
   const [activeSide, setActiveSide] = useState<TokenSide>("YES")
 
-  const tokenId = activeSide === "YES" ? yesTokenId : noTokenId
+  const activeTokenId = activeSide === "YES" ? yesTokenId : noTokenId
 
-  // fetch bids (BUY orders) for active token
-  const { data: bidsData, isLoading: bidsLoading } = useGetOrderBookQuery({
-    tokenId,
-    type: ORDER_BOOK_TYPE.BUY,
-    limit: 10,
-  })
+  const { bids, asks, isLoading } = useOrderBook(
+    optionGroupId,
+    yesTokenId,
+    noTokenId,
+    activeTokenId,
+  )
 
-  // fetch asks (SELL orders) for active token
-  const { data: asksData, isLoading: asksLoading } = useGetOrderBookQuery({
-    tokenId,
-    type: ORDER_BOOK_TYPE.SELL,
-    limit: 10,
-  })
-
-  const isLoading = bidsLoading || asksLoading
-
-  // transform and sort
-  const bids = (bidsData?.data.data ?? []).map(mapApiEntryToRow).sort((a, b) => b.price - a.price) // highest bid first
-
-  const asks = (asksData?.data.data ?? []).map(mapApiEntryToRow).sort((a, b) => a.price - b.price) // lowest ask first
-
-  // spread = lowest ask - highest bid
   const spread = asks[0] && bids[0] ? asks[0].price - bids[0].price : 0
-
   const maxShares = getMaxShares([...bids, ...asks])
 
   return (
@@ -163,8 +142,8 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
           ) : (
             [...asks]
               .reverse()
-              .map((row, i) => (
-                <OBRow key={`ask-${i}`} row={row} maxShares={maxShares} isBid={false} />
+              .map((row) => (
+                <OBRow key={`ask-${row.id}`} row={row} maxShares={maxShares} isBid={false} />
               ))
           )}
 
@@ -174,8 +153,8 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
           {bids.length === 0 ? (
             <EmptyRows label="No buy orders" />
           ) : (
-            bids.map((row, i) => (
-              <OBRow key={`bid-${i}`} row={row} maxShares={maxShares} isBid={true} />
+            bids.map((row) => (
+              <OBRow key={`bid-${row.id}`} row={row} maxShares={maxShares} isBid={true} />
             ))
           )}
         </>

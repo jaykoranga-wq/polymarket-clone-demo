@@ -14,10 +14,15 @@ import { ShareModal } from "@/components/market/ShareModal"
 import { ActivityTab, MarketRulesTab, OrderBookTab } from "@/components/market/tabs"
 import { TokenBalanceChecker } from "@/components/market/TokenBalanceChecker"
 import { EventPageSkeleton } from "@/components/ui/MarketSkeleton"
-import { useGetMarketByIdQuery, useGetOracleTimelineQuery } from "@/features/api/markets/marketApi"
+import {
+  useGetMarketByIdQuery,
+  useGetMarketPriceQuery,
+  useGetOracleTimelineQuery,
+} from "@/features/api/markets/marketApi"
 import { useMagic } from "@/features/auth/lib/magic"
 import { selectSelectedMarket } from "@/features/markets/marketSelectors"
 import { usePriceChart } from "@/hooks/charts/usePriceChart"
+import { usePrice } from "@/hooks/socket/usePrice"
 import type { TradeOrder, TradePanelOrder } from "@/hooks/trade/TradeTypes"
 import { useTrade } from "@/hooks/trade/useTrade"
 import { formatMarketDate } from "@/libs/formatDate"
@@ -45,6 +50,7 @@ const EventPage = () => {
 
   // ── Primary data source: real API ──────────────────────────────────────────
   const { data: apiMarket, isLoading, isError } = useGetMarketByIdQuery(id ?? "")
+  const { data: apiMarketPrice } = useGetMarketPriceQuery(apiMarket?.optionGroupId ?? "empty")
 
   // ── Oracle timeline — used to determine dispute eligibility ────────────────
   const { data: oracleTimeline } = useGetOracleTimelineQuery(id ?? "", { skip: !id })
@@ -53,6 +59,16 @@ const EventPage = () => {
     ? (oracleTimeline.data[oracleTimeline.data.length - 1]?.action ?? null)
     : null
 
+  // useprice socket
+
+  const { price } = usePrice(apiMarket?.optionGroupId as string)
+
+  // used for yesProbability and no Probability
+  let finalPrice = apiMarketPrice
+  //if the socket price is there , replace the current price with socket price.
+  if (price) {
+    finalPrice = Number(price.price) / 10000
+  }
   // ── Fallback: Redux selectedMarket set when card was clicked ───────────────
   const reduxMarket = useSelector(selectSelectedMarket)
   const market = apiMarket ?? (isError ? reduxMarket : null)
@@ -246,6 +262,7 @@ const EventPage = () => {
                 {activeTab === "orderbook" && (
                   <OrderBookTab
                     marketId={market.id}
+                    optionGroupId={market.optionGroupId ?? ""}
                     yesTokenId={market.yesTokenId as string}
                     noTokenId={market.noTokenId as string}
                   />
@@ -277,8 +294,8 @@ const EventPage = () => {
                       noTokenOnChainId={market.noTokenOnChainId ?? null}
                     />
                     <TradePanel
-                      yesProbability={market.yesProbability ?? 50}
-                      noProbability={market.noProbability ?? 50}
+                      yesProbability={finalPrice ?? 50}
+                      noProbability={finalPrice ? 100 - finalPrice : 50}
                       isCrypto={false}
                       onLoginRequired={() => setIsLoginOpen(true)}
                       onDepositRequired={() => magic?.wallet?.showUI()}
@@ -326,8 +343,8 @@ const EventPage = () => {
                 </div>
               ) : (
                 <TradePanel
-                  yesProbability={market.yesProbability}
-                  noProbability={market.noProbability}
+                  yesProbability={finalPrice ?? 50}
+                  noProbability={finalPrice ? 1 - finalPrice : 50}
                   isCrypto={false}
                   onLoginRequired={() => setIsLoginOpen(true)}
                   onDepositRequired={() => magic?.wallet?.showUI()}

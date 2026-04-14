@@ -90,7 +90,7 @@ export const mapApiOrderToPortfolioOrder = (o: ApiOrder): PortfolioOrder => ({
   orderType: "Limit",
   price: Math.round(Number(o.price) / 10000), // price in cents
   shares: Math.round(Number(o.shares) / 1000000),
-  filled: Number(o.shares) - Number(o.remainingShares),
+  filled: Number(o.shares) / 1000000 - Number(o.remainingShares) / 1000000,
   status: mapOrderStatus(o.status),
   createdAt: o.createdAt,
   token: o.token,

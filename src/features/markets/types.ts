@@ -58,6 +58,7 @@ export interface Market {
   rules?: string
   priceHistory?: PricePoint[]
   orderBook?: OrderBook
+  optionGroupId?: string
 }
 
 // ─── Redux State ──────────────────────────────────────────────────────────────
