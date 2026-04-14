@@ -13,6 +13,7 @@ import { AppProviders } from "@/app/providers"
 import { router } from "@/routes"
 
 import MagicProvider from "./features/auth/lib/magic"
+import { SocketProvider } from "./features/socket/SocketProvider"
 
 const rootElement = document.getElementById("root")
 
@@ -22,8 +23,10 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <MagicProvider>
-    <AppProviders>
-      <RouterProvider router={router} />
-    </AppProviders>
+    <SocketProvider>
+      <AppProviders>
+        <RouterProvider router={router} />
+      </AppProviders>
+    </SocketProvider>
   </MagicProvider>,
 )

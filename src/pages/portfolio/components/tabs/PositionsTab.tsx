@@ -1,11 +1,13 @@
 // src/pages/portfolio/components/tabs/PositionsTab.tsx
 
 import { useState } from "react"
+import { useSelector } from "react-redux"
 
 import {
   type ApiPortfolioPosition,
   useGetPortfolioPositionsQuery,
 } from "@/features/api/portfolio/portfolioApi"
+import { selectIsAuthChecking } from "@/features/auth/authSlice"
 import { useRedeem } from "@/hooks/useRedeem"
 import { ADDRESSES } from "@/libs/contracts"
 import { type Position } from "@/mocks/mockPortfolio"
@@ -395,7 +397,17 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
   const [page, setPage] = useState(1)
   const skip = (page - 1) * PAGE_SIZE
 
-  const { data, isLoading } = useGetPortfolioPositionsQuery({ limit: PAGE_SIZE, skip })
+  // Wait for auth check to finish before firing — prevents the query from
+  // running with no token on page load, which would cache an empty/401 response
+  // and leave positions blank until the user switches tabs and back.
+  const isAuthChecking = useSelector(selectIsAuthChecking)
+
+  const { data, isLoading: queryLoading } = useGetPortfolioPositionsQuery(
+    { limit: PAGE_SIZE, skip },
+    { skip: isAuthChecking },
+  )
+
+  const isLoading = isAuthChecking || queryLoading
 
   const apiPositions = (data?.data.data ?? []).map(mapApiPosition)
   const totalApiCount = data?.data.count ?? 0

@@ -28,7 +28,7 @@ export const useDropdown = (id: string) => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isOpen && ref.current && !ref.current.contains(event.target as Node)) {
-        close()
+        dispatch(clearActiveDropdown())
       }
     }
 
@@ -39,7 +39,7 @@ export const useDropdown = (id: string) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [isOpen])
+  }, [isOpen, dispatch])
 
   return { isOpen, toggle, close, ref }
 }
