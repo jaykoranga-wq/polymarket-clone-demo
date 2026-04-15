@@ -123,9 +123,11 @@ const NotifRow = ({ notif }: { notif: Notification }) => {
 const DropdownHeader = ({
   unreadCount,
   hasNotifications,
+  onClose,
 }: {
   unreadCount: number
   hasNotifications: boolean
+  onClose: () => void
 }) => {
   const dispatch = useDispatch()
 
@@ -171,6 +173,17 @@ const DropdownHeader = ({
             <Trash2 size={12} />
           </button>
         )}
+
+        {/* Close Button — Mobile Only */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onClose()
+          }}
+          className="md:hidden text-white/40 hover:text-white transition-colors ml-1"
+        >
+          <X size={18} />
+        </button>
       </div>
     </div>
   )
@@ -224,12 +237,19 @@ export const NotificationBell = ({ onToggle }: NotificationBellProps) => {
       {/* Dropdown */}
       {open && (
         <div
-          className="fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-16 md:top-[calc(100%+10px)] bg-slate border border-white/10 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] z-50 overflow-hidden flex flex-col w-auto md:w-[340px] mx-auto md:mx-0 max-h-[calc(100vh-100px)]"
+          className="fixed md:absolute left-0 right-0 md:left-auto md:right-0 top-14 md:top-[calc(100%+10px)] bg-slate border-b border-white/10 md:border md:border-white/10 md:rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] z-50 overflow-hidden flex flex-col w-full md:w-[340px] mx-auto md:mx-0 max-h-[calc(100vh-56px)] md:max-h-[calc(100vh-100px)]"
           style={{
-            maxWidth: NOTIFICATION_LIMITS.DROPDOWN_WIDTH,
+            maxWidth:
+              typeof window !== "undefined" && window.innerWidth < 768
+                ? "none"
+                : NOTIFICATION_LIMITS.DROPDOWN_WIDTH,
           }}
         >
-          <DropdownHeader unreadCount={unreadCount} hasNotifications={notifications.length > 0} />
+          <DropdownHeader
+            unreadCount={unreadCount}
+            hasNotifications={notifications.length > 0}
+            onClose={toggle}
+          />
 
           <div
             className="flex-1 overflow-y-auto no-scrollbar"

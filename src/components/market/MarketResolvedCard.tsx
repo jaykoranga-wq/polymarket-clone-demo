@@ -82,7 +82,7 @@ export const MarketResolvedCard = ({
         {canRaiseDispute ? (
           <button
             onClick={handleRaiseDispute}
-            className="w-full py-2 px-4 rounded-xl border border-yellow-500/60 bg-yellow-500/10 text-yellow-400 text-sm font-semibold hover:bg-yellow-500/20 transition-colors"
+            className="w-full py-2 px-4 rounded-xl border border-[#F59E0B] bg-[#F59E0B]/10 text-[#F59E0B] text-sm font-semibold hover:bg-partial/20 transition-colors"
           >
             Raise Dispute
           </button>

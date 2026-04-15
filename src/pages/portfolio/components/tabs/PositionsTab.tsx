@@ -74,11 +74,8 @@ const ColHeader = ({ children, align = "left" }: { children: React.ReactNode; al
 
 const CategoryTag = ({ label, highlight }: { label: string; highlight?: boolean }) => (
   <span
+    className="font-xs font-semibold py-0.5 px-2 rounded-2sm "
     style={{
-      fontSize: 10,
-      fontWeight: 600,
-      padding: "2px 8px",
-      borderRadius: 6,
       background: highlight ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.06)",
       color: highlight ? "#f87171" : PORTFOLIO_COLORS.TEXT_MUTED,
       border: highlight ? "1px solid rgba(239,68,68,0.2)" : "1px solid rgba(255,255,255,0.06)",
@@ -276,9 +273,8 @@ const PositionRow = ({
 
   return (
     <div
-      className="grid gap-2 py-4 px-6 bordeer-b border-b-white/10  items-center transition-all cursor-pointer"
+      className="grid grid-cols-[repeat(7,1fr)] gap-2 py-4 px-6 bordeer-b border-b-white/10  items-center transition-all cursor-pointer"
       style={{
-        gridTemplateColumns: "repeat(7, 1fr)",
         background: canRedeem(position) ? "rgba(0,200,83,0.03)" : "transparent",
       }}
       onMouseEnter={(e) =>
@@ -375,17 +371,7 @@ const PositionRow = ({
 
 // ── Empty state ───────────────────────────────────────────────────────────────
 const EmptyState = ({ label }: { label: string }) => (
-  <div
-    style={{
-      padding: "60px 20px",
-      textAlign: "center",
-      color: PORTFOLIO_COLORS.TEXT_MUTED,
-      fontSize: 13,
-      fontWeight: 500,
-    }}
-  >
-    {label}
-  </div>
+  <div className="py-6 px-5 text-center text-white/60 font-sm font-medium">{label}</div>
 )
 
 // ── PositionsTab ──────────────────────────────────────────────────────────────
@@ -435,12 +421,7 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
       `}</style>
 
       {/* column headers */}
-      <div
-        className="grid gap-4 py-4 px-6 border-b border-b-white/10 items-center "
-        style={{
-          gridTemplateColumns: "repeat(7, 1fr)",
-        }}
-      >
+      <div className="grid grid-cols-[repeat(7,1fr)] gap-4 py-4 px-6 border-b border-b-white/10 items-center ">
         <ColHeader>Market</ColHeader>
         <ColHeader align="center">Side</ColHeader>
         <ColHeader align="center">Shares</ColHeader>

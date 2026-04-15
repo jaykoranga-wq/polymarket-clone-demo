@@ -144,7 +144,7 @@ const MarketsPage = () => {
           )}
         </div>
         {!isLoading && (
-          <span className="font-base font-medium text-muted-foreground">
+          <span className="font-base font-medium text-muted-foreground text-nowrap">
             {markets.length} markets
           </span>
         )}

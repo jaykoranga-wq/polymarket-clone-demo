@@ -432,31 +432,34 @@ const TradePanel = ({
               <span className="  font-semibold text-white">Limit Price</span>
               <div className="flex items-center gap-2.5 py-3 px-2 rounded-md w-45/100 justify-between bg-white/5 border border-white/10">
                 <button
-                  className="w-6 h-6 rounded-2sm text-black font-default flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90
+                  className="w-6 h-6 rounded-2sm  text-black  font-black flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono  bg-primary border border-white/10 hover:bg-primary/90
 "
                   onClick={() => updateLimit(limitCents - 1)}
                 >
                   −
                 </button>
-                <div className="flex items-center min-w-8">
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={limitInput}
-                    className="font-mono font-default font-bold text-white w-full text-center bg-transparent focus:outline-none"
-                    onChange={(e) => {
-                      const raw = e.target.value
-                      if (!/^\d{0,2}(\.\d{0,2})?$/.test(raw)) return
-                      setLimitInput(raw)
-                      const num = parseFloat(raw)
-                      if (!isNaN(num)) setLimitCents(num)
-                    }}
-                    onBlur={() => updateLimit(limitCents)}
-                  />
-                  <span className="font-mono font-default font-bold text-white">¢</span>
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={limitInput}
+                      style={{ width: `${limitInput.length || 1}ch` }}
+                      className="font-mono font-default font-bold text-white bg-transparent focus:outline-none text-right"
+                      onChange={(e) => {
+                        const raw = e.target.value
+                        if (!/^\d{0,2}(\.\d{0,2})?$/.test(raw)) return
+                        setLimitInput(raw)
+                        const num = parseFloat(raw)
+                        if (!isNaN(num)) setLimitCents(num)
+                      }}
+                      onBlur={() => updateLimit(limitCents)}
+                    />
+                    <span className="font-mono font-default font-bold text-white">¢</span>
+                  </div>
                 </div>
                 <button
-                  className="w-6 h-6 rounded-2sm text-black font-default flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
+                  className="w-6 h-6 rounded-2sm text-black  flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
                   onClick={() => updateLimit(limitCents + 1)}
                 >
                   +
@@ -586,22 +589,25 @@ const TradePanel = ({
                 >
                   −
                 </button>
-                <div className="flex items-center min-w-8">
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={limitInput}
-                    className="font-mono font-default font-bold text-white w-full text-center bg-transparent focus:outline-none"
-                    onChange={(e) => {
-                      const raw = e.target.value
-                      if (!/^\d{0,2}(\.\d{0,2})?$/.test(raw)) return
-                      setLimitInput(raw)
-                      const num = parseFloat(raw)
-                      if (!isNaN(num)) setLimitCents(num)
-                    }}
-                    onBlur={() => updateLimit(limitCents)}
-                  />
-                  <span className="font-mono font-default font-bold text-white">¢</span>
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={limitInput}
+                      style={{ width: `${limitInput.length || 1}ch` }}
+                      className="font-mono font-default font-bold text-white bg-transparent focus:outline-none text-right"
+                      onChange={(e) => {
+                        const raw = e.target.value
+                        if (!/^\d{0,2}(\.\d{0,2})?$/.test(raw)) return
+                        setLimitInput(raw)
+                        const num = parseFloat(raw)
+                        if (!isNaN(num)) setLimitCents(num)
+                      }}
+                      onBlur={() => updateLimit(limitCents)}
+                    />
+                    <span className="font-mono font-default font-bold text-white">¢</span>
+                  </div>
                 </div>
                 <button
                   className="w-6 h-6 rounded-2sm text-black font-default flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"

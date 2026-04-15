@@ -194,7 +194,7 @@ const PortfolioPage = () => {
           {/* ──  table ── */}
           <div className="bg-linear-to-b from-white/5 to-white/2 border border-white/10 rounded-2xl overflow-x-auto no-scrollbar ">
             {/* tab content */}
-            <div className="min-w-[900px] pt-4">
+            <div className="min-w-[900px]">
               {activeTab === PORTFOLIO_TABS.POSITIONS && <PositionsTab search={search} />}
               {activeTab === PORTFOLIO_TABS.ORDERS && <PortfolioOrdersTab search={search} />}
               {activeTab === PORTFOLIO_TABS.HISTORY && <HistoryTab search={search} />}

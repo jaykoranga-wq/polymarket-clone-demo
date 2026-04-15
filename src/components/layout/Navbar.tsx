@@ -13,12 +13,13 @@ import {
   Search,
   // Settings,
   Sparkles,
+  Wallet,
   X,
   Zap,
 } from "lucide-react"
 import { type FC, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { useNavigate } from "react-router"
+import { useLocation, useNavigate } from "react-router"
 
 import { useAppSelector } from "@/app/hooks"
 import { LoginModal } from "@/components/auth/LoginModal"
@@ -95,6 +96,7 @@ const MenuItem = ({
   label,
   onClick,
   red = false,
+  active = false,
   rightIcon,
   className = "",
 }: {
@@ -102,13 +104,14 @@ const MenuItem = ({
   label: string
   onClick?: () => void
   red?: boolean
+  active?: boolean
   rightIcon?: React.ReactNode
   className?: string
 }) => (
   <button
     onClick={onClick}
     className={`group cursor-pointer w-full flex items-center gap-3.5 px-5 py-3 text-sm font-bold transition-all hover:bg-white/5
-      ${red ? "text-red-500" : className ? className : "text-white/60 hover:text-white"}`}
+      ${red ? "text-red-500" : active ? "text-white bg-white/5" : className ? className : "text-white/60 hover:text-white"}`}
   >
     {icon && <span className="w-5 flex items-center justify-center transition-colors">{icon}</span>}
     <span className="flex-1 text-left">{label}</span>
@@ -197,8 +200,8 @@ const Dropdown = ({
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose()
     }
-    document.addEventListener("click", handler)
-    return () => document.removeEventListener("click", handler)
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
   }, [onClose])
 
   return (
@@ -254,7 +257,59 @@ const SearchBar = () => {
   )
 }
 
-// ── MobileSearchBar ──────────────────────────────────────────────────────────
+// ── Mobile Search Bar (Toggleable) ───────────────────────────────────────────
+const SearchBarMobile = ({ onSearch, onClose }: { onSearch: () => void; onClose: () => void }) => {
+  const navigate = useNavigate()
+  const [query, setQuery] = useState("")
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = query.trim()
+    if (!trimmed) return
+    navigate(`${ROUTES.MarketSearch}?q=${encodeURIComponent(trimmed)}`)
+    onSearch()
+  }
+
+  return (
+    <div className="flex items-center gap-2 w-full">
+      <form
+        onSubmit={handleSearch}
+        className="relative flex-1"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+        <input
+          type="text"
+          autoFocus
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search markets"
+          className="w-full bg-slate border border-progress-bar rounded-2sm py-2.5 pl-8.5 pr-8.5 text-sm leading-4 text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all placeholder-[#6B7280]"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+          >
+            <X size={14} />
+          </button>
+        )}
+      </form>
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          onClose()
+        }}
+        className="p-2 text-white/40 hover:text-white transition-colors"
+      >
+        <X size={20} />
+      </button>
+    </div>
+  )
+}
+
+// ── Sidebar Mobile Search Bar ──────────────────────────────────────────────
 const MobileSearchBar = ({ onClose }: { onClose: () => void }) => {
   const navigate = useNavigate()
   const [query, setQuery] = useState("")
@@ -316,10 +371,47 @@ export const Navbar: FC = () => {
   const [authMenuOpen, setAuthMenuOpen] = useState(false)
   const [depositLoading, setDepositLoading] = useState(false)
   const [metamaskDepositOpen, setMetamaskDepositOpen] = useState(false)
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
 
   const activeDropdown = useAppSelector(selectActiveDropdownId)
   const navigate = useNavigate()
+  const location = useLocation()
   const [logoutToBackend] = useLogoutMutation()
+
+  // Close mobile search on navigate or click outside
+  useEffect(() => {
+    setIsMobileSearchOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!isMobileSearchOpen) return
+
+    const handleClickOutside = (e: MouseEvent) => {
+      // Find the search elements
+      const header = document.querySelector("header")
+      const searchForm = header?.querySelector("form")
+      const searchToggle = header?.querySelector('button[class*="xl:hidden"]') // The search icon button
+
+      if (
+        searchForm &&
+        !searchForm.contains(e.target as Node) &&
+        searchToggle &&
+        !searchToggle.contains(e.target as Node)
+      ) {
+        setIsMobileSearchOpen(false)
+      }
+    }
+
+    // Use a small timeout to avoid immediate closure if triggered by the same click
+    const timeout = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside)
+    }, 10)
+
+    return () => {
+      clearTimeout(timeout)
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [isMobileSearchOpen])
 
   // Toggles dropdowns and ensures only one is open
   const toggleDropdown = (name: string) => {
@@ -468,6 +560,7 @@ export const Navbar: FC = () => {
               key={link.path}
               icon={NAV_ICONS[link.label]}
               label={link.label}
+              active={location.pathname === link.path}
               onClick={() => {
                 navigate(link.path)
                 closeSidebar()
@@ -591,300 +684,384 @@ export const Navbar: FC = () => {
         </div>
       </aside>
 
+      {/* ── Mobile Search Backdrop ── */}
+      {isMobileSearchOpen && (
+        <div
+          className="fixed inset-0 top-14 bg-black/40 backdrop-blur-md z-45 xl:hidden"
+          onClick={() => setIsMobileSearchOpen(false)}
+        />
+      )}
+
       {/* ── Header ── */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md font-liberation">
-        <div className="container flex h-14 items-center gap-4 justify-between">
-          {/* ── Left: Burger + Logo + Desktop Nav ── */}
-          <div className="flex items-center gap-3">
-            {/* Burger — visible below xl */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="xl:hidden text-muted-foreground hover:text-white h-9 w-9 flex items-center justify-center p-0 cursor-pointer"
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) => {
-                e.stopPropagation()
-                dispatch(clearActiveDropdown()) // Close any open dropdowns when sidebar toggles
-                if (isAuthenticated) setAuthMenuOpen((p) => !p)
-                else setMenuOpen((p) => !p)
-              }}
-            >
-              {sidebarOpen ? <X className="size-5" /> : <HamburgerIcon />}
-            </Button>
+      <header
+        className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md font-liberation"
+        onClick={() => isMobileSearchOpen && setIsMobileSearchOpen(false)}
+      >
+        <div className="container relative">
+          <div className="flex h-14 items-center justify-between gap-2">
+            {/* ── Left: Logo + Desktop Nav ── */}
+            <div className="flex-1 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+              {/* Logo */}
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate("/")
+                  setIsMobileSearchOpen(false)
+                }}
+              >
+                <img src="/logo.svg" alt="Polymarket" className="h-4.5 sm:h-5.5 w-auto" />
+              </div>
 
-            {/* Logo */}
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-              <img src="/logo.svg" alt="Polymarket" className="h-4.5 sm:h-5.5 w-auto" />
-            </div>
-
-            {/* Desktop nav — xl+ */}
-            <nav className="hidden xl:flex items-center gap-6 py-1.5 px-3 text-sm font-bold">
-              <button
-                className="text-secondary transition-colors cursor-pointer hover:text-white"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  navigate("/markets/trending")
-                }}
-              >
-                Trending
-              </button>
-              <button
-                className="text-secondary transition-colors cursor-pointer hover:text-white"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  navigate("/markets/category/Breaking")
-                }}
-              >
-                Breaking
-              </button>
-              <button
-                className="text-secondary transition-colors cursor-pointer hover:text-white"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  navigate("/markets/new_market")
-                }}
-              >
-                New
-              </button>
-              <div className="relative" onClick={(e) => e.stopPropagation()}>
+              {/* Desktop nav — xl+ */}
+              <nav className="hidden xl:flex items-center gap-6 py-1.5 px-3 text-sm font-bold">
                 <button
-                  onMouseDown={(e) => e.stopPropagation()}
+                  className={`transition-colors cursor-pointer hover:text-white ${location.pathname === "/markets/trending" ? "text-white" : "text-secondary"}`}
                   onClick={(e) => {
                     e.stopPropagation()
-                    toggleDropdown("more")
+                    navigate("/markets/trending")
                   }}
-                  className="flex items-center gap-1 text-secondary cursor-pointer transition-colors hover:text-white ml-0"
                 >
-                  More{" "}
-                  <ChevronDown
-                    size={14}
-                    className={`transition-transform ${activeDropdown === "more" ? "rotate-180" : ""}`}
-                  />
+                  Trending
                 </button>
-
-                {activeDropdown === "more" && (
-                  <Dropdown
-                    onClose={() => dispatch(clearActiveDropdown())}
-                    className="w-48 md:left-0 md:mt-2.5 cursor-pointer"
-                  >
-                    <MenuItem
-                      label="Hollywood"
-                      onClick={() => {
-                        dispatch(clearActiveDropdown())
-                        navigate("/markets/category/Hollywood")
-                      }}
-                    />
-                    <MenuItem
-                      label="Awards"
-                      onClick={() => {
-                        dispatch(clearActiveDropdown())
-                        navigate("/markets/category/Awards")
-                      }}
-                    />
-                  </Dropdown>
-                )}
-              </div>
-            </nav>
-          </div>
-
-          {/* ── Right side ── */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <SearchBar />
-            {showAuthLoader ? (
-              <AuthLoader />
-            ) : isAuthenticated ? (
-              <>
-                {/* Portfolio + Cash */}
-                <div className="hidden md:flex items-center gap-4 font-base font-bold ">
-                  <div
-                    className="flex flex-col items-start cursor-pointer"
-                    onClick={handlePortfolioClick}
-                  >
-                    <span className="text-secondary uppercase tracking-wide leading-none">
-                      Portfolio
-                    </span>
-                    <span className="text-primary font-sm font-bold">
-                      {formatPortfolio(portfolioAmount)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col ">
-                    <span className="text-secondary uppercase tracking-wide leading-none ">
-                      Cash
-                    </span>
-                    <span className="text-primary font-sm font-bold">{formatCash(cashAmount)}</span>
-                  </div>
-                </div>
-
-                {/* Vertical Divider */}
-                <div className={`hidden md:block w-px bg-vertical-divider h-4 mx-1 `} />
-
-                <Button
-                  onClick={debouncedHandleDeposit}
-                  disabled={isLoginOpen || depositLoading}
-                  className="hidden md:inline-flex bg-primary text-background text-xs font-bold hover:bg-primary/90 px-4 rounded-sm h-8 cursor-pointer"
+                <button
+                  className={`transition-colors cursor-pointer hover:text-white ${location.pathname === "/markets/category/Breaking" ? "text-white" : "text-secondary"}`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    navigate("/markets/category/Breaking")
+                  }}
                 >
-                  {depositLoading ? "Opening wallet" : "Deposit"}
-                </Button>
-
-                <div>
-                  <NotificationBell
-                    isOpen={activeDropdown === "notifications"}
-                    onToggle={() => toggleDropdown("notifications")}
-                  />
-                </div>
-
-                {/* Profile avatar + dropdown */}
-                <div className="relative hidden md:block">
-                  <div
+                  Breaking
+                </button>
+                <button
+                  className={`transition-colors cursor-pointer hover:text-white ${location.pathname === "/markets/new_market" ? "text-white" : "text-secondary"}`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    navigate("/markets/new_market")
+                  }}
+                >
+                  New
+                </button>
+                <div className="relative" onClick={(e) => e.stopPropagation()}>
+                  <button
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation()
-                      toggleDropdown("profile")
+                      toggleDropdown("more")
                     }}
+                    className={`flex items-center gap-1 cursor-pointer transition-colors hover:text-white ml-0 ${
+                      activeDropdown === "more" ||
+                      location.pathname === "/markets/category/Hollywood" ||
+                      location.pathname === "/markets/category/Awards"
+                        ? "text-white"
+                        : "text-secondary"
+                    }`}
                   >
-                    <Avatar email={email} address={publicAddress} />
-                  </div>
+                    More{" "}
+                    <ChevronDown
+                      size={14}
+                      className={`transition-transform ${activeDropdown === "more" ? "rotate-180" : ""}`}
+                    />
+                  </button>
 
-                  {activeDropdown === "profile" && (
+                  {activeDropdown === "more" && (
                     <Dropdown
                       onClose={() => dispatch(clearActiveDropdown())}
-                      className="w-72 md:right-0 md:top-11"
+                      className="w-48 md:left-0 md:mt-2.5 cursor-pointer"
                     >
-                      <div className="p-5 flex items-start gap-4 relative">
-                        {/* Settings button top right */}
-                        {/* <button className="absolute top-5 right-5 text-white/40 hover:text-white transition-colors">
-                          <Settings size={16} />
-                        </button> */}
+                      <MenuItem
+                        label="Hollywood"
+                        active={location.pathname === "/markets/category/Hollywood"}
+                        onClick={() => {
+                          dispatch(clearActiveDropdown())
+                          navigate("/markets/category/Hollywood")
+                        }}
+                      />
+                      <MenuItem
+                        label="Awards"
+                        active={location.pathname === "/markets/category/Awards"}
+                        onClick={() => {
+                          dispatch(clearActiveDropdown())
+                          navigate("/markets/category/Awards")
+                        }}
+                      />
+                    </Dropdown>
+                  )}
+                </div>
+              </nav>
+            </div>
 
-                        <div
-                          className="flex items-center gap-4 cursor-pointer group flex-1"
-                          onClick={() => {
-                            dispatch(clearActiveDropdown())
-                            navigate(`/profile/${user.publicAddress}`)
-                          }}
-                        >
-                          <Avatar email={email} address={publicAddress} size="lg" square />
-                          <div className="flex flex-col min-w-0">
-                            <span className="font-md font-bold text-white truncate capitalize">
-                              {displayName}
-                            </span>
-                            <div className="flex gap-4 mt-2 items-center">
-                              <div className="flex flex-col">
-                                <span className="font-xs font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
-                                  Rank
-                                </span>
-                                <span className="font-base font-extrabold text-primary leading-none">
-                                  #412
-                                </span>
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="font-xs font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
-                                  Win Rate
-                                </span>
-                                <span className="font-base font-extrabold text-primary leading-none">
-                                  78.4%
-                                </span>
+            {/* ── Right: Auth & Icons ── */}
+            <div
+              className="flex-1 flex items-center justify-end gap-1.5 sm:gap-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <SearchBar />
+
+              {/* Mobile Search SVG Icon */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsMobileSearchOpen(!isMobileSearchOpen)
+                }}
+                className="xl:hidden p-2 text-secondary hover:text-white transition-colors"
+              >
+                <Search size={20} />
+              </button>
+
+              {showAuthLoader ? (
+                <AuthLoader />
+              ) : isAuthenticated ? (
+                <>
+                  {/* Portfolio + Cash — Desktop only here */}
+                  <div className="hidden md:flex xl:flex items-center gap-4 font-base font-bold ">
+                    <div
+                      className="flex flex-col items-start cursor-pointer"
+                      onClick={handlePortfolioClick}
+                    >
+                      <span className="text-secondary uppercase tracking-wide leading-none">
+                        Portfolio
+                      </span>
+                      <span className="text-primary font-sm font-bold">
+                        {formatPortfolio(portfolioAmount)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col ">
+                      <span className="text-secondary uppercase tracking-wide leading-none ">
+                        Cash
+                      </span>
+                      <span className="text-primary font-sm font-bold">
+                        {formatCash(cashAmount)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Vertical Divider */}
+                  <div className={`hidden md:block xl:block w-px bg-vertical-divider h-4 mx-1 `} />
+
+                  {/* Desktop & Mobile Deposit — Responsive Content */}
+                  <Button
+                    onClick={debouncedHandleDeposit}
+                    disabled={isLoginOpen || depositLoading}
+                    className="hidden xl:inline-flex bg-primary text-background text-xs font-bold hover:bg-primary/90 px-4 rounded-sm h-8 cursor-pointer"
+                  >
+                    {depositLoading ? "Opening wallet" : "Deposit"}
+                  </Button>
+
+                  {/* Mobile Only Deposit */}
+                  <Button
+                    onClick={debouncedHandleDeposit}
+                    disabled={isLoginOpen || depositLoading}
+                    className="xl:hidden bg-primary text-background text-xs font-bold hover:bg-primary/90 px-3 sm:px-4 rounded-sm h-8 cursor-pointer flex items-center justify-center min-w-8"
+                  >
+                    <span className="hidden sm:inline">
+                      {depositLoading ? "Opening" : "Deposit"}
+                    </span>
+                    <span className="sm:hidden">
+                      <Wallet size={18} />
+                    </span>
+                  </Button>
+
+                  {/* Notifications (Desktop & Mobile) */}
+                  <div>
+                    <NotificationBell
+                      isOpen={activeDropdown === "notifications"}
+                      onToggle={() => toggleDropdown("notifications")}
+                    />
+                  </div>
+
+                  {/* Profile (Desktop & Mobile) */}
+                  <div className="relative">
+                    <div
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleDropdown("profile")
+                      }}
+                      className="cursor-pointer"
+                    >
+                      <Avatar email={email} address={publicAddress} />
+                    </div>
+
+                    {activeDropdown === "profile" && (
+                      <Dropdown
+                        onClose={() => dispatch(clearActiveDropdown())}
+                        className="w-72 right-0 top-11"
+                      >
+                        <div className="p-5 flex items-start gap-4 relative">
+                          <div
+                            className="flex items-center gap-4 cursor-pointer group flex-1"
+                            onClick={() => {
+                              dispatch(clearActiveDropdown())
+                              navigate(`/profile/${user.publicAddress}`)
+                            }}
+                          >
+                            <Avatar email={email} address={publicAddress} size="lg" square />
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-md font-bold text-white truncate capitalize">
+                                {displayName}
+                              </span>
+                              <div className="flex gap-4 mt-2 items-center">
+                                <div className="flex flex-col">
+                                  <span className="font-xs font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
+                                    Rank
+                                  </span>
+                                  <span className="font-base font-extrabold text-primary leading-none">
+                                    #412
+                                  </span>
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-xs font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
+                                    Win Rate
+                                  </span>
+                                  <span className="font-base font-extrabold text-primary leading-none">
+                                    78.4%
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      <Divider />
-                      <div className="py-2">
-                        <MenuItem
-                          icon={<BarChart3 size={20} className="text-primary" />}
-                          label="Leaderboard"
-                          onClick={() => {
-                            dispatch(clearActiveDropdown())
-                            navigate(`/leaderboard/${user.publicAddress}`)
-                          }}
-                        />
-                        <MenuItem
-                          icon={<Medal size={20} className="text-primary fill-primary/10" />}
-                          label="Rewards"
-                          onClick={() => {
-                            dispatch(clearActiveDropdown())
-                            navigate(`/rewards/${user.publicAddress}`)
-                          }}
-                        />
-                      </div>
-                      <Divider />
-                      <div className="py-2 ">
-                        <MenuItem
-                          icon={<LogOut size={20} className="text-no/70" />}
-                          label="Logout"
-                          onClick={handleLogout}
-                          className="text-no/70 hover:text-no"
-                        />
-                      </div>
-                    </Dropdown>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                {/* How it works */}
-                {/* <div className="hidden xl:flex items-center gap-2 text-secondary cursor-pointer hover:opacity-80 transition-opacity">
-                  <Info className="size-4" />
-                  <span className="text-sm font-medium text-nowrap">How it works</span>
-                </div> */}
-                <Button
-                  variant="default"
-                  className="hidden md:inline-flex bg-accent text-white font-base font-bold text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7  cursor-pointer"
-                  onClick={() => setIsLoginOpen(true)}
-                >
-                  Log In
-                </Button>
-                <Button
-                  variant="default"
-                  className="hidden md:inline-flex bg-accent text-primary font-bold border-black border text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7 cursor-pointer"
-                  onClick={() => setIsLoginOpen(true)}
-                >
-                  Sign Up
-                </Button>
-
-                {!isAuthenticated && (
-                  <div className="hidden xl:block relative" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onMouseDown={(e) => e.stopPropagation()}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        toggleDropdown("loggedOutMenu")
-                      }}
-                      className="flex items-center gap-1 text-secondary transition-colors hover:text-white ml-2"
-                    >
-                      <HamburgerIcon />
-                    </button>
-
-                    {activeDropdown === "loggedOutMenu" && (
-                      <Dropdown
-                        onClose={() => dispatch(clearActiveDropdown())}
-                        className="w-48 md:right-0 md:left-auto md:mt-2.5"
-                      >
-                        <MenuItem
-                          icon={<BarChart3 size={20} className="text-primary" />}
-                          label="Leaderboard"
-                          onClick={() => {
-                            dispatch(clearActiveDropdown())
-                            navigate("/leaderboard/guest")
-                          }}
-                        />
-                        <MenuItem
-                          icon={<Medal size={20} className="text-primary fill-primary/10" />}
-                          label="Rewards"
-                          onClick={() => {
-                            dispatch(clearActiveDropdown())
-                            navigate("/rewards/guest")
-                          }}
-                        />
+                        <Divider />
+                        <div className="py-2">
+                          <MenuItem
+                            icon={<BarChart3 size={20} className="text-primary" />}
+                            label="Leaderboard"
+                            onClick={() => {
+                              dispatch(clearActiveDropdown())
+                              navigate(`/leaderboard/${user.publicAddress}`)
+                            }}
+                          />
+                          <MenuItem
+                            icon={<Medal size={20} className="text-primary fill-primary/10" />}
+                            label="Rewards"
+                            onClick={() => {
+                              dispatch(clearActiveDropdown())
+                              navigate(`/rewards/${user.publicAddress}`)
+                            }}
+                          />
+                        </div>
+                        <Divider />
+                        <div className="py-2 ">
+                          <MenuItem
+                            icon={<LogOut size={20} className="text-no/70" />}
+                            label="Logout"
+                            onClick={handleLogout}
+                            className="text-no/70 hover:text-no"
+                          />
+                        </div>
                       </Dropdown>
                     )}
                   </div>
-                )}
-              </>
-            )}
+                </>
+              ) : (
+                <>
+                  {/* Guest Logic */}
+                  <Button
+                    variant="default"
+                    className="hidden xl:inline-flex bg-accent text-white font-base font-bold text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7  cursor-pointer"
+                    onClick={() => setIsLoginOpen(true)}
+                  >
+                    Log In
+                  </Button>
+                  <Button
+                    variant="default"
+                    className="hidden xl:inline-flex bg-accent text-primary font-bold border-black border text-xs hover:bg-accent/90 px-3 sm:px-4 rounded-sm sm:h-8 h-7 cursor-pointer"
+                    onClick={() => setIsLoginOpen(true)}
+                  >
+                    Sign Up
+                  </Button>
+
+                  {/* Mobile Guest Buttons */}
+                  <div className="xl:hidden flex items-center gap-1.5 ">
+                    <Button
+                      variant="default"
+                      className="bg-accent text-white font-bold text-[10px] hover:bg-accent/90 h-7 px-2 rounded-sm cursor-pointer"
+                      onClick={() => setIsLoginOpen(true)}
+                    >
+                      Log In
+                    </Button>
+                    <Button
+                      variant="default"
+                      className="bg-primary text-background font-bold text-[10px] h-7 px-2 rounded-sm cursor-pointer"
+                      onClick={() => setIsLoginOpen(true)}
+                    >
+                      Sign Up
+                    </Button>
+                  </div>
+
+                  {!isAuthenticated && (
+                    <div className="hidden xl:block relative" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleDropdown("loggedOutMenu")
+                        }}
+                        className="flex items-center gap-1 text-secondary transition-colors hover:text-white ml-2"
+                      >
+                        <HamburgerIcon />
+                      </button>
+
+                      {activeDropdown === "loggedOutMenu" && (
+                        <Dropdown
+                          onClose={() => dispatch(clearActiveDropdown())}
+                          className="w-48 md:right-0 md:left-auto md:mt-2.5"
+                        >
+                          <MenuItem
+                            icon={<BarChart3 size={20} className="text-primary" />}
+                            label="Leaderboard"
+                            onClick={() => {
+                              dispatch(clearActiveDropdown())
+                              navigate("/leaderboard/guest")
+                            }}
+                          />
+                          <MenuItem
+                            icon={<Medal size={20} className="text-primary fill-primary/10" />}
+                            label="Rewards"
+                            onClick={() => {
+                              dispatch(clearActiveDropdown())
+                              navigate("/rewards/guest")
+                            }}
+                          />
+                        </Dropdown>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Mobile Hamburger — Far Right */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="xl:hidden text-muted-foreground hover:text-white h-9 w-9 flex items-center justify-center p-0 cursor-pointer ml-1"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  dispatch(clearActiveDropdown())
+                  if (isAuthenticated) setAuthMenuOpen((p) => !p)
+                  else setMenuOpen((p) => !p)
+                }}
+              >
+                {sidebarOpen ? <X className="size-5" /> : <HamburgerIcon />}
+              </Button>
+            </div>
           </div>
+
+          {/* ── Mobile Search Input Area ── */}
+          {isMobileSearchOpen && (
+            <div
+              className="xl:hidden px-4 pb-4 animate-in slide-in-from-top duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <SearchBarMobile
+                onSearch={() => setIsMobileSearchOpen(false)}
+                onClose={() => setIsMobileSearchOpen(false)}
+              />
+            </div>
+          )}
         </div>
       </header>
 
