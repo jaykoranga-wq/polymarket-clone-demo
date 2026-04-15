@@ -1,0 +1,227 @@
+import { Bell, Check, Copy, User, Wallet } from "lucide-react"
+import { useState } from "react"
+import { useSelector } from "react-redux"
+
+import { selectUserData } from "@/features/auth/authSlice"
+
+// ── Sidebar nav items ─────────────────────────────────────────────────────────
+type Tab = "profile" | "account" | "notifications"
+
+const NAV_ITEMS: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: "profile", label: "Profile", icon: User },
+  { id: "account", label: "Account", icon: Wallet },
+  { id: "notifications", label: "Notifications", icon: Bell },
+]
+
+// ── Avatar ────────────────────────────────────────────────────────────────────
+const Avatar = ({ src }: { src?: string }) => (
+  <div className="relative w-16 h-16 shrink-0">
+    {src ? (
+      <img src={src} alt="avatar" className="w-16 h-16 rounded-full object-cover" />
+    ) : (
+      <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-white/40 text-2xl font-bold border border-white/10">
+        <User size={28} />
+      </div>
+    )}
+    {/* Green checkmark badge */}
+    <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center border-2 border-[#0a0c10]">
+      <Check size={10} strokeWidth={3} className="text-black" />
+    </span>
+  </div>
+)
+
+// ── Input field ───────────────────────────────────────────────────────────────
+const Field = ({
+  label,
+  value,
+  onChange,
+  disabled,
+  placeholder,
+  suffix,
+}: {
+  label: string
+  value: string
+  onChange?: (v: string) => void
+  disabled?: boolean
+  placeholder?: string
+  suffix?: React.ReactNode
+}) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-sm font-medium text-white/70">{label}</label>
+    <div className="relative flex items-center">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+        disabled={disabled}
+        placeholder={placeholder}
+        className="w-full bg-[#111418] border border-white/10 rounded-md px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-primary/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed pr-10"
+      />
+      {suffix && <span className="absolute right-3 text-white/40 flex items-center">{suffix}</span>}
+    </div>
+  </div>
+)
+
+// ── Profile section ───────────────────────────────────────────────────────────
+const ProfileSection = () => {
+  const { email, publicAddress } = useSelector(selectUserData)
+  const [username, setUsername] = useState(publicAddress ?? "")
+  const [bio, setBio] = useState("")
+  const [copied, setCopied] = useState(false)
+
+  const displayAddress = publicAddress ?? ""
+
+  const handleCopy = () => {
+    if (!displayAddress) return
+    navigator.clipboard.writeText(displayAddress)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div>
+      <h2 className="text-lg font-bold text-white mb-6">Profile Settings</h2>
+
+      {/* Avatar */}
+      <div className="mb-6">
+        <Avatar />
+      </div>
+
+      {/* Fields */}
+      <div className="flex flex-col gap-4">
+        <Field
+          label="Username"
+          value={username}
+          onChange={setUsername}
+          placeholder="Enter a username"
+        />
+
+        <Field
+          label="Email address"
+          value={email ?? ""}
+          disabled
+          placeholder="No email connected"
+        />
+
+        <Field
+          label="Wallet Address"
+          value={displayAddress}
+          disabled
+          suffix={
+            <button
+              onClick={handleCopy}
+              className="hover:text-white transition-colors"
+              title="Copy address"
+            >
+              {copied ? <Check size={15} className="text-primary" /> : <Copy size={15} />}
+            </button>
+          }
+        />
+
+        {/* Bio */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-white/70">Bio</label>
+          <textarea
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            placeholder="Tell us about yourself..."
+            rows={4}
+            className="w-full bg-[#111418] border border-white/10 rounded-md px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-primary/50 transition-colors resize-none"
+          />
+        </div>
+
+        {/* Social Connections */}
+        <div className="flex flex-col gap-3 mt-1">
+          <span className="text-sm font-medium text-white/70">Social Connections</span>
+          <div className="flex flex-wrap gap-3">
+            {/* Connect X */}
+            <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#111418] border border-white/10 text-sm font-medium text-white hover:border-white/25 transition-colors">
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4 fill-white"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              Connect X
+            </button>
+
+            {/* Connected Discord */}
+            <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#111418] border border-white/10 text-sm font-medium text-white/60 hover:border-white/25 transition-colors cursor-default">
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4 fill-[#5865F2]"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.055a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+              </svg>
+              Connected Discord
+            </button>
+          </div>
+        </div>
+
+        {/* Save button */}
+        <div className="mt-2">
+          <button className="px-5 py-2 bg-primary text-black text-sm font-bold rounded-md hover:bg-primary/80 transition-colors">
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
+const SettingsPage = () => {
+  const [activeTab, setActiveTab] = useState<Tab>("profile")
+
+  return (
+    <div className="container font-inter py-8">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-white">Settings</h1>
+        <p className="text-sm text-white/45 mt-1">
+          Manage your public presence and account security on the platform.
+        </p>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* ── Sidebar ── */}
+        <aside className="w-full md:w-44 shrink-0 flex flex-row md:flex-col gap-1">
+          {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-md text-sm font-medium transition-colors w-full text-left ${
+                activeTab === id
+                  ? "bg-primary text-black font-bold"
+                  : "text-white/60 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <Icon size={15} />
+              {label}
+            </button>
+          ))}
+        </aside>
+
+        {/* ── Content panel ── */}
+        <div className="flex-1 bg-[#111418] border border-white/8 rounded-xl px-6 py-6 max-w-xl">
+          {activeTab === "profile" && <ProfileSection />}
+          {activeTab === "account" && (
+            <div>
+              <h2 className="text-lg font-bold text-white mb-4">Account Settings</h2>
+              <p className="text-sm text-white/40">Account settings coming soon.</p>
+            </div>
+          )}
+          {activeTab === "notifications" && (
+            <div>
+              <h2 className="text-lg font-bold text-white mb-4">Notification Settings</h2>
+              <p className="text-sm text-white/40">Notification settings coming soon.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default SettingsPage

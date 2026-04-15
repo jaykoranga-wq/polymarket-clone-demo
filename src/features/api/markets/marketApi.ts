@@ -7,6 +7,32 @@ import type { Market } from "@/features/markets/types"
 
 import { secondApi } from "../secondApi"
 
+// ── Price history (OHLC) ──────────────────────────────────────────────────────
+export interface OhlcCandle {
+  time: number // unix seconds (from bucketStart)
+  open: number // normalised 0–1
+  high: number
+  low: number
+  close: number
+}
+
+interface PriceHistoryRaw {
+  open: string
+  high: string
+  low: string
+  close: string
+  bucketStart: string
+  bucketEnd: string
+}
+
+interface PriceHistoryResponse {
+  statusCode: number
+  status: boolean
+  message: string
+  type: string
+  data: PriceHistoryRaw[]
+}
+
 const mapApiMarketToMarket = (m: ApiMarketListResponse["data"]["data"][number]): Market => {
   const tokens = m.optionGroups?.[0]?.tokens ?? []
   const yesToken = tokens.find((t) => t.title === "Yes")
@@ -161,6 +187,35 @@ const marketApi = secondApi.injectEndpoints({
         params: { marketId },
       }),
     }),
+
+    // ─────────────────────────────────────────────
+    // GET PRICE HISTORY (OHLC)
+    // ─────────────────────────────────────────────
+    getPriceHistory: builder.query<OhlcCandle[], { optionGroupId: string; interval: string }>({
+      query: ({ optionGroupId, interval }) =>
+        `/v1/market-option-group/${optionGroupId}/price-history?interval=${interval}`,
+
+      transformResponse: (res: PriceHistoryResponse): OhlcCandle[] => {
+        console.log(
+          "[marketApi] getPriceHistory raw response — status:",
+          res.status,
+          "| data length:",
+          res.data?.length,
+        )
+        if (res.data?.length > 0) {
+          console.log("[marketApi] sample raw candle:", res.data[0])
+        }
+        const candles = res.data.map((c) => ({
+          time: Math.floor(new Date(c.bucketStart).getTime() / 1000),
+          open: Number(c.open) / 1_000_000,
+          high: Number(c.high) / 1_000_000,
+          low: Number(c.low) / 1_000_000,
+          close: Number(c.close) / 1_000_000,
+        }))
+        console.log("[marketApi] mapped candles — count:", candles.length, "| sample:", candles[0])
+        return candles
+      },
+    }),
   }),
 })
 
@@ -171,4 +226,5 @@ export const {
   useGetMarketsByCategoryQuery,
   useGetOracleTimelineQuery,
   useGetMarketPriceQuery,
+  useGetPriceHistoryQuery,
 } = marketApi

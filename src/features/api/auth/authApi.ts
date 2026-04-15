@@ -57,6 +57,7 @@ type ProfileResponse = {
   data: {
     id: string
     name: string
+    onboardingStatus: number
   }
 }
 
