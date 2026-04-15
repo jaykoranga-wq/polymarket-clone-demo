@@ -21,7 +21,6 @@ export const requestFCMToken = async (): Promise<string | null> => {
       serviceWorkerRegistration: registration,
     })
 
-    console.log("FCM Token:", token)
     return token
   } catch (err) {
     console.error(err)
@@ -37,7 +36,6 @@ export const listenToMessages = async () => {
   }
 
   onMessage(messaging, (payload) => {
-    console.log("Message received:", payload)
     alert(payload.notification?.title)
   })
 }

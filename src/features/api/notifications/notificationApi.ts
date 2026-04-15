@@ -54,12 +54,10 @@ export const notificationApi = secondApi.injectEndpoints({
         params: { limit: 10, ...(params ?? {}) },
       }),
       transformResponse: (response: ApiNotificationResponse) => {
-        console.log("[notificationApi] raw response:", response)
         if (!response?.data?.notifications) {
           return []
         }
         const mapped = response.data.notifications.map(mapApiNotification)
-        console.log("[notificationApi] mapped notifications:", mapped)
         return mapped
       },
     }),

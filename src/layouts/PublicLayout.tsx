@@ -44,7 +44,6 @@ export function PublicLayout() {
     }
 
     if (apiNotifications && apiNotifications.length != 0) {
-      console.log("apiNotifications", apiNotifications)
       dispatch(setNotifications(apiNotifications))
     } else {
       dispatch(setNotifications(MOCK_NOTIFICATIONS))

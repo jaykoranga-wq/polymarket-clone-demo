@@ -21,8 +21,6 @@ export const DisputePage = () => {
     isLoading: timelineLoading,
     isError: timelineError,
   } = useGetOracleTimelineQuery(id ?? "")
-  console.log("timelinedata", timelineData)
-
   // Derive the latest oracle state from the timeline
   const latestOracleAction: number | null = timelineData?.data?.length
     ? (timelineData.data[timelineData.data.length - 1]?.action ?? null)

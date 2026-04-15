@@ -60,3 +60,13 @@ export interface ApiMarketListResponse {
     count: number
   }
 }
+
+export interface ApiMarketPriceResponse {
+  statusCode: number
+  status: boolean
+  message: string
+  type: string
+  data: {
+    price: string
+  }
+}

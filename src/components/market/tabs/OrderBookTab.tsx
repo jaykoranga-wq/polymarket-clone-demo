@@ -2,50 +2,38 @@
 // Polymarket-style order book:
 //   - YES / NO toggle at top
 //   - Single column: asks (dimmed) above spread, bids below
-//   - Two API calls per token (bids + asks)
+//   - Seeded from REST, patched in real-time via socket
 
 import { useState } from "react"
 
-import {
-  mapApiEntryToRow,
-  type OrderBookRow,
-  useGetOrderBookQuery,
-} from "@/features/api/orderBook/orderBookApi"
-// import { MOCK_ORDER_BOOK } from "@/mocks/mockOrderBook"
-// import { MOCK_ORDERS } from "@/mocks/mockOrders"
-
-// ── Constants ─────────────────────────────────────────────────────────────────
-const ORDER_BOOK_TYPE = {
-  BUY: 1,
-  SELL: 2,
-} as const
+import { type BookEntry, useOrderBook } from "@/hooks/socket/useOrderBook"
 
 type TokenSide = "YES" | "NO"
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 interface OrderBookTabProps {
   marketId: string
-  yesTokenId: string // backend UUID for YES token
-  noTokenId: string // backend UUID for NO token
+  optionGroupId: string
+  yesTokenId: string
+  noTokenId: string
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-// calculates max shares across all rows for depth bar width
-const getMaxShares = (rows: OrderBookRow[]) => rows.reduce((max, r) => Math.max(max, r.shares), 1)
+const getMaxShares = (rows: BookEntry[]) => rows.reduce((max, r) => Math.max(max, r.shares), 1)
 
 const OBRow = ({
   row,
   maxShares,
   isBid,
 }: {
-  row: OrderBookRow
+  row: BookEntry
   maxShares: number
-  isBid: boolean // bid = green, ask = red+dimmed
+  isBid: boolean
 }) => (
   <div
     className={`grid grid-cols-2 py-2.5 transition-colors hover:bg-white/2  px-6  relative overflow-hidden font-mono font-base ${
-      isBid ? "opacity-100" : "opacity-880"
+      isBid ? "opacity-100" : "opacity-80"
     }`}
   >
     {/* depth bar */}
@@ -87,36 +75,24 @@ const SkeletonRows = () => (
 )
 
 // ── Main component ────────────────────────────────────────────────────────────
-export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTabProps) => {
+export const OrderBookTab = ({
+  marketId: _,
+  optionGroupId,
+  yesTokenId,
+  noTokenId,
+}: OrderBookTabProps) => {
   const [activeSide, setActiveSide] = useState<TokenSide>("YES")
 
-  const tokenId = activeSide === "YES" ? yesTokenId : noTokenId
+  const activeTokenId = activeSide === "YES" ? yesTokenId : noTokenId
 
-  // fetch bids (BUY orders) for active token
-  const { data: bidsData, isLoading: bidsLoading } = useGetOrderBookQuery({
-    tokenId,
-    type: ORDER_BOOK_TYPE.BUY,
-    limit: 10,
-  })
+  const { bids, asks, isLoading } = useOrderBook(
+    optionGroupId,
+    yesTokenId,
+    noTokenId,
+    activeTokenId,
+  )
 
-  // fetch asks (SELL orders) for active token
-  const { data: asksData, isLoading: asksLoading } = useGetOrderBookQuery({
-    tokenId,
-    type: ORDER_BOOK_TYPE.SELL,
-    limit: 10,
-  })
-  const isLoading = bidsLoading || asksLoading
-
-  // Use API data if available, otherwise fallback to mock dat
-
-  // transform and sort
-  const bids = (bidsData?.data.data ?? []).map(mapApiEntryToRow).sort((a, b) => b.price - a.price) // highest bid first
-
-  const asks = (asksData?.data.data ?? []).map(mapApiEntryToRow).sort((a, b) => a.price - b.price) // lowest ask firs
-
-  // spread = lowest ask - highest bid
   const spread = asks[0] && bids[0] ? asks[0].price - bids[0].price : 0
-
   const maxShares = getMaxShares([...bids, ...asks])
 
   //  const openOrders = MOCK_ORDERS.filter(
@@ -167,8 +143,8 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
             ) : (
               [...asks]
                 .reverse()
-                .map((row, i) => (
-                  <OBRow key={`ask-${i}`} row={row} maxShares={maxShares} isBid={false} />
+                .map((row) => (
+                  <OBRow key={`ask-${row.id}`} row={row} maxShares={maxShares} isBid={false} />
                 ))
             )}
 
@@ -178,46 +154,13 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
             {bids.length === 0 ? (
               <EmptyRows label="No buy orders" />
             ) : (
-              bids.map((row, i) => (
-                <OBRow key={`bid-${i}`} row={row} maxShares={maxShares} isBid={true} />
+              bids.map((row) => (
+                <OBRow key={`bid-${row.id}`} row={row} maxShares={maxShares} isBid={true} />
               ))
             )}
           </>
         )}
       </div>
-
-      {/* ── My Orders ── */}
-      {/* {openOrders.length > 0 && (
-        <div className="mt-8 border-t border-white/10 pt-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-base font-bold text-white/60 uppercase tracking-widest">My Open Orders</span>
-          </div>
-          <div className="flex flex-col gap-2">
-            {openOrders.map((o) => (
-              <div
-                key={o.id}
-                className="flex items-center text-sm py-2 px-3 bg-white/5 rounded-md border border-white/10"
-              >
-                <div className="flex-1">
-                  <div className={`font-semibold ${o.outcome === "Yes" ? "text-yes" : "text-no"}`}>
-                    {o.side} {o.outcome}
-                  </div>
-                  <div className="text-white font-medium text-xs">{o.orderType} Order</div>
-                </div>
-                <div className="text-right flex-1">
-                  <div className="font-bold">{o.price}¢</div>
-                  <div className="text-white/50 text-xs">{o.remainingShares} shares</div>
-                </div>
-                <div className="text-right ml-4">
-                  <button className="text-xs text-no hover:text-no/80 transition-colors cursor-pointer py-1 px-2  rounded">
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )} */}
     </div>
   )
 }

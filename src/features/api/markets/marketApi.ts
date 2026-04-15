@@ -1,5 +1,6 @@
 import type {
   ApiMarketListResponse,
+  ApiMarketPriceResponse,
   ApiSingleMarketResponse,
 } from "@/features/markets/apiTypes/marketApiTypes"
 import type { Market } from "@/features/markets/types"
@@ -61,8 +62,6 @@ const marketApi = secondApi.injectEndpoints({
 
       transformResponse: (res: ApiSingleMarketResponse): Market => {
         const m = res.data.data
-        console.log("Raw API Market Data:", m)
-
         const tokens = m.optionGroups?.[0]?.tokens ?? []
         const yesToken = tokens.find((t) => t.title === "Yes")
         const noToken = tokens.find((t) => t.title === "No")
@@ -90,6 +89,7 @@ const marketApi = secondApi.injectEndpoints({
           noTokenId: noToken?.id ?? null,
           yesTokenOnChainId: yesToken?.tokenId ?? null,
           noTokenOnChainId: noToken?.tokenId ?? null,
+          optionGroupId: m.optionGroups[0]?.id,
         } satisfies Market
       },
 
@@ -131,6 +131,15 @@ const marketApi = secondApi.injectEndpoints({
     }),
 
     // ─────────────────────────────────────────────
+    // GET MARKET PRICE
+    // ─────────────────────────────────────────────
+    getMarketPrice: builder.query<number, string>({
+      query: (optionGroupId) => `/v1/market-option-group/${optionGroupId}/price`,
+
+      transformResponse: (res: ApiMarketPriceResponse): number => Number(res.data.price) / 10000, //cents
+    }),
+
+    // ─────────────────────────────────────────────
     // GET ORACLE TIMELINE
     // ─────────────────────────────────────────────
     getOracleTimeline: builder.query<
@@ -161,4 +170,5 @@ export const {
   useSearchMarketsQuery,
   useGetMarketsByCategoryQuery,
   useGetOracleTimelineQuery,
+  useGetMarketPriceQuery,
 } = marketApi
