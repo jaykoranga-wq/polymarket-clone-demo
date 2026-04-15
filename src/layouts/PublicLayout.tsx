@@ -1,8 +1,9 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Outlet } from "react-router"
 
 import type { RootState } from "@/app/store"
+import { UsernameModal } from "@/components/auth/UsernameModal"
 import { Footer } from "@/components/layout/footer/Footer"
 import { Navbar } from "@/components/layout/Navbar"
 import { useLoginMutation } from "@/features/api/auth/authApi"
@@ -19,6 +20,7 @@ import { MOCK_NOTIFICATIONS } from "@/mocks/mockNotifications"
 // import { listenToMessages, requestFCMToken } from "@/services/firebase/fcm"
 
 export function PublicLayout() {
+  const [usernameOpen, setUsernameOpen] = useState(false)
   const dispatch = useDispatch()
   const { magic } = useMagic()
   useWalletBalance()
@@ -27,6 +29,7 @@ export function PublicLayout() {
 
   // Get token explicitly to prevent premature API execution before authentication completes
   const token = useSelector((state: RootState) => state.auth.token)
+  const email = useSelector((state: RootState) => state.auth.email)
   const { data: apiNotifications } = useGetNotificationsQuery(undefined, { skip: !token })
 
   // Runs once when magic initialises (any page, any refresh).
@@ -60,7 +63,7 @@ export function PublicLayout() {
   useEffect(() => {
     // const setupFCM = async () => {
     //   const token = await requestFCMToken()
-    //   if (token) {
+    //   if (token)
     //     dispatch(setDeviceToken(token))
     //   }
     //   listenToMessages()
@@ -71,6 +74,14 @@ export function PublicLayout() {
   return (
     <div className=" bg-background">
       <main>
+        <UsernameModal
+          open={usernameOpen}
+          defaultUsername={email?.split("@")[0]}
+          onConfirm={() => {
+            setUsernameOpen(false)
+          }}
+          onSkip={() => setUsernameOpen(false)}
+        ></UsernameModal>
         <Navbar />
         <Outlet />
         <Footer />
