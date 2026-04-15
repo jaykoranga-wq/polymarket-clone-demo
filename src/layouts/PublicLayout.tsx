@@ -6,7 +6,7 @@ import type { RootState } from "@/app/store"
 import { UsernameModal } from "@/components/auth/UsernameModal"
 import { Footer } from "@/components/layout/footer/Footer"
 import { Navbar } from "@/components/layout/Navbar"
-import { useLoginMutation } from "@/features/api/auth/authApi"
+import { useLoginMutation, useProfileQuery } from "@/features/api/auth/authApi"
 import { useGetMarketsQuery } from "@/features/api/markets/marketApi"
 import { useGetNotificationsQuery } from "@/features/api/notifications/notificationApi"
 import { checkAuth } from "@/features/auth/authChecks"
@@ -20,12 +20,13 @@ import { MOCK_NOTIFICATIONS } from "@/mocks/mockNotifications"
 // import { listenToMessages, requestFCMToken } from "@/services/firebase/fcm"
 
 export function PublicLayout() {
-  const [usernameOpen, setUsernameOpen] = useState(false)
+  const [usernameOpen, setUsernameOpen] = useState(true)
   const dispatch = useDispatch()
   const { magic } = useMagic()
   useWalletBalance()
   const [loginToBackend] = useLoginMutation()
   const { data: markets } = useGetMarketsQuery()
+  const { data: profile } = useProfileQuery()
 
   // Get token explicitly to prevent premature API execution before authentication completes
   const token = useSelector((state: RootState) => state.auth.token)
@@ -74,14 +75,16 @@ export function PublicLayout() {
   return (
     <div className=" bg-background">
       <main>
-        <UsernameModal
-          open={usernameOpen}
-          defaultUsername={email?.split("@")[0]}
-          onConfirm={() => {
-            setUsernameOpen(false)
-          }}
-          onSkip={() => setUsernameOpen(false)}
-        ></UsernameModal>
+        {
+          <UsernameModal
+            open={usernameOpen && profile?.data.onboardingStatus === 1 && token != null}
+            defaultUsername={email?.split("@")[0]}
+            onConfirm={() => {
+              setUsernameOpen(false)
+            }}
+            onSkip={() => setUsernameOpen(false)}
+          ></UsernameModal>
+        }
         <Navbar />
         <Outlet />
         <Footer />

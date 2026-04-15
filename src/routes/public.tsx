@@ -10,6 +10,7 @@ import MarketsPage from "@/pages/market/MarketPage"
 import PortfolioPage from "@/pages/portfolio/Portfolio"
 import ProfilePage from "@/pages/profile/ProfilePage"
 import RewardsPage from "@/pages/rewards/RewardsPage"
+import SettingsPage from "@/pages/settings/SettingsPage"
 import StaticPage from "@/pages/static/StaticPage"
 import TermsPage from "@/pages/terms/TermsPage"
 
@@ -58,4 +59,5 @@ export const publicRoutes: RouteObject[] = [
   },
 
   { path: "/page/:slug", element: <StaticPage /> },
+  { path: ROUTES.SETTINGS, element: <SettingsPage /> },
 ]

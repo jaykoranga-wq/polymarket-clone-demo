@@ -21,8 +21,8 @@ import {
 } from "@/features/api/markets/marketApi"
 import { useMagic } from "@/features/auth/lib/magic"
 import { selectSelectedMarket } from "@/features/markets/marketSelectors"
-import { usePriceChart } from "@/hooks/charts/usePriceChart"
 import { usePrice } from "@/hooks/socket/usePrice"
+import { usePriceChart } from "@/hooks/socket/usePriceChart"
 import type { TradeOrder, TradePanelOrder } from "@/hooks/trade/TradeTypes"
 import { useTrade } from "@/hooks/trade/useTrade"
 import { formatMarketDate } from "@/libs/formatDate"
@@ -74,9 +74,8 @@ const EventPage = () => {
   const market = apiMarket ?? (isError ? reduxMarket : null)
 
   // ── Chart state ────────────────────────────────────────────────────────────
-  const yesProbability = (market?.yesProbability ?? 50) / 100
-  const { tab, history, changeTab, lastPrice, pctChange, isPositive } = usePriceChart({
-    startPrice: yesProbability,
+  const { tab, history, changeTab, lastPrice, pctChange, isPositive, isFetching } = usePriceChart({
+    optionGroupId: market?.optionGroupId ?? "",
   })
 
   // ── Resolution check ───────────────────────────────────────────────────────
@@ -233,6 +232,8 @@ const EventPage = () => {
                 currentPrice={lastPrice}
                 pctChange={pctChange}
                 isPositive={isPositive}
+                isFetching={isFetching}
+                optionGroupId={market?.optionGroupId ?? ""}
               />
 
               {/* Tab bar */}
