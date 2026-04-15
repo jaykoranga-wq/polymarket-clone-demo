@@ -37,14 +37,25 @@ function getAvatarColor(author: string): string {
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
-const Avatar = ({ author, size = 46 }: { author: string; size?: number }) => (
+const Avatar = ({
+  author,
+  className,
+  size,
+  style,
+}: {
+  author: string
+  className?: string
+  size?: number
+  style?: React.CSSProperties
+}) => (
   <div
-    className="rounded-md flex items-center justify-center text-white font-bold shrink-0"
+    className={`rounded-md flex items-center justify-center text-white font-bold shrink-0 ${className || ""}`}
     style={{
       width: size,
       height: size,
       background: getAvatarColor(author),
-      fontSize: size * 0.35,
+      fontSize: size ? size * 0.35 : undefined,
+      ...style,
     }}
   >
     {getInitials(author)}
@@ -98,7 +109,14 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
 
   return (
     <div className={`flex gap-2.5 py-4 last:pb-0 ${depth > 0 ? " pt-3 mt-1" : ""}`}>
-      <Avatar author={comment.author} size={depth > 0 ? 32 : 46} />
+      <Avatar
+        author={comment.author}
+        className={
+          depth > 0
+            ? "w-8 h-8 text-[11.2px]"
+            : "w-8 h-8 text-[11.2px] md:w-[46px] md:h-[46px] md:text-[16.1px]"
+        }
+      />
 
       <div className="flex-1 flex flex-col gap-1.5 ">
         {/* Header */}
