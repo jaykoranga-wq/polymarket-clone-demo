@@ -21,6 +21,7 @@ import {
 } from "@/features/api/markets/marketApi"
 import { useMagic } from "@/features/auth/lib/magic"
 import { selectSelectedMarket } from "@/features/markets/marketSelectors"
+import { isMarketResolved } from "@/features/markets/marketStatus"
 import { usePrice } from "@/hooks/socket/usePrice"
 import { usePriceChart } from "@/hooks/socket/usePriceChart"
 import type { TradeOrder, TradePanelOrder } from "@/hooks/trade/TradeTypes"
@@ -79,9 +80,15 @@ const EventPage = () => {
   })
 
   // ── Resolution check ───────────────────────────────────────────────────────
-  const isResolved = market?.resolutionTime
-    ? new Date(market.resolutionTime).getTime() <= new Date().getTime()
-    : false
+  // Use the backend status field — RESOLVED (11) or PAIDOUT (12) mean the
+  // market outcome is final. Fall back to time-based check if status is absent
+  // (e.g. mock data or very old API responses).
+  const isResolved =
+    market?.status != null
+      ? isMarketResolved(market.status)
+      : market?.resolutionTime
+        ? new Date(market.resolutionTime).getTime() <= new Date().getTime()
+        : false
 
   // ── Trade handler ──────────────────────────────────────────────────────────
   const handleTrade = (params: TradePanelOrder) => {

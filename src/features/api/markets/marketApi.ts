@@ -59,6 +59,7 @@ const mapApiMarketToMarket = (m: ApiMarketListResponse["data"]["data"][number]):
     yesTokenOnChainId: yesToken?.tokenId ?? null,
     noTokenOnChainId: noToken?.tokenId ?? null,
     oracleIdentifier: m.oracleIdentifier,
+    status: m.status,
     frequency: "Event",
   } satisfies Market
 }
@@ -111,6 +112,7 @@ const marketApi = secondApi.injectEndpoints({
           conditionId: "dummy",
           oracleIdentifier: m.oracleIdentifier,
           winningOutcome: m.winningOutcome,
+          status: m.status,
           yesTokenId: yesToken?.id ?? null,
           noTokenId: noToken?.id ?? null,
           yesTokenOnChainId: yesToken?.tokenId ?? null,

@@ -12,6 +12,7 @@ export const ROUTES = {
   STATIC_PAGE: "/page/:slug",
   DISPUTE: "/dispute/:id",
   SETTINGS: "/settings",
+  NOTIFICATIONS: "/notifications",
 } as const
 
 export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES]
