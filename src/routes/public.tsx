@@ -7,6 +7,7 @@ import Home from "@/pages/Home"
 import LeaderboardPage from "@/pages/leaderboard/LeaderboardPage"
 import MarketPage from "@/pages/market/MarketPage"
 import MarketsPage from "@/pages/market/MarketPage"
+import NotificationsPage from "@/pages/notifications/NotificationsPage"
 import PortfolioPage from "@/pages/portfolio/Portfolio"
 import ProfilePage from "@/pages/profile/ProfilePage"
 import RewardsPage from "@/pages/rewards/RewardsPage"
@@ -66,6 +67,14 @@ export const publicRoutes: RouteObject[] = [
     element: (
       <ProtectedRoute>
         <SettingsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.NOTIFICATIONS,
+    element: (
+      <ProtectedRoute>
+        <NotificationsPage />
       </ProtectedRoute>
     ),
   },

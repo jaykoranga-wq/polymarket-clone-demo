@@ -6,6 +6,12 @@ import { useAppDispatch } from "@/app/hooks"
 import { IcoAI } from "@/components/custom/IcoAI"
 import { Button } from "@/components/ui/button"
 import { setSelectedMarket } from "@/features/markets/marketSlice"
+import {
+  getMarketStatusLabel,
+  isMarketClosed,
+  isMarketPending,
+  MARKET_STATUS,
+} from "@/features/markets/marketStatus"
 import type { Market } from "@/features/markets/types"
 
 import { PercentageBar } from "./PercentageBar"
@@ -29,6 +35,30 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
         ? `$${(totalVolume / 1_000).toFixed(0)}K`
         : `$${totalVolume.toLocaleString()}`
 
+  const status = market.status
+  const closed = status != null && isMarketClosed(status)
+  const pending = status != null && isMarketPending(status)
+
+  // Badge config per status group
+  const statusBadge = (() => {
+    if (status == null) return null
+    if (status === MARKET_STATUS.RESOLVED || status === MARKET_STATUS.PAIDOUT)
+      return {
+        label: getMarketStatusLabel(status),
+        className: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+      }
+    if (status === MARKET_STATUS.CANCELLED)
+      return { label: "Cancelled", className: "bg-red-500/15 text-red-400 border-red-500/30" }
+    if (status === MARKET_STATUS.FAILED)
+      return { label: "Failed", className: "bg-red-500/15 text-red-400 border-red-500/30" }
+    if (pending)
+      return {
+        label: "Creating…",
+        className: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+      }
+    return null
+  })()
+
   const handleNavigation = () => {
     dispatch(setSelectedMarket(market))
     navigate(`/event/${market.id}`)
@@ -39,10 +69,18 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
       style={{
         background:
           "linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)",
+        opacity: closed ? 0.7 : 1,
       }}
-      className="group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer"
+      className="relative group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer"
     >
       <div className="flex gap-4 items-center max-h-10 mb-2">
+        {statusBadge && (
+          <span
+            className={`absolute top-3 right-3 text-xs font-semibold px-2 py-0.5 rounded-full border ${statusBadge.className}`}
+          >
+            {statusBadge.label}
+          </span>
+        )}
         <div className="size-10 min-w-10 rounded-md overflow-hidden border border-white ">
           <img
             src={

@@ -29,7 +29,7 @@ export const usePriceChart = ({ optionGroupId }: UsePriceChartOptions) => {
     error,
   } = useGetPriceHistoryQuery(
     { optionGroupId, interval: TAB_INTERVAL[tab] },
-    { skip: !optionGroupId },
+    { skip: !optionGroupId, refetchOnMountOrArgChange: true },
   )
 
   useEffect(() => {

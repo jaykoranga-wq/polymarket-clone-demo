@@ -26,7 +26,6 @@ const isPublicPath = (url: string) => PUBLIC_PATH_PREFIXES.some((prefix) => url.
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_BASE_URL_SECOND,
   prepareHeaders: (headers, { getState }) => {
-    headers.set("ngrok-skip-browser-warning", "true")
     const token = (getState() as RootState).auth.token
     if (token) {
       headers.set("Authorization", `${token}`)

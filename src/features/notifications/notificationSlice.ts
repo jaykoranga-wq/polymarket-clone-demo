@@ -47,6 +47,13 @@ const notificationSlice = createSlice({
       state.list = []
     },
 
+    // append a page of notifications (infinite scroll) — deduplicates by id
+    appendNotifications: (state, action: PayloadAction<Notification[]>) => {
+      const existingIds = new Set(state.list.map((n) => n.id))
+      const newItems = action.payload.filter((n) => !existingIds.has(n.id))
+      state.list.push(...newItems)
+    },
+
     // add new notification — call from useTrade or socket
     addNotification: (state, action: PayloadAction<Omit<Notification, "id" | "read">>) => {
       state.list.unshift({
@@ -69,6 +76,7 @@ export const {
   markAllRead,
   removeNotification,
   clearAll,
+  appendNotifications,
   addNotification,
   setNotifications,
 } = notificationSlice.actions

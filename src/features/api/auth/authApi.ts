@@ -63,11 +63,11 @@ type ProfileResponse = {
 
 const authApi = secondApi.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation<LoginResponse, { didToken: string }>({
-      query: ({ didToken }) => ({
+    login: builder.mutation<LoginResponse, { didToken: string; deviceToken: string }>({
+      query: ({ didToken, deviceToken }) => ({
         url: "/v1/user/login",
         method: "POST",
-        body: { didToken },
+        body: { didToken, deviceToken },
       }),
     }),
 
