@@ -21,8 +21,9 @@ import {
 } from "@/features/api/markets/marketApi"
 import { useMagic } from "@/features/auth/lib/magic"
 import { selectSelectedMarket } from "@/features/markets/marketSelectors"
-import { usePriceChart } from "@/hooks/charts/usePriceChart"
+import { isMarketResolved } from "@/features/markets/marketStatus"
 import { usePrice } from "@/hooks/socket/usePrice"
+import { usePriceChart } from "@/hooks/socket/usePriceChart"
 import type { TradeOrder, TradePanelOrder } from "@/hooks/trade/TradeTypes"
 import { useTrade } from "@/hooks/trade/useTrade"
 import { formatMarketDate } from "@/libs/formatDate"
@@ -74,15 +75,20 @@ const EventPage = () => {
   const market = apiMarket ?? (isError ? reduxMarket : null)
 
   // ── Chart state ────────────────────────────────────────────────────────────
-  const yesProbability = (market?.yesProbability ?? 50) / 100
-  const { tab, history, changeTab, lastPrice, pctChange, isPositive } = usePriceChart({
-    startPrice: yesProbability,
+  const { tab, history, changeTab, lastPrice, pctChange, isPositive, isFetching } = usePriceChart({
+    optionGroupId: market?.optionGroupId ?? "",
   })
 
   // ── Resolution check ───────────────────────────────────────────────────────
-  const isResolved = market?.resolutionTime
-    ? new Date(market.resolutionTime).getTime() <= new Date().getTime()
-    : false
+  // Use the backend status field — RESOLVED (11) or PAIDOUT (12) mean the
+  // market outcome is final. Fall back to time-based check if status is absent
+  // (e.g. mock data or very old API responses).
+  const isResolved =
+    market?.status != null
+      ? isMarketResolved(market.status)
+      : market?.resolutionTime
+        ? new Date(market.resolutionTime).getTime() <= new Date().getTime()
+        : false
 
   // ── Trade handler ──────────────────────────────────────────────────────────
   const handleTrade = (params: TradePanelOrder) => {
@@ -233,6 +239,8 @@ const EventPage = () => {
                 currentPrice={lastPrice}
                 pctChange={pctChange}
                 isPositive={isPositive}
+                isFetching={isFetching}
+                optionGroupId={market?.optionGroupId ?? ""}
               />
 
               {/* Tab bar */}

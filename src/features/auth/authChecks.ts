@@ -29,7 +29,10 @@ type LoginResult = {
 }
 
 /** Minimal signature of the RTK mutation trigger we need */
-type LoginFn = (args: { didToken: string }) => Promise<{ data: LoginResult }>
+type LoginFn = (args: {
+  didToken: string
+  deviceToken?: string | null
+}) => Promise<{ data: LoginResult }>
 
 // ---------------------------------------------------------------------------
 // 1. Google OAuth redirect result
@@ -44,8 +47,9 @@ export async function checkGoogleRedirect(
   magic: Magic | null,
   dispatch: AppDispatch,
   loginToBackend: LoginFn,
+  deviceToken?: string | null,
 ): Promise<boolean> {
-  let resultFromBackend!: LoginResult // assigned before use or the line throws
+  let resultFromBackend!: LoginResult
   let result: Awaited<ReturnType<NonNullable<Magic["oauth2"]["getRedirectResult"]>>> | undefined
 
   try {
@@ -53,7 +57,10 @@ export async function checkGoogleRedirect(
     if (!result) return false
 
     const magicToken = result.magic.idToken
-    resultFromBackend = await loginToBackend({ didToken: magicToken }).then((r) => r.data)
+    resultFromBackend = await loginToBackend({
+      didToken: magicToken,
+      ...(deviceToken ? { deviceToken } : {}),
+    }).then((r) => r.data)
 
     const meta = result.magic.userMetadata
     const publicAddress =
@@ -75,7 +82,7 @@ export async function checkGoogleRedirect(
     localStorage.setItem("auth_address", publicAddress as string)
     return true
   } catch {
-    // getRedirectResult throws when page load is NOT from a Google redirect — expected.
+    // getRedirectResult throws when page load is NOT from a Google OAuth redirect — expected.
     if (result && !resultFromBackend) {
       toast.error("Google login failed")
     }
@@ -97,6 +104,7 @@ export async function checkMagicSession(
   magic: Magic | null,
   dispatch: AppDispatch,
   loginToBackend: LoginFn,
+  deviceToken?: string | null,
 ): Promise<boolean> {
   dispatch(loadingTrue())
   try {
@@ -107,6 +115,7 @@ export async function checkMagicSession(
     const magicToken = await magic?.user.getIdToken()
     const resultFromBackend = await loginToBackend({
       didToken: (magicToken as string) ?? null,
+      ...(deviceToken ? { deviceToken } : {}),
     }).then((r) => r.data)
 
     dispatch(
@@ -147,8 +156,6 @@ export async function checkMetaMask(dispatch: AppDispatch): Promise<boolean> {
     if (!window.ethereum || wasMetaMaskLoggedOut() || !token) return false
 
     // Validate the stored token with the backend before trusting it.
-    // If the token has expired or been invalidated, the server returns 401
-    // and we must clear localStorage instead of showing a false "logged in" state.
     const res = await fetch(`${import.meta.env.VITE_API_BASE_URL_SECOND}/v1/user/profile`, {
       headers: {
         Authorization: token,
@@ -157,7 +164,6 @@ export async function checkMetaMask(dispatch: AppDispatch): Promise<boolean> {
     })
 
     if (!res.ok) {
-      // Token is expired or invalid — clear stale session data
       localStorage.removeItem("auth_token")
       localStorage.removeItem("auth_method")
       localStorage.removeItem("auth_address")
@@ -188,19 +194,20 @@ export async function checkMetaMask(dispatch: AppDispatch): Promise<boolean> {
 
 /**
  * Runs auth checks in priority order, stopping at the first success.
- * Call this once on app init (currently in Home.tsx, move to PublicLayout.tsx).
+ * deviceToken is optional — included in API calls only when present.
  */
 export async function checkAuth(
   magic: Magic | null,
   dispatch: AppDispatch,
   loginToBackend: LoginFn,
+  deviceToken?: string | null,
 ): Promise<void> {
   dispatch(loadingTrue())
 
-  const isGoogleRedirect = await checkGoogleRedirect(magic, dispatch, loginToBackend)
+  const isGoogleRedirect = await checkGoogleRedirect(magic, dispatch, loginToBackend, deviceToken)
   if (isGoogleRedirect) return
 
-  const hasMagicSession = await checkMagicSession(magic, dispatch, loginToBackend)
+  const hasMagicSession = await checkMagicSession(magic, dispatch, loginToBackend, deviceToken)
   if (hasMagicSession) return
 
   const hasMetaMask = await checkMetaMask(dispatch)

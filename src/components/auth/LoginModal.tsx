@@ -69,6 +69,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
             handleGoogleLogin({
               magic,
               dispatch,
+
               onError: () => setLoading(null),
             })
           }}
@@ -106,6 +107,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
                 dispatch,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 loginToBackend: loginToBackend as any,
+                deviceToken: deviceToken as string,
                 onSuccess: () => {
                   setLoading(null)
                   onClose()
@@ -124,6 +126,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
                 dispatch,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 loginToBackend: loginToBackend as any,
+                deviceToken: deviceToken as string,
                 onSuccess: () => {
                   setLoading(null)
                   onClose()

@@ -438,6 +438,7 @@ export const Navbar: FC = () => {
         if (isLoggedIn) await magic?.user.logout()
       }
       if (user.loginMethod === LOGIN_METHODS.MetaMask) {
+        await logoutToBackend().unwrap()
         setMetaMaskLoggedOut()
         localStorage.removeItem("auth_token")
         localStorage.removeItem("auth_method")

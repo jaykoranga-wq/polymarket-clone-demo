@@ -51,6 +51,9 @@ export interface Market {
   yesProbability: number // 0–100
   noProbability: number // 0–100
 
+  // ── Lifecycle status (mirrors MARKET_STATUS in marketStatus.ts) ──────────
+  status?: number
+
   // ── Optional display / mock-only extras ────────────────────────────────────
   isTrending?: boolean
   frequency?: MarketFrequency
