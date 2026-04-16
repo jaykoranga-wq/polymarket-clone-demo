@@ -68,27 +68,18 @@ export const useGraphSocket = (optionGroupId: string, interval: string) => {
     }
 
     activeIntervalRef.current = interval
-
-    console.log(
-      "[useGraphSocket] subscribing — optionGroupId:",
-      optionGroupId,
-      "| interval:",
-      interval,
-    )
     socket.emit("subscribeGraph", { optionGroupId, interval })
 
     const handleCandleUpdate = (data: RawCandle) => {
       // Discard events that arrive after a tab switch (stale subscription)
       if (activeIntervalRef.current !== interval) return
       if (data.optionGroupId !== optionGroupId) return
-      console.log("[useGraphSocket] candle_update:", data)
       setLiveCandle(normalise(data))
     }
 
     const handleCandleClose = (data: RawCandle) => {
       if (activeIntervalRef.current !== interval) return
       if (data.optionGroupId !== optionGroupId) return
-      console.log("[useGraphSocket] candle_close:", data)
       const candle = normalise(data)
       setClosedCandles((prev) => [...prev, candle])
       setLiveCandle(null)
@@ -107,12 +98,6 @@ export const useGraphSocket = (optionGroupId: string, interval: string) => {
       // briefly shows stale candles from the previous interval.
       setLiveCandle(null)
       setClosedCandles([])
-      console.log(
-        "[useGraphSocket] unsubscribed — optionGroupId:",
-        optionGroupId,
-        "| interval:",
-        interval,
-      )
     }
   }, [optionGroupId, interval, socket])
 

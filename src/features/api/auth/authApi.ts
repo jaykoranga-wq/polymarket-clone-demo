@@ -103,6 +103,20 @@ const authApi = secondApi.injectEndpoints({
         url: "/v1/user/profile",
         method: "GET",
       }),
+      providesTags: ["Profile"],
+    }),
+
+    // PUT /v1/user/profile
+    updateProfile: builder.mutation<
+      { statusCode: number; status: boolean; message: string; type: string },
+      { name: string }
+    >({
+      query: (body) => ({
+        url: "/v1/user/profile",
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Profile"],
     }),
 
     // GET /v1/user/locked-balance
@@ -113,6 +127,18 @@ const authApi = secondApi.injectEndpoints({
         return tokenId ? `${url}?tokenId=${tokenId}` : url
       },
     }),
+
+    // POST /v1/onboarding/submit-name
+    submitName: builder.mutation<
+      { statusCode: number; status: boolean; message: string; type: string },
+      { name: string }
+    >({
+      query: (body) => ({
+        url: "/v1/onboarding/submit-name",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 })
 export const {
@@ -122,4 +148,6 @@ export const {
   useVerifyWalletMutation,
   useProfileQuery,
   useGetLockedBalanceQuery,
+  useSubmitNameMutation,
+  useUpdateProfileMutation,
 } = authApi

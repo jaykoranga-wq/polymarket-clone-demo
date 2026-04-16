@@ -39,6 +39,41 @@ const TABS: ChartTab[] = ["1D", "1W", "1M", "ALL"]
 const GREEN = "#10d260"
 const RED = "#ea3943"
 
+// ── Tick label formatter per tab ──────────────────────────────────────────────
+// tickMarkType mirrors lightweight-charts' TickMarkType enum:
+//   0 = Year | 1 = Month | 2 = DayOfMonth | 3 = Time | 4 = TimeWithSeconds
+const getTickFormatter = (tab: ChartTab) => (time: number, tickMarkType: number) => {
+  const d = new Date(time * 1000)
+
+  switch (tab) {
+    case "1D":
+      // Intraday — every tick shows HH:mm
+      return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })
+
+    case "1W":
+      // Week view — year/month boundaries → "Apr 2026", days → "Apr 14", time → "14:00"
+      if (tickMarkType <= 1)
+        return d.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+      if (tickMarkType === 2)
+        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+      return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })
+
+    case "1M":
+      // Month view — year/month boundaries → "Apr 2026", days → "Apr 14"
+      if (tickMarkType <= 1)
+        return d.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+
+    case "ALL":
+      // Year view — year boundary → "2026", month ticks → "Apr '26"
+      if (tickMarkType === 0) return d.getFullYear().toString()
+      return d.toLocaleDateString("en-US", { month: "short", year: "2-digit" })
+
+    default:
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+  }
+}
+
 export const PriceChart = memo(
   ({
     history,
@@ -62,16 +97,14 @@ export const PriceChart = memo(
     const { liveCandle, closedCandles } = useGraphSocket(optionGroupId, TAB_INTERVAL[tab])
 
     // ── Create chart once on mount ────────────────────────────────────────────
-    // containerRef is always rendered now, so this always succeeds
+    // containerRef is always rendered now, so this always succeeds.
+    // `tab` is intentionally excluded — initial formatter is set here, tab changes
+    // are applied in the dedicated useEffect([tab]) below without recreating the chart.
     useEffect(() => {
-      console.log("[PriceChart] mount effect — containerRef:", containerRef.current)
-
       if (!containerRef.current) {
         console.warn("[PriceChart] containerRef is null on mount — chart will NOT be created")
         return
       }
-
-      console.log("[PriceChart] creating chart, width:", containerRef.current.clientWidth)
 
       const chart = createChart(containerRef.current, {
         width: containerRef.current.clientWidth,
@@ -96,6 +129,7 @@ export const PriceChart = memo(
           secondsVisible: false,
           fixLeftEdge: true,
           fixRightEdge: true,
+          tickMarkFormatter: getTickFormatter(tab),
         },
         rightPriceScale: {
           borderColor: "rgba(255,255,255,0.05)",
@@ -119,7 +153,6 @@ export const PriceChart = memo(
       })
 
       seriesRef.current = series
-      console.log("[PriceChart] chart + AreaSeries created successfully")
 
       // ── Tooltip ──────────────────────────────────────────────────────────────
       chart.subscribeCrosshairMove((param) => {
@@ -185,38 +218,21 @@ export const PriceChart = memo(
         chart.remove()
         chartRef.current = null
         seriesRef.current = null
-        console.log("[PriceChart] chart destroyed on unmount")
       }
+      // `tab` omitted intentionally — formatter updates are handled by useEffect([tab])
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [height])
 
     // ── Feed data into the chart whenever history changes ─────────────────────
     useEffect(() => {
-      console.log(
-        "[PriceChart] history effect — length:",
-        history.length,
-        "seriesRef:",
-        !!seriesRef.current,
-      )
-
       if (!seriesRef.current) {
         console.warn("[PriceChart] seriesRef is null — chart not ready yet, cannot set data")
         return
       }
-      if (history.length === 0) {
-        console.log("[PriceChart] history is empty — nothing to render")
-        return
-      }
+      if (history.length === 0) return
 
       // lightweight-charts requires strictly ascending time values
       const sorted = [...history].sort((a, b) => a.time - b.time)
-      console.log(
-        "[PriceChart] setting",
-        sorted.length,
-        "data points | first:",
-        sorted[0],
-        "| last:",
-        sorted[sorted.length - 1],
-      )
 
       const chartData = sorted.map((c) => ({
         time: c.time as unknown as string,
@@ -226,18 +242,24 @@ export const PriceChart = memo(
       try {
         seriesRef.current.setData(chartData)
         chartRef.current?.timeScale().fitContent()
-        console.log("[PriceChart] setData success")
       } catch (err) {
         console.error("[PriceChart] setData threw an error:", err)
       }
     }, [history])
+
+    // ── Update tick formatter when tab changes ─────────────────────────────────
+    useEffect(() => {
+      if (!chartRef.current) return
+      chartRef.current.applyOptions({
+        timeScale: { tickMarkFormatter: getTickFormatter(tab) },
+      })
+    }, [tab])
 
     // ── candle_close → append finalised candle directly, no full setData ───────
     useEffect(() => {
       if (!seriesRef.current || closedCandles.length === 0) return
       const candle = closedCandles[closedCandles.length - 1]
       if (!candle) return
-      console.log("[PriceChart] candle_close → series.update:", candle)
       try {
         seriesRef.current.update({
           time: candle.time as unknown as string,
@@ -251,7 +273,6 @@ export const PriceChart = memo(
     // ── candle_update → update the live forming candle directly ────────────────
     useEffect(() => {
       if (!seriesRef.current || !liveCandle) return
-      console.log("[PriceChart] candle_update → series.update:", liveCandle)
       try {
         seriesRef.current.update({
           time: liveCandle.time as unknown as string,
@@ -261,6 +282,13 @@ export const PriceChart = memo(
         console.error("[PriceChart] series.update (candle_update) error:", err)
       }
     }, [liveCandle])
+
+    // Socket data is the freshest source — use it for the header price when
+    // available so it updates in real-time without waiting for a REST refetch.
+    const socketPrice =
+      liveCandle?.close ??
+      (closedCandles.length > 0 ? closedCandles[closedCandles.length - 1]?.close : undefined)
+    const displayPrice = socketPrice ?? currentPrice
 
     const pctFormatted = `${isPositive ? "+" : ""}${pctChange.toFixed(1)}%`
 
@@ -273,7 +301,7 @@ export const PriceChart = memo(
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-3">
                 <div className="text-white font-2xl font-black">
-                  {(currentPrice * 100).toFixed(1)}¢
+                  {Number((displayPrice * 100).toFixed(2))}¢
                 </div>
                 <div
                   className="flex items-center text-sm font-medium"

@@ -14,6 +14,8 @@ import SettingsPage from "@/pages/settings/SettingsPage"
 import StaticPage from "@/pages/static/StaticPage"
 import TermsPage from "@/pages/terms/TermsPage"
 
+import { ProtectedRoute } from "./ProtectedRoute"
+
 export const publicRoutes: RouteObject[] = [
   {
     path: ROUTES.HOME,
@@ -59,5 +61,12 @@ export const publicRoutes: RouteObject[] = [
   },
 
   { path: "/page/:slug", element: <StaticPage /> },
-  { path: ROUTES.SETTINGS, element: <SettingsPage /> },
+  {
+    path: ROUTES.SETTINGS,
+    element: (
+      <ProtectedRoute>
+        <SettingsPage />
+      </ProtectedRoute>
+    ),
+  },
 ]

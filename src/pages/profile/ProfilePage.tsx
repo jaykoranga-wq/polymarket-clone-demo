@@ -10,6 +10,7 @@ import {
   Heart,
   Landmark,
   Mail,
+  Settings,
   Share2,
   Target,
   TrendingUp,
@@ -17,8 +18,10 @@ import {
   Zap,
 } from "lucide-react"
 import { useSelector } from "react-redux"
+import { useNavigate } from "react-router"
 
-import { selectUserData } from "@/features/auth/authSlice"
+import { ROUTES } from "@/constants/routes"
+import { selectIsAuthenticated, selectUserData } from "@/features/auth/authSlice"
 import { formatMarketDate } from "@/libs/formatDate"
 import type { Badge } from "@/mocks/mockPages"
 import { MOCK_PROFILE, MOCK_PROFILE_STATS } from "@/mocks/mockPages"
@@ -192,6 +195,8 @@ const ProfilePage = () => {
   const profile = MOCK_PROFILE
   const stats = MOCK_PROFILE_STATS
   const { email } = useSelector(selectUserData)
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+  const navigate = useNavigate()
 
   const shortAddr = profile.address.slice(0, 6) + "..." + profile.address.slice(-4)
 
@@ -227,10 +232,22 @@ const ProfilePage = () => {
                 </div>
               )}
 
-              {/* Share Button Below Email */}
-              <button className="flex items-center gap-2.5 text-black py-2 px-5 bg-primary border border-white/10 rounded-sm font-bold font-sm hover:bg-primary/60 w-fit transition-all mt-1">
-                <Share2 size={15} className="text-black [&_svg]:[stroke:2.5px]" /> Share Profile
-              </button>
+              {/* Share + Settings buttons */}
+              <div className="flex items-center gap-2 mt-1">
+                <button className="flex items-center gap-2.5 text-black py-2 px-5 bg-primary border border-white/10 rounded-sm font-bold font-sm hover:bg-primary/60 w-fit transition-all">
+                  <Share2 size={15} className="text-black [&_svg]:[stroke:2.5px]" /> Share Profile
+                </button>
+
+                {isAuthenticated && (
+                  <button
+                    onClick={() => navigate(ROUTES.SETTINGS)}
+                    className="flex items-center gap-2 py-2 px-4 bg-white/5 border border-white/10 rounded-sm font-bold font-sm text-white/70 hover:text-white hover:bg-white/10 w-fit transition-all"
+                  >
+                    <Settings size={15} />
+                    Settings
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

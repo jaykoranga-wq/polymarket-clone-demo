@@ -22,8 +22,6 @@ interface UsePriceChartOptions {
 export const usePriceChart = ({ optionGroupId }: UsePriceChartOptions) => {
   const [tab, setTab] = useState<ChartTab>("1M")
 
-  // console.log("[usePriceChart] optionGroupId:", optionGroupId, "| tab:", tab, "| interval:", TAB_INTERVAL[tab])
-
   const {
     data: history = [],
     isFetching,
@@ -39,23 +37,26 @@ export const usePriceChart = ({ optionGroupId }: UsePriceChartOptions) => {
       console.warn("[usePriceChart] optionGroupId is empty — query skipped")
       return
     }
-    // console.log("[usePriceChart] query state — isFetching:", isFetching, "| isError:", isError, "| dataPoints:", history.length)
     if (isError) console.error("[usePriceChart] query error:", error)
-    if (history.length > 0) {
-      // console.log("[usePriceChart] first candle:", history[0], "| last candle:", history[history.length - 1])
-    }
   }, [optionGroupId, isFetching, isError, history, error])
 
   const changeTab = (newTab: ChartTab) => {
-    console.log("[usePriceChart] tab changed:", tab, "→", newTab)
     setTab(newTab)
   }
 
   const lastPrice = history[history.length - 1]?.close ?? 0
   const firstPrice = history[0]?.close ?? 0
+
+  // Keep the last known non-zero price so switching tabs doesn't
+  // reset the header to 0¢ while the new interval is loading.
+  // React "store information from previous renders" pattern — safe to call setState
+  // during render when the condition guards against infinite loops.
+  const [stableLastPrice, setStableLastPrice] = useState<number>(0)
+  if (lastPrice > 0 && stableLastPrice !== lastPrice) setStableLastPrice(lastPrice)
+
   const priceDelta = lastPrice - firstPrice
   const pctChange = firstPrice > 0 ? (priceDelta / firstPrice) * 100 : 0
   const isPositive = pctChange >= 0
 
-  return { tab, history, changeTab, lastPrice, pctChange, isPositive, isFetching }
+  return { tab, history, changeTab, lastPrice: stableLastPrice, pctChange, isPositive, isFetching }
 }

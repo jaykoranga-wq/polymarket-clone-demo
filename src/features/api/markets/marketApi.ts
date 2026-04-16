@@ -196,24 +196,13 @@ const marketApi = secondApi.injectEndpoints({
         `/v1/market-option-group/${optionGroupId}/price-history?interval=${interval}`,
 
       transformResponse: (res: PriceHistoryResponse): OhlcCandle[] => {
-        console.log(
-          "[marketApi] getPriceHistory raw response — status:",
-          res.status,
-          "| data length:",
-          res.data?.length,
-        )
-        if (res.data?.length > 0) {
-          console.log("[marketApi] sample raw candle:", res.data[0])
-        }
-        const candles = res.data.map((c) => ({
+        return res.data.map((c) => ({
           time: Math.floor(new Date(c.bucketStart).getTime() / 1000),
           open: Number(c.open) / 1_000_000,
           high: Number(c.high) / 1_000_000,
           low: Number(c.low) / 1_000_000,
           close: Number(c.close) / 1_000_000,
         }))
-        console.log("[marketApi] mapped candles — count:", candles.length, "| sample:", candles[0])
-        return candles
       },
     }),
   }),

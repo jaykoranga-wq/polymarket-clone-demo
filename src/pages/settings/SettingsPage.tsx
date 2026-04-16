@@ -2,6 +2,8 @@ import { Bell, Check, Copy, User, Wallet } from "lucide-react"
 import { useState } from "react"
 import { useSelector } from "react-redux"
 
+import type { RootState } from "@/app/store"
+import { useProfileQuery, useUpdateProfileMutation } from "@/features/api/auth/authApi"
 import { selectUserData } from "@/features/auth/authSlice"
 
 // ── Sidebar nav items ─────────────────────────────────────────────────────────
@@ -38,6 +40,7 @@ const Field = ({
   disabled,
   placeholder,
   suffix,
+  maxLength,
 }: {
   label: string
   value: string
@@ -45,6 +48,7 @@ const Field = ({
   disabled?: boolean
   placeholder?: string
   suffix?: React.ReactNode
+  maxLength?: number
 }) => (
   <div className="flex flex-col gap-1.5">
     <label className="text-sm font-medium text-white/70">{label}</label>
@@ -55,6 +59,7 @@ const Field = ({
         onChange={(e) => onChange?.(e.target.value)}
         disabled={disabled}
         placeholder={placeholder}
+        maxLength={maxLength}
         className="w-full bg-[#111418] border border-white/10 rounded-md px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-primary/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed pr-10"
       />
       {suffix && <span className="absolute right-3 text-white/40 flex items-center">{suffix}</span>}
@@ -65,9 +70,21 @@ const Field = ({
 // ── Profile section ───────────────────────────────────────────────────────────
 const ProfileSection = () => {
   const { email, publicAddress } = useSelector(selectUserData)
-  const [username, setUsername] = useState(publicAddress ?? "")
-  const [bio, setBio] = useState("")
+  const token = useSelector((state: RootState) => state.auth.token)
+
+  const { data: profile, isLoading: profileLoading } = useProfileQuery(undefined, {
+    skip: !token,
+  })
+  const [updateProfile, { isLoading: saving }] = useUpdateProfileMutation()
+
+  // Derived state: show the saved name until the user starts editing.
+  // No useEffect needed — avoids the "setState in effect" lint error.
+  const savedName = profile?.data.name ?? ""
+  const [usernameEdit, setUsernameEdit] = useState<string | null>(null)
+  const username = usernameEdit ?? savedName
   const [copied, setCopied] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle")
+  const [errorMsg, setErrorMsg] = useState("")
 
   const displayAddress = publicAddress ?? ""
 
@@ -77,6 +94,23 @@ const ProfileSection = () => {
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+
+  const handleSave = async () => {
+    if (!username.trim()) return
+    setSaveStatus("idle")
+    setErrorMsg("")
+    try {
+      await updateProfile({ name: username.trim() }).unwrap()
+      setUsernameEdit(null) // reset override; profile cache will refresh via invalidatesTags
+      setSaveStatus("success")
+      setTimeout(() => setSaveStatus("idle"), 3000)
+    } catch {
+      setSaveStatus("error")
+      setErrorMsg("Failed to update profile. Please try again.")
+    }
+  }
+
+  const isDirty = username.trim() !== savedName
 
   return (
     <div>
@@ -91,9 +125,16 @@ const ProfileSection = () => {
       <div className="flex flex-col gap-4">
         <Field
           label="Username"
-          value={username}
-          onChange={setUsername}
-          placeholder="Enter a username"
+          value={profileLoading ? "" : username}
+          onChange={(v) => {
+            // strip invalid chars and cap at 20 — same rule as UsernameModal
+            const cleaned = v.replace(/[^a-zA-Z0-9_]/g, "").slice(0, 20)
+            setUsernameEdit(cleaned)
+            setSaveStatus("idle")
+          }}
+          placeholder={profileLoading ? "Loading..." : "Enter a username"}
+          disabled={profileLoading}
+          maxLength={20}
         />
 
         <Field
@@ -118,23 +159,10 @@ const ProfileSection = () => {
           }
         />
 
-        {/* Bio */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-white/70">Bio</label>
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="Tell us about yourself..."
-            rows={4}
-            className="w-full bg-[#111418] border border-white/10 rounded-md px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-primary/50 transition-colors resize-none"
-          />
-        </div>
-
         {/* Social Connections */}
         <div className="flex flex-col gap-3 mt-1">
           <span className="text-sm font-medium text-white/70">Social Connections</span>
           <div className="flex flex-wrap gap-3">
-            {/* Connect X */}
             <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#111418] border border-white/10 text-sm font-medium text-white hover:border-white/25 transition-colors">
               <svg
                 viewBox="0 0 24 24"
@@ -146,7 +174,6 @@ const ProfileSection = () => {
               Connect X
             </button>
 
-            {/* Connected Discord */}
             <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#111418] border border-white/10 text-sm font-medium text-white/60 hover:border-white/25 transition-colors cursor-default">
               <svg
                 viewBox="0 0 24 24"
@@ -160,10 +187,27 @@ const ProfileSection = () => {
           </div>
         </div>
 
+        {/* Feedback */}
+        {saveStatus === "success" && (
+          <p className="text-xs text-primary font-medium flex items-center gap-1">
+            <Check size={12} /> Profile updated successfully
+          </p>
+        )}
+        {saveStatus === "error" && (
+          <p className="text-xs text-destructive font-medium">{errorMsg}</p>
+        )}
+
         {/* Save button */}
-        <div className="mt-2">
-          <button className="px-5 py-2 bg-primary text-black text-sm font-bold rounded-md hover:bg-primary/80 transition-colors">
-            Save Changes
+        <div className="mt-1">
+          <button
+            onClick={handleSave}
+            disabled={saving || !isDirty || !username.trim()}
+            className="flex items-center gap-2 px-5 py-2 bg-primary text-black text-sm font-bold rounded-md hover:bg-primary/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {saving && (
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-black/20 border-t-black animate-spin" />
+            )}
+            {saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>

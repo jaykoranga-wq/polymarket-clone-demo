@@ -6,10 +6,15 @@ import type { RootState } from "@/app/store"
 import { UsernameModal } from "@/components/auth/UsernameModal"
 import { Footer } from "@/components/layout/footer/Footer"
 import { Navbar } from "@/components/layout/Navbar"
-import { useLoginMutation, useProfileQuery } from "@/features/api/auth/authApi"
+import {
+  useLoginMutation,
+  useProfileQuery,
+  useSubmitNameMutation,
+} from "@/features/api/auth/authApi"
 import { useGetMarketsQuery } from "@/features/api/markets/marketApi"
 import { useGetNotificationsQuery } from "@/features/api/notifications/notificationApi"
 import { checkAuth } from "@/features/auth/authChecks"
+import { setDeviceToken } from "@/features/auth/authSlice"
 // import { setDeviceToken } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
 import { setMarkets } from "@/features/markets/marketSlice"
@@ -17,6 +22,7 @@ import { setNotifications } from "@/features/notifications/notificationSlice"
 import { useWalletBalance } from "@/hooks/useWalletBalance"
 import { MOCK_MARKETS } from "@/mocks/mockData"
 import { MOCK_NOTIFICATIONS } from "@/mocks/mockNotifications"
+import { listenToMessages, requestFCMToken } from "@/services/firebase/fcm"
 // import { listenToMessages, requestFCMToken } from "@/services/firebase/fcm"
 
 export function PublicLayout() {
@@ -25,12 +31,14 @@ export function PublicLayout() {
   const { magic } = useMagic()
   useWalletBalance()
   const [loginToBackend] = useLoginMutation()
+  const [submitName] = useSubmitNameMutation()
   const { data: markets } = useGetMarketsQuery()
-  const { data: profile } = useProfileQuery()
 
   // Get token explicitly to prevent premature API execution before authentication completes
   const token = useSelector((state: RootState) => state.auth.token)
   const email = useSelector((state: RootState) => state.auth.email)
+  const { data: profile } = useProfileQuery(undefined, { skip: !token })
+
   const { data: apiNotifications } = useGetNotificationsQuery(undefined, { skip: !token })
 
   // Runs once when magic initialises (any page, any refresh).
@@ -62,15 +70,13 @@ export function PublicLayout() {
 
   //notification
   useEffect(() => {
-    // const setupFCM = async () => {
-    //   const token = await requestFCMToken()
-    //   if (token)
-    //     dispatch(setDeviceToken(token))
-    //   }
-    //   listenToMessages()
-    // }
-    // setupFCM()
-  }, [])
+    const setupFCM = async () => {
+      const token = await requestFCMToken()
+      if (token) dispatch(setDeviceToken(token))
+    }
+    listenToMessages()
+    setupFCM()
+  }, [dispatch])
 
   return (
     <div className=" bg-background">
@@ -79,8 +85,9 @@ export function PublicLayout() {
           <UsernameModal
             open={usernameOpen && profile?.data.onboardingStatus === 1 && token != null}
             defaultUsername={email?.split("@")[0]}
-            onConfirm={() => {
-              setUsernameOpen(false)
+            onConfirm={async (username: string) => {
+              await submitName({ name: username }).unwrap()
+              setTimeout(() => setUsernameOpen(false), 1500)
             }}
             onSkip={() => setUsernameOpen(false)}
           ></UsernameModal>
