@@ -296,7 +296,7 @@ export const NotificationBell = ({ onToggle }: NotificationBellProps) => {
 
         {/* Unread badge */}
         {unreadCount > 0 && (
-          <div className="absolute top-0.5 right-0.5 min-w-4 h-4 rounded-md bg-[#e53935] text-white font-xs font-extrabold flex items-center justify-center border border-black">
+          <div className="absolute top-0.5 right-0.5 min-w-4 h-4 rounded-md bg-[#e53935] text-white text-[9px] font-extrabold flex items-center justify-center border border-black">
             {formatBadgeCount(unreadCount)}
           </div>
         )}
@@ -305,7 +305,7 @@ export const NotificationBell = ({ onToggle }: NotificationBellProps) => {
       {/* Dropdown */}
       {open && (
         <div
-          className="fixed md:absolute left-0 right-0 md:left-auto md:right-0 top-14 md:top-[calc(100%+10px)] bg-slate border-b border-white/10 md:border md:border-white/10 md:rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] z-50 overflow-hidden flex flex-col w-full md:w-[340px] mx-auto md:mx-0 max-h-[calc(100vh-56px)] md:max-h-[calc(100vh-100px)]"
+          className="fixed md:absolute left-0 right-0 md:left-auto md:right-0 top-14 md:top-[calc(100%+10px)] bg-slate border-b border-white/10 md:border md:border-white/10 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] z-50 overflow-hidden flex flex-col w-full sm:w-[340px] mx-auto md:mx-0 max-h-[calc(100vh-56px)] md:max-h-[calc(100vh-100px)]"
           style={{
             maxWidth:
               typeof window !== "undefined" && window.innerWidth < 768
