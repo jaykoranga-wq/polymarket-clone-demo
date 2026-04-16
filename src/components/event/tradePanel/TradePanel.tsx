@@ -201,7 +201,7 @@ const TradePanel = ({
   return (
     <div className="border border-white/10  bg-linear-to-b from-white/5 to-white/2  font-inter rounded-2xl max-w-[436px] min-w-[313px] overflow-hidden ">
       {/* ── Top: Place Bet + Buy/Sell + Order Type ── */}
-      <div className="flex items-end justify-between p-6 pt-4.5 gap-2">
+      <div className="flex items-end justify-between p-6 pt-4.5 pb-5 gap-2">
         <div className="flex flex-col gap-2.5">
           <h2 className="max-lg:hidden text-white font-black text-sm">Place Bet</h2>
 
@@ -268,6 +268,13 @@ const TradePanel = ({
             Balance: <strong>{formatCash(balance)}</strong>
           </div>
         )} */}
+        <div className=" flex items-center  justify-between mb-5 ">
+          <span className="font-base font-bold uppercase text-white">Amount</span>
+          <span className=" font-sm text-white">
+            Balance: 12000
+            {/* ${mockBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })} */}
+          </span>
+        </div>
 
         {/* ── YES / NO outcome buttons ── */}
 
@@ -379,7 +386,7 @@ const TradePanel = ({
                 {labelB}
               </button>
             </div> */}
-            <div className="flex items-center justify-between mb-3.5 gap-4">
+            <div className="flex items-center justify-between mb-2.5 gap-4">
               <span className=" font-sm font-semibold text-white  ">Shares</span>
               <input
                 type="text"
@@ -428,11 +435,11 @@ const TradePanel = ({
               </button>
             </div> */}
 
-            <div className="flex items-center justify-between mb-3.5 gap-4">
+            <div className="flex items-center justify-between mb-2.5 gap-4">
               <span className="  font-semibold text-white">Limit Price</span>
               <div className="flex items-center gap-2.5 py-3 px-2 rounded-md w-45/100 justify-between bg-white/5 border border-white/10">
                 <button
-                  className="w-6 h-6 rounded-2sm  text-black  font-black flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono  bg-primary border border-white/10 hover:bg-primary/90
+                  className="w-7.5 h-7.5 rounded-2sm  text-black  font-black flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono  bg-primary border border-white/10 hover:bg-primary/90
 "
                   onClick={() => updateLimit(limitCents - 1)}
                 >
@@ -445,7 +452,7 @@ const TradePanel = ({
                       inputMode="decimal"
                       value={limitInput}
                       style={{ width: `${limitInput.length || 1}ch` }}
-                      className="font-mono font-default font-bold text-white bg-transparent focus:outline-none text-right"
+                      className="font-mono font-md font-bold text-white bg-transparent focus:outline-none text-right"
                       onChange={(e) => {
                         const raw = e.target.value
                         if (!/^\d{0,2}(\.\d{0,2})?$/.test(raw)) return
@@ -455,11 +462,11 @@ const TradePanel = ({
                       }}
                       onBlur={() => updateLimit(limitCents)}
                     />
-                    <span className="font-mono font-default font-bold text-white">¢</span>
+                    <span className="font-mono font-md font-bold text-white">¢</span>
                   </div>
                 </div>
                 <button
-                  className="w-6 h-6 rounded-2sm text-black  flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
+                  className="w-7.5 h-7.5 rounded-2sm text-black  flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
                   onClick={() => updateLimit(limitCents + 1)}
                 >
                   +
@@ -467,16 +474,13 @@ const TradePanel = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-3.5 gap-4">
+            <div className="flex items-center justify-between mb-2.5 gap-4">
               <span className="  font-semibold text-white">Shares</span>
-              <div
-                className="flex w-45/100 items-center bg-white/5 border border-white/10 rounded-md py-3 px-4 mb-3"
-                style={{ marginBottom: 0 }}
-              >
+              <div className="flex w-45/100 items-center bg-white/5 border border-white/10 rounded-md py-3 px-2 ">
                 <input
                   type="text"
                   inputMode="numeric"
-                  className="text-xl focus:outline-none font-semibold text-white w-full placeholder:text-white"
+                  className="font-md leading-7 focus:outline-none font-bold text-white w-full placeholder:text-white"
                   value={shares || ""}
                   placeholder="0"
                   onChange={(e) => {
@@ -498,7 +502,7 @@ const TradePanel = ({
               ))}
             </div>
 
-            <div className="flex items-center justify-between font-base font-bold uppercase mb-2">
+            <div className="flex items-center justify-between font-base font-bold uppercase mb-2.5">
               <span>Set Expiration</span>
 
               <div
@@ -546,7 +550,7 @@ const TradePanel = ({
               </div>
             )}
 
-            <div className="flex flex-col gap-2 bg-black border border-border rounded-md p-4 mb-4 ">
+            <div className="flex flex-col gap-3 bg-black border border-border rounded-lg p-4 mb-7.5 ">
               <div className="flex items-center justify-between gap-3.5">
                 <span className=" flex items-center gap-1 text-tabs font-sm">Total</span>
                 <span className="font-sm font-bold text-white">${total}</span>
@@ -580,7 +584,7 @@ const TradePanel = ({
               </button>
             </div> */}
 
-            <div className="flex items-center justify-between mb-3.5 gap-4">
+            <div className="flex items-center justify-between mb-2.5 gap-4">
               <span className=" font-semibold text-white">Limit Price</span>
               <div className="flex items-center gap-2.5 py-3 px-2 rounded-md justify-between w-45/100 bg-white/5 border border-white/10">
                 <button
@@ -618,12 +622,9 @@ const TradePanel = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-3.5 gap-4">
+            <div className="flex items-center justify-between mb-2.5 gap-4">
               <span className="font-semibold text-white">Shares</span>
-              <div
-                className="flex w-45/100 items-center bg-white/5 border border-white/10 rounded-md py-3 px-4 mb-3"
-                style={{ marginBottom: 0 }}
-              >
+              <div className="flex w-45/100 items-center bg-white/5 border border-white/10 rounded-md py-3 px-4 mb-0">
                 <input
                   type="text"
                   inputMode="numeric"
@@ -649,7 +650,7 @@ const TradePanel = ({
               ))}
             </div>
 
-            <div className="flex items-center justify-between font-base font-bold uppercase mb-2">
+            <div className="flex items-center justify-between font-base font-bold uppercase mb-2.5">
               <span>Set Expiration</span>
 
               <div
@@ -697,10 +698,7 @@ const TradePanel = ({
               </div>
             )}
 
-            <div
-              className="flex items-center justify-between mb-3.5 gap-4"
-              style={{ marginBottom: 16 }}
-            >
+            <div className="flex items-center justify-between mb-4 gap-4">
               <span className=" flex items-center gap-1 text-white ">You'll receive</span>
               <span className="font-sm font-semibold text-primary"> ${youReceive}</span>
             </div>
@@ -709,7 +707,7 @@ const TradePanel = ({
 
         {/* ── Place Order button ── */}
         <button
-          className={`w-full p-3.5 rounded-2md font-deafult font-black cursor-pointer bg-primary disabled:bg-secondary/80 disabled:cursor-not-allowed text-black transition-all duration-300 shadow-[0px_4px_6px_-4px_#10D26033,0px_10px_15px_-3px_#10D26033] disabled:shadow-[0px_4px_6px_-4px_#8b949e33,0px_10px_15px_-3px_#8b949e33] mb-3 flex items-center justify-center gap-2 ${action === "Sell" ? " sell" : ""}`}
+          className={`w-full p-3.5 rounded-2md font-deafult font-black cursor-pointer bg-primary disabled:bg-secondary/80 disabled:cursor-not-allowed text-black transition-all duration-300 shadow-[0px_4px_6px_-4px_#10D26033,0px_10px_15px_-3px_#10D26033] disabled:shadow-[0px_4px_6px_-4px_#8b949e33,0px_10px_15px_-3px_#8b949e33] mb-5 flex items-center justify-center gap-2 ${action === "Sell" ? " sell" : ""}`}
           disabled={approvalState !== "idle" || (buttonState === "trade" && tradeDisabled)}
           onClick={() => {
             if (buttonState === "login") {

@@ -18,7 +18,7 @@ export const MarketGrid: FC<MarketGridProps> = ({ title, markets, groupKey }) =>
   if (markets.length === 0) return null
 
   return (
-    <section className="py-4 ">
+    <section className="py-4">
       <div className="flex items-end justify-between mb-4">
         <h2 className="h2 font-bold uppercase tracking-[2px] text-white">{title}</h2>
         <button

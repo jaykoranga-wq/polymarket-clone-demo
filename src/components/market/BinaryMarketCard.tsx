@@ -35,13 +35,7 @@ export const BinaryMarketCard: FC<MarketCardProps> = ({ market }) => {
   }
 
   return (
-    <div
-      style={{
-        background:
-          "linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)",
-      }}
-      className="group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer"
-    >
+    <div className="group flex flex-col border border-white/10 rounded-xl p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] cursor-pointer bg-[linear-gradient(135deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.02)_100%)]">
       <div className="flex gap-4 items-center max-h-10 mb-2">
         <div className="size-10 min-w-10 rounded-md overflow-hidden border border-white ">
           <img

@@ -332,7 +332,7 @@ const EventPage = () => {
                 ✕
               </button>
             </div>
-            <div className="px-2.5 pb-7.5">
+            <div className="px-2.5 pb-5">
               {isResolved ? (
                 <div className="p-4">
                   <MarketResolvedCard

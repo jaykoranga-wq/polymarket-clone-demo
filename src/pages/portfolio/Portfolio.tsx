@@ -98,7 +98,7 @@ const PortfolioPage = () => {
           <div className="flex flex-col md:flex-row items-start gap-4 md:items-center justify-between mb-7">
             <div>
               <h1 className="font-xxl font-bold text-white">Portfolio</h1>
-              <p className="font-default mt-1.5 text-white/60 ">
+              <p className="font-default mt-1 text-white/60 ">
                 Track your positions and performance
               </p>
             </div>

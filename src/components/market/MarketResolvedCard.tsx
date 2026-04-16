@@ -46,43 +46,37 @@ export const MarketResolvedCard = ({
   }
 
   return (
-    <div
-      className="border  border-primary/50 rounded-2xl overflow-hidden lg:mx-6 bg-linear-to-b from primary/10 to bg-primary/5 "
-      // style={{
-      //   background: bg,
-      // }}
-    >
+    <div className="border  border-primary/50 rounded-2xl xl:mx-6 overflow-hidden p-6 bg-linear-to-b from primary/10 to bg-primary/5 ">
       {/* Header */}
-      <div className="p-4 lg:pt-6 text-center">
-        <div
-          className="font-base font-extrabold uppercase mb-1.5 text-primary/70  text-nowrap"
-          // style={{
-          //   color: color,
-          // }}
-        >
+      <div className="px-4  text-center">
+        <div className="font-base  uppercase mb-1.5 mt-2 text-white/60  text-nowrap">
           Market Resolved
         </div>
-        <div className="font-sm text-white">{formatMarketDate(resolutionTime)}</div>
+        <div className="font-md text-white">{formatMarketDate(resolutionTime)}</div>
       </div>
 
+      {/*divider */}
+      <div className="flex justify-center my-4">
+        <div className="h-px bg-linear-to-r from-transparent via-white/10 to transparent w-[90%]" />
+      </div>
       {/* Body */}
-      <div className="p-5 lg:pb-6 text-center">
-        <div className="font-default fnt-bold  text-white mb-2.5">Outcome:</div>
+      <div className="px-5  text-center">
+        <div className="font-default font-bold uppercase text-primary/70 mb-2.5">Outcome</div>
 
         <div
-          className="inline-block py-2 px-3.5 border rounded-full text-black font-sm font-black tracking-wider"
-          style={{ background: color }}
+          className="inline-block py-2 px-3.5 font-default tracking-wider"
+          style={{ color: color }}
         >
           {winningOutcome}
         </div>
       </div>
 
       {/* Dispute Section */}
-      <div className="px-5 pb-5 text-center">
+      <div className="px-5  text-center">
         {canRaiseDispute ? (
           <button
             onClick={handleRaiseDispute}
-            className="w-full py-2 px-4 rounded-xl border border-[#F59E0B] bg-[#F59E0B]/10 text-[#F59E0B] text-sm font-semibold hover:bg-partial/20 transition-colors"
+            className="w-full py-2 px-4 rounded-lg border border-dispute bg-dispute/10 text-dispute text-sm font-semibold hover:bg-dispute/20 transition-colors"
           >
             Raise Dispute
           </button>

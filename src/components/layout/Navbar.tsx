@@ -143,7 +143,7 @@ const MenuItem = ({
 // ── SectionHeader ─────────────────────────────────────────────────────────────
 const SectionHeader = ({ title }: { title: string }) => (
   <div className="px-5 pt-4 md:pt-6 pb-2">
-    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">{title}</span>
+    <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/30">{title}</span>
   </div>
 )
 
@@ -258,7 +258,7 @@ const SearchBar = () => {
 }
 
 // ── Mobile Search Bar (Toggleable) ───────────────────────────────────────────
-const SearchBarMobile = ({ onSearch, onClose }: { onSearch: () => void; onClose: () => void }) => {
+const SearchBarMobile = ({ onSearch }: { onSearch: () => void; onClose: () => void }) => {
   const navigate = useNavigate()
   const [query, setQuery] = useState("")
 
@@ -296,54 +296,45 @@ const SearchBarMobile = ({ onSearch, onClose }: { onSearch: () => void; onClose:
           </button>
         )}
       </form>
-      <button
-        onClick={(e) => {
-          e.stopPropagation()
-          onClose()
-        }}
-        className="p-2 text-white/40 hover:text-white transition-colors"
-      >
-        <X size={20} />
-      </button>
     </div>
   )
 }
 
 // ── Sidebar Mobile Search Bar ──────────────────────────────────────────────
-const MobileSearchBar = ({ onClose }: { onClose: () => void }) => {
-  const navigate = useNavigate()
-  const [query, setQuery] = useState("")
+// const MobileSearchBar = ({ onClose }: { onClose: () => void }) => {
+//   const navigate = useNavigate()
+//   const [query, setQuery] = useState("")
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    const trimmed = query.trim()
-    if (!trimmed) return
-    navigate(`${ROUTES.MarketSearch}?q=${encodeURIComponent(trimmed)}`)
-    onClose()
-  }
+//   const handleSearch = (e: React.FormEvent) => {
+//     e.preventDefault()
+//     const trimmed = query.trim()
+//     if (!trimmed) return
+//     navigate(`${ROUTES.MarketSearch}?q=${encodeURIComponent(trimmed)}`)
+//     onClose()
+//   }
 
-  return (
-    <form onSubmit={handleSearch} className="relative w-full">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search markets"
-        className="w-full bg-slate border border-progress-bar rounded-2sm py-2 px-8.5 text-sm text-white focus:outline-none placeholder-[#6B7280]"
-      />
-      {query && (
-        <button
-          type="button"
-          onClick={() => setQuery("")}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
-        >
-          <X size={14} />
-        </button>
-      )}
-    </form>
-  )
-}
+//   return (
+//     <form onSubmit={handleSearch} className="relative w-full">
+//       <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+//       <input
+//         type="text"
+//         value={query}
+//         onChange={(e) => setQuery(e.target.value)}
+//         placeholder="Search markets"
+//         className="w-full bg-slate border border-progress-bar rounded-2sm py-2 px-8.5 text-sm text-white focus:outline-none placeholder-[#6B7280]"
+//       />
+//       {query && (
+//         <button
+//           type="button"
+//           onClick={() => setQuery("")}
+//           className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+//         >
+//           <X size={14} />
+//         </button>
+//       )}
+//     </form>
+//   )
+// }
 
 const NAV_LINKS = [
   { label: "Trending", path: "/markets/trending" },
@@ -520,9 +511,6 @@ export const Navbar: FC = () => {
           </div>
 
           {/* Sidebar Search */}
-          <div className="px-4 pb-2">
-            <MobileSearchBar onClose={closeSidebar} />
-          </div>
 
           {/* Portfolio/Cash — only when authenticated & on mobile (hidden md+) */}
           {isAuthenticated && (
@@ -609,85 +597,13 @@ export const Navbar: FC = () => {
             <span className="flex-1 text-sm font-medium text-white/80">Language</span>
             <span className="text-lg">🇺🇸</span>
           </div> */}
-
-          {/* MOBILE AUTH/PROFILE SECTION */}
-          <div className="md:hidden mt-auto ">
-            <Divider />
-            {!isAuthenticated ? (
-              <div className="px-5 pt-6 flex flex-col gap-3">
-                <Button
-                  variant="default"
-                  className="w-full bg-accent text-white font-bold text-sm hover:bg-accent/90 h-11 rounded-sm cursor-pointer"
-                  onClick={() => {
-                    setIsLoginOpen(true)
-                    closeSidebar()
-                  }}
-                >
-                  Log In
-                </Button>
-                <Button
-                  variant="default"
-                  className="w-full bg-accent text-primary font-bold border-black/20 border text-sm hover:bg-accent/90 h-11 rounded-sm cursor-pointer"
-                  onClick={() => {
-                    setIsLoginOpen(true)
-                    closeSidebar()
-                  }}
-                >
-                  Sign Up
-                </Button>
-              </div>
-            ) : (
-              <div className="px-5 pt-6 flex flex-col gap-4">
-                {/* Mobile Profile Info */}
-                <div
-                  className="flex items-center gap-4 cursor-pointer"
-                  onClick={() => {
-                    navigate(`/profile/${user.publicAddress}`)
-                    closeSidebar()
-                  }}
-                >
-                  <Avatar email={email} address={publicAddress} size="md" />
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-bold text-white capitalize truncate max-w-[150px]">
-                      {displayName}
-                    </span>
-                    <span className="text-[10px] text-white/40 uppercase tracking-wider">
-                      View Profile
-                    </span>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={() => {
-                    debouncedHandleDeposit()
-                    closeSidebar()
-                  }}
-                  disabled={depositLoading}
-                  className="w-full bg-primary text-background text-sm font-bold hover:bg-primary/90 h-11 rounded-sm cursor-pointer"
-                >
-                  {depositLoading ? "Opening wallet" : "Deposit"}
-                </Button>
-
-                <button
-                  onClick={() => {
-                    handleLogout()
-                    closeSidebar()
-                  }}
-                  className="flex items-center gap-3 px-1 py-2 text-sm font-bold text-red-500/80 hover:text-red-500 transition-colors w-full"
-                >
-                  <LogOut size={18} />
-                  <span>Logout</span>
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       </aside>
 
       {/* ── Mobile Search Backdrop ── */}
       {isMobileSearchOpen && (
         <div
-          className="fixed inset-0 top-14 bg-black/40 backdrop-blur-md z-45 xl:hidden"
+          className="fixed inset-0 top-14 bg-black/70 backdrop-blur-sm z-45 xl:hidden"
           onClick={() => setIsMobileSearchOpen(false)}
         />
       )}
@@ -806,7 +722,7 @@ export const Navbar: FC = () => {
                 }}
                 className="xl:hidden p-2 text-secondary hover:text-white transition-colors"
               >
-                <Search size={20} />
+                <Search size={18} />
               </button>
 
               {showAuthLoader ? (
@@ -1072,4 +988,4 @@ export const Navbar: FC = () => {
 }
 
 // ── Hamburger ─────────────────────────────────────────────────────────────────
-const HamburgerIcon = () => <img src="/icons/hamburger.svg" alt="Menu" className="size-5" />
+const HamburgerIcon = () => <img src="/icons/hamburger.svg" alt="Menu" className="size-4" />
