@@ -36,6 +36,8 @@ export interface Market {
   // ── On-chain / trade fields ────────────────────────────────────────────────
   collateralToken: string
   conditionId: string
+  oracleIdentifier?: string // bytes32 — used for dispute flow
+  winningOutcome?: string | null
   yesTokenId: string | null
   noTokenId: string | null
   yesTokenOnChainId: string | null
@@ -49,6 +51,9 @@ export interface Market {
   yesProbability: number // 0–100
   noProbability: number // 0–100
 
+  // ── Lifecycle status (mirrors MARKET_STATUS in marketStatus.ts) ──────────
+  status?: number
+
   // ── Optional display / mock-only extras ────────────────────────────────────
   isTrending?: boolean
   frequency?: MarketFrequency
@@ -56,6 +61,7 @@ export interface Market {
   rules?: string
   priceHistory?: PricePoint[]
   orderBook?: OrderBook
+  optionGroupId?: string
 }
 
 // ─── Redux State ──────────────────────────────────────────────────────────────

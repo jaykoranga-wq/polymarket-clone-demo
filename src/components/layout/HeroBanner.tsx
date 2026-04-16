@@ -31,16 +31,10 @@ export const HeroBanner: FC<HeroBannerProps> = ({
   }
 
   return (
-    <section className="relative w-full h-[220x] lg:h-62.5 flex items-center overflow-hidden rounded-2xl bg-background border border-border mt-6">
+    <section className="relative w-full h-[215x] lg:h-62.5 flex items-center overflow-hidden rounded-2xl bg-background border border-border mt-6">
       {/* Background Gradient */}
       <div className="absolute inset-0 z-10" />
-      <div
-        className="absolute inset-0 opacity-40 mix-blend-screen"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 70% 50%, rgba(22, 199, 132, 0.15) 0%, transparent 60%)",
-        }}
-      />
+      <div className="absolute inset-0 opacity-40 mix-blend-screen bg-[radial-gradient(circle_at_70%_50%,rgba(22,199,132,0.15)_0%,transparent_60%)]" />
 
       {/* Right Image */}
       <div className="absolute right-0 top-0 h-full w-full xl:w-3/4 overflow-hidden hidden lg:block">
@@ -57,7 +51,7 @@ export const HeroBanner: FC<HeroBannerProps> = ({
       {/* Left Content */}
       <div className="relative z-20 p-5 md:p-8 max-w-2xl flex flex-col gap-2">
         <div className="flex items-center gap-2 text-primary font-bold font-xs uppercase tracking-widest">
-          <span className="relative flex h-1.5 w-2">
+          <span className="relative flex items-center justify-center h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
           </span>

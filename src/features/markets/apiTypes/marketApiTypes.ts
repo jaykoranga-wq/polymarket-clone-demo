@@ -30,6 +30,7 @@ export interface ApiMarket {
 
   status: number
   oracleIdentifier: string
+  winningOutcome?: string | null
 
   optionGroups: ApiOptionGroup[]
 
@@ -57,5 +58,15 @@ export interface ApiMarketListResponse {
   data: {
     data: ApiMarket[]
     count: number
+  }
+}
+
+export interface ApiMarketPriceResponse {
+  statusCode: number
+  status: boolean
+  message: string
+  type: string
+  data: {
+    price: string
   }
 }

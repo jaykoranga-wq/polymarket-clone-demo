@@ -47,24 +47,40 @@ const RankDisplay = ({ rank }: { rank: number }) => {
   return <span className="font-sm  text-white">#{rank}</span>
 }
 
+function getAvatarColor(author: string): string {
+  const colors = [
+    "linear-gradient(135deg,#6366f1,#8b5cf6)",
+    "linear-gradient(135deg,#ec4899,#f43f5e)",
+    "linear-gradient(135deg,#14b8a6,#06b6d4)",
+    "linear-gradient(135deg,#f59e0b,#ef4444)",
+    "linear-gradient(135deg,#22c55e,#16a34a)",
+    "linear-gradient(135deg,#3b82f6,#6366f1)",
+  ]
+  let hash = 0
+  for (const c of author) hash = (hash * 31 + c.charCodeAt(0)) & 0xffff
+  return colors[hash % colors.length] as string
+}
 // ── Avatar ────────────────────────────────────────────────────────────────────
 const Avatar = ({
   name,
   size = 32,
   square = false,
+  isCurrentUser = false,
 }: {
   name: string
   size?: number
   square?: boolean
+  isCurrentUser?: boolean
 }) => (
   <div
-    className={`flex items-center justify-center font-extrabold text-white shrink-0 bg-primary/10 ${
+    className={`flex items-center justify-center font-extrabold shrink-0 ${
       square ? "rounded-[12px]" : "rounded-full"
-    }`}
+    } ${isCurrentUser ? "bg-primary/10 text-primary" : "text-white"}`}
     style={{
       width: size,
       height: size,
       fontSize: size * 0.35,
+      background: isCurrentUser ? undefined : getAvatarColor(name),
     }}
   >
     {name.slice(0, 2).toUpperCase()}
@@ -92,8 +108,8 @@ const PodiumCard = ({ entry }: { entry: LeaderboardEntry }) => {
 
       {/* avatar container */}
       <div className="relative mb-3 w-fit mx-auto">
-        <div className="w-16 h-16 rounded-xxl border-4 border-primary overflow-hidden flex items-center justify-center">
-          <Avatar name={entry.displayName} size={56} square />
+        <div className="w-14 h-14 rounded-lg border-2 border-primary overflow-hidden flex items-center justify-center">
+          <Avatar name={entry.displayName} size={56} square isCurrentUser={entry.isCurrentUser} />
         </div>
         {/* rank bubble */}
         <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center font-xs font-black text-white border-2 border-black">
@@ -104,7 +120,7 @@ const PodiumCard = ({ entry }: { entry: LeaderboardEntry }) => {
       {/* user info */}
       <div className="text-center mb-4 w-full">
         <div className="flex items-center justify-center gap-1.5 mb-1">
-          <span className="font-default font-medium text-white truncate whitespace-nowrap">
+          <span className="font-default font-semibold text-white truncate whitespace-nowrap">
             {entry.displayName}
           </span>
           <BadgeCheck size={13} className="text-market-blue  shrink-0" />
@@ -182,10 +198,10 @@ const LeaderRow = ({ entry }: { entry: LeaderboardEntry }) => (
 
     {/* user */}
     <div className="flex items-center gap-3 min-w-0">
-      <Avatar name={entry.displayName} />
+      <Avatar name={entry.displayName} isCurrentUser={entry.isCurrentUser} />
       <div style={{ minWidth: 0 }}>
         <div
-          className="font-sm truncate whitespace-nowrap"
+          className="font-sm max-xl:truncate whitespace-nowrap"
           style={{
             fontWeight: entry.isCurrentUser ? 800 : 600,
             color: entry.isCurrentUser ? C.green : C.text,
@@ -193,12 +209,12 @@ const LeaderRow = ({ entry }: { entry: LeaderboardEntry }) => (
         >
           {entry.displayName}
           {entry.isCurrentUser && (
-            <span className="ml-1.5 font-base font-semibold bg-primary/15 text-primary py-0.5 px-1.5 rounded-sm  ">
+            <span className="ml-1.5 font-base font-semibold bg-primary/15 text-white py-0.5 px-1.5 rounded-sm  ">
               You
             </span>
           )}
         </div>
-        {/* <div className="font-base  text-white/30 font-mono">{entry.address}</div> */}
+        <div className="font-base  text-white/30 font-mono">{entry.address}</div>
       </div>
     </div>
 
@@ -231,7 +247,7 @@ const BiggestWinItem = ({
 }: {
   entry: { rank: number; displayName: string; subtitle: string; initial: number; profit: number }
 }) => (
-  <div className="flex flex-col gap-4 p-4 rounded-2xl transition-all duration-200 cursor-pointer relative group bg-linear-to-b from-white/5 to-white/2 border border-white/10 hover:border-primary/30 hover:bg-primary/15">
+  <div className="flex flex-col gap-4 p-4 rounded-lg transition-all duration-200 cursor-pointer relative group bg-linear-to-b from-white/5 to-white/2 border border-white/10 hover:border-primary/30 hover:bg-primary/15">
     {/* Top Row: Avatar, Info, Rank */}
     <div className="flex items-start gap-3">
       {/* Avatar */}
@@ -265,9 +281,9 @@ const BiggestWinItem = ({
 
 const BiggestWinsPanel = () => (
   <div className="w-full lg:w-[300px] xl:w-[340px] shrink-0 sticky top-6">
-    <div className="overflow-hidden">
+    <div>
       {/* Panel header */}
-      <div className="mb-4">
+      <div className="mb-4 max-lg:mt-4">
         <h2 className="font-md text-white tracking-tight">Biggest Wins This Month</h2>
       </div>
 
@@ -292,7 +308,7 @@ const LeaderboardPage = () => {
 
   return (
     <div className="text-white">
-      <div className="container py-6 pb-20">
+      <div className="container mt-4 md:mt-6 mb-12 md:mb-18.5">
         {/* header */}
         <div className="flex justify-between items-end flex-wrap mb-8 gap-5">
           <div>

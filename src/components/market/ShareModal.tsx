@@ -30,7 +30,7 @@ const getShareOptions = (text: string, url: string) => [
   {
     id: "copy",
     label: "Copy link",
-    color: "rgba(255,255,255,0.08)",
+    color: "rgba(17, 21, 28,0.6)",
     hover: "rgba(255,255,255,0.13)",
     tcolor: C.text,
     icon: <FaLink size={16} />,
@@ -39,7 +39,7 @@ const getShareOptions = (text: string, url: string) => [
   {
     id: "twitter",
     label: "Share on X",
-    color: "rgba(0,0,0,0.4)",
+    color: "rgba(255,255,255,0.08)",
     hover: "rgba(255,255,255,0.5)",
     tcolor: C.text,
     icon: <FaXTwitter size={16} />,
@@ -120,7 +120,7 @@ export const ShareModal = ({ open, onClose, title, probability, outcome }: Share
     <div
       ref={overlayRef}
       onClick={handleOverlay}
-      className="fixed inset-0 z-100 flex items-center justify-center bg-black/92 p-4"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
     >
       <div className="w-full max-w-110 bg-black border border-white/10 rounded-xl overflow-hidden shadow-[0px_4px_100px_0px_#FFFFFF1A] ">
         {/* ── Header ── */}

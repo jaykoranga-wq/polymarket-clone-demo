@@ -23,11 +23,16 @@ import { switchToAmoy } from "./switchChain"
 // Shared dependency types (minimal — only what we actually use)
 // ---------------------------------------------------------------------------
 
-type LoginFn = (args: { didToken: string }) => Promise<{ data: { data: { token: string } } }>
+type LoginFn = (args: {
+  didToken: string
+  deviceToken?: string | null
+}) => Promise<{ data: { data: { token: string } } }>
 type LoginWalletFn = (args: { publicAddress: string }) => Promise<{
   data: { data: { nonce: string; token: string } }
 }>
-type VerifyWalletFn = (args: { signature: string; deviceToken: string | null }) => Promise<{
+
+//made device token an optional thing.
+type VerifyWalletFn = (args: { signature: string; deviceToken?: string | null }) => Promise<{
   data: { data: { token: string } }
 }>
 
@@ -42,6 +47,7 @@ export async function handleEmailLogin({
   loginToBackend,
   onSuccess,
   onError,
+  deviceToken,
 }: {
   email: string
   magic: Magic | null
@@ -49,6 +55,7 @@ export async function handleEmailLogin({
   loginToBackend: LoginFn
   onSuccess: () => void
   onError: () => void
+  deviceToken: string | null | undefined
 }): Promise<void> {
   if (!email || !magic) return
 
@@ -59,7 +66,9 @@ export async function handleEmailLogin({
     const userInfo = await magic.user.getInfo()
     const magicToken = await magic.user.getIdToken()
 
-    const resultBackend = await loginToBackend({ didToken: magicToken }).then((r) => r.data)
+    const resultBackend = await loginToBackend({ didToken: magicToken, deviceToken }).then(
+      (r) => r.data,
+    )
 
     dispatch(
       login({
@@ -135,7 +144,7 @@ export async function handleMetaMaskLogin({
   verifyWallet: VerifyWalletFn
   onSuccess: () => void
   onError: () => void
-  deviceToken: string
+  deviceToken: string | null | undefined
 }): Promise<void> {
   if (!window.ethereum) {
     toast.error("MetaMask not installed!", {
@@ -173,8 +182,11 @@ export async function handleMetaMaskLogin({
     })) as unknown as string
 
     // Step 4: verify signature with backend
-    console.log("device token while verifying meta mask :", deviceToken)
-    const result = await verifyWallet({ signature, deviceToken }).then((r) => r.data)
+    // Only include deviceToken in the payload when it is available
+    const result = await verifyWallet({
+      signature,
+      ...(deviceToken ? { deviceToken } : {}),
+    }).then((r) => r.data)
 
     // Step 5: store session
     clearMetaMaskLoggedOut()

@@ -1,14 +1,22 @@
 // src/components/navbar/NotificationBell.tsx
 
-import { Bell, Check, Trash2, X } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { Bell, ChevronRight, Trash2, X } from "lucide-react"
+import { useCallback, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import { useNavigate } from "react-router"
 
+import type { RootState } from "@/app/store"
+import {
+  useDeleteNotificationsMutation,
+  useLazyGetNotificationsQuery,
+  useMarkNotificationsReadMutation,
+} from "@/features/api/notifications/notificationApi"
 import {
   NOTIFICATION_LIMITS,
   NOTIFICATION_TYPE_CONFIG,
 } from "@/features/notifications/notificationConstants"
 import {
+  appendNotifications,
   clearAll,
   markAllRead,
   markRead,
@@ -16,7 +24,11 @@ import {
   removeNotification,
   selectNotifications,
   selectUnreadCount,
+  setNotifications,
 } from "@/features/notifications/notificationSlice"
+import { useDropdown } from "@/hooks/ui/useDropdown"
+
+const LIMIT = 10
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const timeAgo = (iso: string): string => {
@@ -37,19 +49,8 @@ const TypeIcon = ({ type }: { type: Notification["type"] }) => {
   const config = NOTIFICATION_TYPE_CONFIG[type]
   return (
     <div
-      style={{
-        width: 32,
-        height: 32,
-        borderRadius: "50%",
-        background: config.bg,
-        color: config.color,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 14,
-        fontWeight: 700,
-        flexShrink: 0,
-      }}
+      className="w-8 h-8 rounded-full font-sm font-bold flex items-center justify-center shrink-0"
+      style={{ background: config.bg, color: config.color }}
     >
       {config.icon}
     </div>
@@ -57,41 +58,12 @@ const TypeIcon = ({ type }: { type: Notification["type"] }) => {
 }
 
 const UnreadDot = () => (
-  <div
-    style={{
-      position: "absolute",
-      top: 14,
-      left: 6,
-      width: 5,
-      height: 5,
-      borderRadius: "50%",
-      background: "#00c853",
-    }}
-  />
+  <div className="absolute top-3.5 left-1.5 w-1 h-1 rounded-full bg-[#00c853]" />
 )
 
 const EmptyState = () => (
-  <div
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "40px 20px",
-      gap: 10,
-    }}
-  >
-    <div
-      style={{
-        width: 40,
-        height: 40,
-        borderRadius: "50%",
-        background: "rgba(255,255,255,0.06)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+  <div className="flex flex-col item-center justify-center py-10 px-5 gap-2.5">
+    <div className="w-10 h-10 rounded-full bg-white/6 flex items-center justify-center">
       <Bell size={18} color="rgba(255,255,255,0.2)" />
     </div>
     <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", margin: 0, fontWeight: 500 }}>
@@ -106,75 +78,47 @@ const EmptyState = () => (
 // ── Notification row ──────────────────────────────────────────────────────────
 const NotifRow = ({ notif }: { notif: Notification }) => {
   const dispatch = useDispatch()
-  const unreadBg = "rgba(0,200,83,0.04)"
+  const [deleteNotifications] = useDeleteNotificationsMutation()
+  const [markNotificationsRead] = useMarkNotificationsReadMutation()
   const hoverBg = "rgba(255,255,255,0.04)"
 
   return (
     <div
-      onClick={() => dispatch(markRead(notif.id))}
-      style={{
-        display: "flex",
-        gap: 10,
-        padding: "12px 14px",
-        cursor: "pointer",
-        background: notif.read ? "transparent" : unreadBg,
-        borderBottom: "1px solid rgba(255,255,255,0.05)",
-        transition: "background 0.15s",
-        position: "relative",
+      onClick={() => {
+        if (!notif.read) {
+          void markNotificationsRead({ notificationRecipientId: notif.id })
+          dispatch(markRead(notif.id))
+        }
       }}
+      className="flex gap-2.5 py-3 px-3.5 cursor-pointer border-b border-b-white/5 transition-all duration-150 relative"
+      style={{ background: notif.read ? "transparent" : "#10D26010" }}
       onMouseEnter={(e) => (e.currentTarget.style.background = hoverBg)}
       onMouseLeave={(e) =>
-        (e.currentTarget.style.background = notif.read ? "transparent" : unreadBg)
+        (e.currentTarget.style.background = notif.read ? "transparent" : "#10D26010")
       }
     >
       {!notif.read && <UnreadDot />}
-
       <TypeIcon type={notif.type} />
-
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div className="flex-1 min-w-0">
         <div
+          className="font-sm mb-0.5"
           style={{
-            fontSize: 12,
             fontWeight: notif.read ? 500 : 700,
-            color: notif.read ? "rgba(255,255,255,0.7)" : "#ffffff",
-            marginBottom: 2,
+            color: notif.read ? "rgba(255,255,255,0.8)" : "#ffffff",
           }}
         >
           {notif.title}
         </div>
-        <div
-          style={
-            {
-              fontSize: 11,
-              color: "rgba(255,255,255,0.4)",
-              lineHeight: 1.5,
-              overflow: "hidden",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-            } as React.CSSProperties
-          }
-        >
-          {notif.message}
-        </div>
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 4 }}>
-          {timeAgo(notif.timestamp)}
-        </div>
+        <div className="font-base text-white/70 line-clamp-2 overflow-hidden">{notif.message}</div>
+        <div className="font-xs text-white/25 mt-1">{timeAgo(notif.timestamp)}</div>
       </div>
-
       <button
         onClick={(e) => {
           e.stopPropagation()
+          void deleteNotifications({ notificationRecipientId: notif.id })
           dispatch(removeNotification(notif.id))
         }}
-        style={{
-          color: "rgba(255,255,255,0.2)",
-          padding: 4,
-          flexShrink: 0,
-          alignSelf: "flex-start",
-          borderRadius: 4,
-          transition: "color 0.15s",
-        }}
+        className="text-white/20 p-1 shrink-0 self-start rounded-sm transition-all"
         onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")}
         onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.2)")}
       >
@@ -188,142 +132,158 @@ const NotifRow = ({ notif }: { notif: Notification }) => {
 const DropdownHeader = ({
   unreadCount,
   hasNotifications,
+  onClose,
 }: {
   unreadCount: number
   hasNotifications: boolean
+  onClose: () => void
 }) => {
   const dispatch = useDispatch()
+  const [deleteNotifications] = useDeleteNotificationsMutation()
+  const [markNotificationsRead] = useMarkNotificationsReadMutation()
 
   return (
-    <div
-      style={{
-        padding: "16px 16px 12px",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
-      }}
-    >
-      {/* top row — title + unread badge */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Notifications</span>
+    <div className="p-4 pb-3 border-b border-b-white/6 flex flex-row gap-3 justify-between">
+      <div className="flex items-center gap-2">
+        <span className="font-sm font-bold text-white uppercase">Notifications</span>
         {unreadCount > 0 && (
-          <span
-            style={{
-              fontSize: 10,
-              fontWeight: 800,
-              color: "#00c853",
-              background: "rgba(0,200,83,0.12)",
-              padding: "3px 8px",
-              borderRadius: 20,
-              border: "1px solid rgba(0,200,83,0.2)",
-            }}
-          >
+          <span className="font-xs font-extrabold text-primary bg-primary/8 py-0.5 px-2 rounded-full border border-primary/70">
             {unreadCount} new
           </span>
         )}
       </div>
 
-      {/* bottom row — action buttons */}
-      <div style={{ display: "flex", gap: 8 }}>
+      <div className="flex gap-2.5">
         {unreadCount > 0 && (
           <button
-            onClick={() => dispatch(markAllRead())}
-            style={{
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 6,
-              fontSize: 12,
-              fontWeight: 600,
-              color: "rgba(255,255,255,0.5)",
-              padding: "8px 12px",
-              borderRadius: 8,
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.03)",
-              transition: "all 0.15s",
+            onClick={() => {
+              void markNotificationsRead()
+              dispatch(markAllRead())
             }}
+            className="font-base font-semibold transition-all cursor-pointer"
             onMouseEnter={(e) => {
               e.currentTarget.style.color = "#fff"
-              e.currentTarget.style.background = "rgba(255,255,255,0.07)"
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.color = "rgba(255,255,255,0.5)"
-              e.currentTarget.style.background = "rgba(255,255,255,0.03)"
             }}
           >
-            <Check size={12} /> Mark all read
+            Mark all read
           </button>
         )}
 
         {hasNotifications && (
           <button
-            onClick={() => dispatch(clearAll())}
-            style={{
-              flex: unreadCount > 0 ? "0 0 auto" : 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 6,
-              fontSize: 12,
-              fontWeight: 600,
-              color: "rgba(229,57,53,0.7)",
-              padding: "8px 12px",
-              borderRadius: 8,
-              border: "1px solid rgba(229,57,53,0.15)",
-              background: "rgba(229,57,53,0.04)",
-              transition: "all 0.15s",
+            onClick={() => {
+              void deleteNotifications()
+              dispatch(clearAll())
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = "#e53935"
-              e.currentTarget.style.background = "rgba(229,57,53,0.10)"
+              e.currentTarget.style.color = "#E11D48"
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = "rgba(229,57,53,0.7)"
-              e.currentTarget.style.background = "rgba(229,57,53,0.04)"
+              e.currentTarget.style.color = "rgba(255,255,255,0.5)"
             }}
           >
-            <Trash2 size={12} /> Clear all
+            <Trash2 size={12} />
           </button>
         )}
+
+        {/* Close Button — Mobile Only */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onClose()
+          }}
+          className="md:hidden text-white/40 hover:text-white transition-colors ml-1"
+        >
+          <X size={18} />
+        </button>
       </div>
     </div>
   )
 }
+
 // ── Main component ────────────────────────────────────────────────────────────
-export const NotificationBell = () => {
-  //   const dispatch      = useDispatch()
+interface NotificationBellProps {
+  isOpen?: boolean
+  onToggle?: () => void
+}
+
+export const NotificationBell = ({ onToggle }: NotificationBellProps) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const token = useSelector((state: RootState) => state.auth.token)
   const notifications = useSelector(selectNotifications)
   const unreadCount = useSelector(selectUnreadCount)
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
 
-  // close on outside click
-  useEffect(() => {
-    const h = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+  const { isOpen: open, toggle, ref } = useDropdown("notifications")
+
+  // Pagination state — tracked separately from Redux list length so FCM
+  // notifications prepended via addNotification() don't skew the API skip.
+  const [hasMore, setHasMore] = useState(true)
+  const [isFetchingMore, setIsFetchingMore] = useState(false)
+  const [nextSkip, setNextSkip] = useState(0)
+
+  const [triggerFetch] = useLazyGetNotificationsQuery()
+
+  // Fetches one page and merges into Redux.
+  // Called imperatively from event handlers — never directly inside an effect body.
+  const fetchPage = useCallback(
+    async (pageSkip: number) => {
+      if (!token) return
+      setIsFetchingMore(true)
+      try {
+        // For page 0 (fresh open): always hit the network.
+        // For page > 0: use cached RTK Query result if available.
+        const result = await triggerFetch({ limit: LIMIT, skip: pageSkip }, pageSkip > 0)
+        if (!result.data) return
+        const items = result.data
+
+        if (pageSkip === 0) {
+          dispatch(setNotifications(items))
+        } else {
+          dispatch(appendNotifications(items))
+        }
+
+        const more = items.length >= LIMIT
+        setHasMore(more)
+        setNextSkip(more ? pageSkip + LIMIT : pageSkip)
+      } finally {
+        setIsFetchingMore(false)
+      }
+    },
+    [token, triggerFetch, dispatch],
+  )
+
+  // Fetch first page every time the dropdown opens.
+  const handleToggle = () => {
+    if (!open && token) {
+      setHasMore(true)
+      setNextSkip(0)
+      void fetchPage(0)
     }
-    document.addEventListener("mousedown", h)
-    return () => document.removeEventListener("mousedown", h)
-  }, [])
+    if (onToggle) onToggle()
+    else toggle()
+  }
+
+  // Load next page when scrolled within 80px of the bottom.
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
+    if (scrollHeight - scrollTop - clientHeight < 80 && !isFetchingMore && hasMore) {
+      void fetchPage(nextSkip)
+    }
+  }
 
   return (
-    <div ref={ref} style={{ position: "relative" }}>
+    <div ref={ref} className="relative">
       {/* Bell button */}
       <button
-        onClick={() => setOpen((p) => !p)}
+        onClick={handleToggle}
+        className="relative w-9 h-9 rounded-md flex items-center justify-center transition-all duration-75 cursor-pointer"
         style={{
-          position: "relative",
-          width: 36,
-          height: 36,
-          borderRadius: 8,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           color: open ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)",
           background: open ? "rgba(255,255,255,0.08)" : "transparent",
-          transition: "color 0.15s, background 0.15s",
         }}
         onMouseEnter={(e) => {
           if (!open) e.currentTarget.style.color = "rgba(255,255,255,0.8)"
@@ -336,25 +296,7 @@ export const NotificationBell = () => {
 
         {/* Unread badge */}
         {unreadCount > 0 && (
-          <div
-            style={{
-              position: "absolute",
-              top: 2,
-              right: 2,
-              minWidth: 16,
-              height: 16,
-              borderRadius: 8,
-              background: "#e53935",
-              color: "#fff",
-              fontSize: 9,
-              fontWeight: 800,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "0 4px",
-              border: "1.5px solid #0d0f13",
-            }}
-          >
+          <div className="absolute top-0.5 right-0.5 min-w-4 h-4 rounded-md bg-[#e53935] text-white text-[9px] font-extrabold flex items-center justify-center border border-black">
             {formatBadgeCount(unreadCount)}
           </div>
         )}
@@ -363,33 +305,63 @@ export const NotificationBell = () => {
       {/* Dropdown */}
       {open && (
         <div
+          className="fixed md:absolute left-0 right-0 md:left-auto md:right-0 top-14 md:top-[calc(100%+10px)] bg-slate border-b border-white/10 md:border md:border-white/10 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] z-50 overflow-hidden flex flex-col w-full sm:w-[340px] mx-auto md:mx-0 max-h-[calc(100vh-56px)] md:max-h-[calc(100vh-100px)]"
           style={{
-            position: "absolute",
-            right: 0,
-            top: "calc(100% + 8px)",
-            width: NOTIFICATION_LIMITS.DROPDOWN_WIDTH,
-            background: "#141920",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: 16,
-            boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
-            zIndex: 50,
-            overflow: "hidden",
+            maxWidth:
+              typeof window !== "undefined" && window.innerWidth < 768
+                ? "none"
+                : NOTIFICATION_LIMITS.DROPDOWN_WIDTH,
           }}
         >
-          <DropdownHeader unreadCount={unreadCount} hasNotifications={notifications.length > 0} />
+          <DropdownHeader
+            unreadCount={unreadCount}
+            hasNotifications={notifications.length > 0}
+            onClose={toggle}
+          />
 
+          {/* Scrollable list */}
           <div
-            style={{
-              maxHeight: NOTIFICATION_LIMITS.MAX_LIST_HEIGHT,
-              overflowY: "auto",
-              scrollbarWidth: "none",
-            }}
+            className="flex-1 overflow-y-auto no-scrollbar"
+            style={{ maxHeight: NOTIFICATION_LIMITS.MAX_LIST_HEIGHT }}
+            onScroll={handleScroll}
           >
-            {notifications.length === 0 ? (
+            {notifications.length === 0 && !isFetchingMore ? (
               <EmptyState />
             ) : (
-              notifications.map((n) => <NotifRow key={n.id} notif={n} />)
+              <>
+                {notifications.map((n) => (
+                  <NotifRow key={n.id} notif={n} />
+                ))}
+
+                {/* Loading spinner */}
+                {isFetchingMore && (
+                  <div className="flex items-center justify-center py-4">
+                    <span className="w-4 h-4 rounded-full border-2 border-white/10 border-t-white/40 animate-spin" />
+                  </div>
+                )}
+
+                {/* End of list */}
+                {!isFetchingMore && !hasMore && notifications.length > 0 && (
+                  <p className="text-center text-xs text-white/20 py-3 select-none">
+                    No more notifications
+                  </p>
+                )}
+              </>
             )}
+          </div>
+
+          {/* View all button */}
+          <div className="border-t border-white/6 p-2">
+            <button
+              onClick={() => {
+                toggle()
+                navigate("/notifications")
+              }}
+              className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-medium text-white/40 hover:text-white/80 hover:bg-white/5 transition-colors rounded-md"
+            >
+              View all notifications
+              <ChevronRight size={12} />
+            </button>
           </div>
         </div>
       )}

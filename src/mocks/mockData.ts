@@ -216,7 +216,7 @@ export const RAW_MARKETS: Market[] = [
       "Predict the outcome of the upcoming US Presidential Election. Over $142M in total trading volume.",
     image:
       "https://images.unsplash.com/photo-1569285645462-a3f9c6332d56?q=80&w=1170&auto=format&fit=crop",
-    resolutionTime: "2027-11-05T00:00:00.000Z",
+    resolutionTime: "2024-11-05T00:00:00.000Z",
     yesProbability: 52,
     noProbability: 48,
     yesVolume: 73_840_000,

@@ -1,4 +1,4 @@
-import { getToken, onMessage } from "firebase/messaging"
+import { getToken, type MessagePayload, onMessage } from "firebase/messaging"
 
 import { getMessagingInstance } from "./firebase"
 
@@ -21,7 +21,6 @@ export const requestFCMToken = async (): Promise<string | null> => {
       serviceWorkerRegistration: registration,
     })
 
-    console.log("FCM Token:", token)
     return token
   } catch (err) {
     console.error(err)
@@ -29,7 +28,9 @@ export const requestFCMToken = async (): Promise<string | null> => {
   }
 }
 
-export const listenToMessages = async () => {
+// onPayload is called for every foreground message received.
+// Pass a handler to react to incoming notifications (update state, show toast, etc.).
+export const listenToMessages = async (onPayload?: (payload: MessagePayload) => void) => {
   const messaging = await getMessagingInstance()
   if (!messaging) {
     console.warn("Firebase Messaging is not supported in this browser.")
@@ -37,7 +38,6 @@ export const listenToMessages = async () => {
   }
 
   onMessage(messaging, (payload) => {
-    console.log("Message received:", payload)
-    alert(payload.notification?.title)
+    onPayload?.(payload)
   })
 }

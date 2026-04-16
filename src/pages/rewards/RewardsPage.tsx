@@ -41,53 +41,123 @@ const RewardIcon = ({ name, size = 18 }: { name: string; size?: number }) => {
 }
 
 // ── XP Progress bar ───────────────────────────────────────────────────────────
+// const XPCard = () => {
+//   const { level, nextLevelXp, currentXp, completed, total } = MOCK_REWARDS_SUMMARY
+//   const pct = Math.round((currentXp / nextLevelXp) * 100)
+
+//   return (
+//     <div className="flex-1 min-w-[310px] w-1/2 bg-white/5 border border-primary/20 rounded-2xl md:p-6 p-3  relative overflow-hidden transition-all duration-300 hover:border-primary/40 group">
+//       {/* subtle glow background */}
+//       <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 blur-3xl rounded-full" />
+
+//       <div className="flex items-center gap-4 md:gap-6 relative">
+//         {/* level badge */}
+//         <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-primary/10 border-2 border-primary/30 flex flex-col items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,200,83,0.1)]">
+//           <span className="font-base font-black text-primary tracking-widest uppercase">LVL</span>
+//           <span className="text-2xl font-black text-primary leading-tight">{level}</span>
+//         </div>
+
+//         {/* xp progress */}
+//         <div className="flex-1">
+//           <div className="flex justify-between items-baseline mb-2.5">
+//             <h3 className="text-sm font-black text-white tracking-wide uppercase">
+//               {currentXp.toLocaleString()} <span className="text-primary/70">XP</span>
+//             </h3>
+//             <span className="font-base font-bold text-white/60 ">
+//               {nextLevelXp.toLocaleString()} XP to Level {level + 1}
+//             </span>
+//           </div>
+
+//           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+//             <div
+//               className="h-full bg-linear-to-r from-primary to-primary/60 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,200,83,0.4)]"
+//               style={{ width: `${pct}%` }}
+//             />
+//           </div>
+//           <div className="mt-2 font-base font-bold text-white/60 ">{pct}% to next level</div>
+//         </div>
+
+//         {/* separator */}
+//         <div className="w-px h-12 bg-white/10 hidden sm:block" />
+
+//         {/* completed count */}
+//         <div className="text-right hidden sm:block">
+//           <div className="text-xl font-black text-primary text-center leading-none mb-1">
+//             {completed}/{total}
+//           </div>
+//           <div className="font-base font-bold text-white uppercase tracking-widest leading-none">
+//             Finished
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   )
+// }
+
 const XPCard = () => {
-  const { level, nextLevelXp, currentXp, completed, total } = MOCK_REWARDS_SUMMARY
-  const pct = Math.round((currentXp / nextLevelXp) * 100)
+  const { level, nextLevelXp, currentXp } = MOCK_REWARDS_SUMMARY
+  const pct = Math.min(Math.round((currentXp / nextLevelXp) * 100), 100)
+  const remaining = nextLevelXp - currentXp
+
+  const RADIUS = 36
+  const CIRCUMFERENCE = 2 * Math.PI * RADIUS
+  const strokeDashoffset = CIRCUMFERENCE * (1 - pct / 100)
 
   return (
-    <div className="flex-1 min-w-[310px] bg-white/5 border border-primary/20 rounded-2xl md:p-6 p-3  relative overflow-hidden transition-all duration-300 hover:border-primary/40 group">
-      {/* subtle glow background */}
-      <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 blur-3xl rounded-full" />
+    <div className="flex items-center gap-6 bg-white/4 border border-primary/20 rounded-2xl px-6 py-5 min-w-[280px]">
+      {/* Circular progress ring */}
+      <div className="relative w-[88px] h-[88px] shrink-0">
+        <svg width="88" height="88" viewBox="0 0 88 88" className="-rotate-90">
+          <circle
+            cx="44"
+            cy="44"
+            r={RADIUS}
+            fill="none"
+            stroke="rgba(255,255,255,0.06)"
+            strokeWidth="7"
+          />
+          <circle
+            cx="44"
+            cy="44"
+            r={RADIUS}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="7"
+            strokeLinecap="round"
+            strokeDasharray={CIRCUMFERENCE}
+            strokeDashoffset={strokeDashoffset}
+            className="text-primary transition-all duration-1000 ease-out"
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-px">
+          <span className="text-[16px] font-black text-white leading-none">{pct}%</span>
+          <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">
+            Progress
+          </span>
+        </div>
+      </div>
 
-      <div className="flex items-center gap-4 md:gap-6 relative">
-        {/* level badge */}
-        <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-primary/10 border-2 border-primary/30 flex flex-col items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,200,83,0.1)]">
-          <span className="font-base font-black text-primary tracking-widest uppercase">LVL</span>
-          <span className="text-2xl font-black text-primary leading-tight">{level}</span>
+      {/* Stats */}
+      <div className="flex flex-col gap-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-white/40 mb-0.5">
+            Current Rank
+          </p>
+          <p className="text-[22px] font-black text-primary leading-none">LVL {level}</p>
         </div>
 
-        {/* xp progress */}
-        <div className="flex-1">
-          <div className="flex justify-between items-baseline mb-2.5">
-            <h3 className="text-sm font-black text-white tracking-wide uppercase">
-              {currentXp.toLocaleString()} <span className="text-primary/70">XP</span>
-            </h3>
-            <span className="font-base font-bold text-white/60 ">
-              {nextLevelXp.toLocaleString()} XP to Level {level + 1}
-            </span>
-          </div>
+        <div className="h-px w-full bg-white/8" />
 
-          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-            <div
-              className="h-full bg-linear-to-r from-primary to-primary/60 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,200,83,0.4)]"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-          <div className="mt-2 font-base font-bold text-white/60 ">{pct}% to next level</div>
-        </div>
-
-        {/* separator */}
-        <div className="w-px h-12 bg-white/10 hidden sm:block" />
-
-        {/* completed count */}
-        <div className="text-right hidden sm:block">
-          <div className="text-xl font-black text-primary text-center leading-none mb-1">
-            {completed}/{total}
-          </div>
-          <div className="font-base font-bold text-white uppercase tracking-widest leading-none">
-            Finished
-          </div>
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-white/40 mb-0.5">
+            Accumulated
+          </p>
+          <p className="text-[22px] font-black text-primary leading-none">
+            {currentXp.toLocaleString()} XP
+          </p>
+          <p className="text-[11px] text-white/35 mt-1">
+            {remaining.toLocaleString()} XP until LVL {level + 1}
+          </p>
         </div>
       </div>
     </div>
@@ -98,7 +168,7 @@ const XPCard = () => {
 const RewardCard = ({ item }: { item: RewardItem }) => {
   if (item.completed) {
     return (
-      <div className="bg-primary/2 border border-primary/20 rounded-md p-6 flex flex-col gap-4 transition-all duration-300 hover:border-primary/20 group h-full">
+      <div className="bg-primary/2 border border-primary/20 rounded-lg p-6 flex flex-col gap-4 transition-all duration-300 hover:border-primary/20 group h-full">
         {/* top row: icon + xp with check */}
         <div className="flex justify-between items-start w-full">
           <div className="w-10 h-10 bg-primary/10 rounded-sm flex items-center justify-center text-primary/50">
@@ -127,7 +197,7 @@ const RewardCard = ({ item }: { item: RewardItem }) => {
   const targetUnit = targetParts.slice(1).join(" ")
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-md p-6 flex flex-col gap-4 transition-all duration-300 hover:border-white/10 group h-full">
+    <div className="bg-white/5 border border-white/10 rounded-lg p-6 flex flex-col gap-4 transition-all duration-300 hover:border-white/10 group h-full">
       {/* top row: icon + xp */}
       <div className="flex justify-between items-start w-full">
         <div className="w-8.5 h-8.5 bg-primary/10 rounded-sm flex items-center justify-center">
@@ -211,9 +281,9 @@ const RewardsPage = () => {
   }
 
   return (
-    <div className="container mt-6 mb-20 text-white">
+    <div className="container mt-4 md:mt-6 mb-12 md:mb-18.5 text-white">
       <div>
-        <div className="flex flex-row flex-wrap justify-between items-start gap-12 mb-10">
+        <div className="flex flex-row flex-wrap justify-between items-center gap-x-12 gap-y-5 mb-10">
           {/* header */}
           <div className="max-w-xl">
             <h2 className="font-xxl font-bold text-white tracking-tighter mb-1.5 leading-tight">
@@ -278,7 +348,7 @@ const RewardsPage = () => {
           {/* empty state */}
           {displayActive.length === 0 && displayCompleted.length === 0 && (
             <div className="py-20 text-center">
-              <div className="text-white/20 text-4xl mb-4">🏆</div>
+              {/* <div className="text-white/20 text-4xl mb-4">🏆</div> */}
               <h3 className="text-white/40 font-bold text-lg">No challenges available</h3>
               <p className="text-white/20 text-sm mt-1">Check back later for new rewards!</p>
             </div>

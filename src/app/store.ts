@@ -6,6 +6,7 @@ import authReducer from "@/features/auth/authSlice"
 import marketReducer from "@/features/markets/marketSlice"
 import notificationReducer from "@/features/notifications/notificationSlice"
 import orderReducer from "@/features/orders/orderSlice"
+import uiReducer from "@/features/ui/uiSlice"
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     markets: marketReducer,
     orders: orderReducer,
     notifications: notificationReducer,
+    ui: uiReducer,
     [api.reducerPath]: api.reducer,
     [secondApi.reducerPath]: secondApi.reducer,
   },

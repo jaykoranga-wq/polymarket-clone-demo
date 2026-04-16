@@ -6,6 +6,8 @@ import {
   createChart,
   type IChartApi,
   type ISeriesApi,
+  type OhlcData,
+  type SingleValueData,
 } from "lightweight-charts"
 import { memo, useEffect, useRef, useState } from "react"
 
@@ -15,6 +17,7 @@ import type { PortfolioChartPoint } from "@/mocks/mockPortfolio"
 import { CHART_TABS, type ChartTab, PORTFOLIO_COLORS } from "../portfolioConstants"
 
 const TABS = Object.values(CHART_TABS)
+const CHART_HEIGHT = 280
 
 interface PortfolioChartProps {
   data: PortfolioChartPoint[]
@@ -30,6 +33,7 @@ export const PortfolioChart = memo(
     const containerRef = useRef<HTMLDivElement>(null)
     const chartRef = useRef<IChartApi | null>(null)
     const seriesRef = useRef<ISeriesApi<"Area"> | null>(null)
+    const tooltipRef = useRef<HTMLDivElement>(null)
     const [activeTab, setActiveTab] = useState<ChartTab>(CHART_TABS.ONE_MONTH)
 
     const isPositive = delta >= 0
@@ -40,7 +44,7 @@ export const PortfolioChart = memo(
 
       const chart = createChart(containerRef.current, {
         width: containerRef.current.clientWidth,
-        height: 280,
+        height: CHART_HEIGHT,
         layout: {
           background: { type: ColorType.Solid, color: "transparent" },
           textColor: "white",
@@ -52,8 +56,18 @@ export const PortfolioChart = memo(
           horzLines: { color: "rgba(255,255,255,0.03)" },
         },
         crosshair: {
-          vertLine: { color: "rgba(0,200,83,0.3)", labelBackgroundColor: "#161a22" },
-          horzLine: { color: "rgba(0,200,83,0.3)", labelBackgroundColor: "#161a22" },
+          vertLine: {
+            color: "#00c853",
+            width: 1,
+            style: 0,
+            labelVisible: false,
+          },
+          horzLine: {
+            color: "#00c853",
+            width: 1,
+            style: 0,
+            labelVisible: false,
+          },
         },
         timeScale: {
           borderColor: "rgba(255,255,255,0.05)",
@@ -83,6 +97,63 @@ export const PortfolioChart = memo(
       })
 
       seriesRef.current = series
+
+      // ── Tooltip logic ────────────────────────────────────────────────────────
+      chart.subscribeCrosshairMove((param) => {
+        if (!tooltipRef.current || !containerRef.current) return
+
+        if (
+          param.point === undefined ||
+          !param.time ||
+          param.point.x < 0 ||
+          param.point.x > containerRef.current.clientWidth ||
+          param.point.y < 0 ||
+          param.point.y > CHART_HEIGHT
+        ) {
+          tooltipRef.current.style.display = "none"
+        } else {
+          const dataPoint = param.seriesData.get(series)
+          if (!dataPoint) {
+            tooltipRef.current.style.display = "none"
+            return
+          }
+
+          tooltipRef.current.style.display = "block"
+          const value =
+            "value" in dataPoint
+              ? (dataPoint as SingleValueData).value
+              : (dataPoint as OhlcData).close
+          const coordinate = series.priceToCoordinate(value)
+
+          // Tooltip content
+          const priceEl = tooltipRef.current.querySelector(".tt-price")
+          const dateEl = tooltipRef.current.querySelector(".tt-date")
+
+          if (priceEl) priceEl.textContent = `$${value.toLocaleString()}`
+          if (dateEl) {
+            const date = new Date((param.time as number) * 1000)
+            dateEl.textContent = `${date.toLocaleString("en-US", { month: "short", day: "numeric" })}, ${date.toLocaleString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })}`
+          }
+
+          // Positioning
+          const tooltipWidth = 140
+          const tooltipHeight = 70
+          const margin = 15
+
+          let left = param.point.x + margin
+          if (left > containerRef.current.clientWidth - tooltipWidth) {
+            left = param.point.x - tooltipWidth - margin
+          }
+
+          let top = coordinate! - tooltipHeight - margin
+          if (top < 0) {
+            top = coordinate! + margin
+          }
+
+          tooltipRef.current.style.left = `${left}px`
+          tooltipRef.current.style.top = `${top}px`
+        }
+      })
 
       const observer = new ResizeObserver(() => {
         if (containerRef.current) chart.applyOptions({ width: containerRef.current.clientWidth })
@@ -148,7 +219,21 @@ export const PortfolioChart = memo(
         </div>
 
         {/* chart */}
-        <div ref={containerRef} style={{ width: "100%", minHeight: 280 }} />
+        <div className="relative overflow-hidden">
+          <div ref={containerRef} style={{ width: "100%", minHeight: CHART_HEIGHT }} />
+          {/* Custom Tooltip */}
+          <div
+            ref={tooltipRef}
+            className="absolute z-10 pointer-events-none bg-[#102218] border border-[#00c853] rounded-md p-2.5 shadow-2xl space-y-0.5"
+            style={{ display: "none", width: "140px" }}
+          >
+            <div className="font-xs font-bold text-muted-foreground uppercase tracking-wider">
+              Portfolio Value
+            </div>
+            <div className="tt-price font-sm font-black text-white leading-tight">$0</div>
+            <div className="tt-date font-xs text-secondary">Date here</div>
+          </div>
+        </div>
       </div>
     )
   },

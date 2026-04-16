@@ -2,61 +2,56 @@
 // Polymarket-style order book:
 //   - YES / NO toggle at top
 //   - Single column: asks (dimmed) above spread, bids below
-//   - Two API calls per token (bids + asks)
+//   - Seeded from REST, patched in real-time via socket
 
 import { useState } from "react"
 
-import {
-  mapApiEntryToRow,
-  type OrderBookRow,
-  useGetOrderBookQuery,
-} from "@/features/api/orderBook/orderBookApi"
-
-// ── Constants ─────────────────────────────────────────────────────────────────
-const ORDER_BOOK_TYPE = {
-  BUY: 1,
-  SELL: 2,
-} as const
+import { type BookEntry, useOrderBook } from "@/hooks/socket/useOrderBook"
 
 type TokenSide = "YES" | "NO"
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 interface OrderBookTabProps {
   marketId: string
-  yesTokenId: string // backend UUID for YES token
-  noTokenId: string // backend UUID for NO token
+  optionGroupId: string
+  yesTokenId: string
+  noTokenId: string
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-// calculates max shares across all rows for depth bar width
-const getMaxShares = (rows: OrderBookRow[]) => rows.reduce((max, r) => Math.max(max, r.shares), 1)
+const getMaxShares = (rows: BookEntry[]) => rows.reduce((max, r) => Math.max(max, r.shares), 1)
 
 const OBRow = ({
   row,
   maxShares,
   isBid,
 }: {
-  row: OrderBookRow
+  row: BookEntry
   maxShares: number
-  isBid: boolean // bid = green, ask = red+dimmed
+  isBid: boolean
 }) => (
-  <div className="ep-ob-row" style={{ opacity: isBid ? 1 : 0.5, position: "relative" }}>
+  <div
+    className={`grid grid-cols-2 py-2.5 transition-colors hover:bg-white/2  px-6  relative overflow-hidden font-mono font-base ${
+      isBid ? "opacity-100" : "opacity-80"
+    }`}
+  >
     {/* depth bar */}
     <div
-      className="ep-ob-depth"
+      className={`absolute inset-0  pointer-events-none ${isBid ? "bg-option-yes" : "bg-option-no"}`}
       style={{
         width: `${(row.shares / maxShares) * 100}%`,
-        background: isBid ? "#00c853" : "#e53935",
       }}
     />
-    <span className={`ep-ob-price ${isBid ? "yes" : "no"}`}>{row.price}¢</span>
-    <span className="ep-ob-shares">{row.shares.toLocaleString()}</span>
+
+    <span className={`font-bold relative z-1 ${isBid ? "text-yes" : "text-no"}`}>{row.price}¢</span>
+
+    <span className="text-white/60 text-right relative z-1">{row.shares.toLocaleString()}</span>
   </div>
 )
 
 const SpreadLine = ({ spread }: { spread: number }) => (
-  <div className="font-base text-center text-white/40 border-y border-y-white/5 py-1 my-0.5">
+  <div className="font-base text-center text-white/40 border-y capitalize border-y-white/5 py-1 my-0.5 last:rounded-b-md">
     spread {spread > 0 ? `${spread}¢` : "—"}
   </div>
 )
@@ -70,13 +65,9 @@ const SkeletonRows = () => (
     {[80, 60, 40, 60, 80].map((w, i) => (
       <div
         key={i}
+        className="h-3 bg-white/6 rounded-sm animate-pulse  ease-in-out my-0.5"
         style={{
-          height: 12,
           width: `${w}%`,
-          background: "rgba(255,255,255,0.06)",
-          borderRadius: 4,
-          animation: "pulse 1.5s ease-in-out infinite",
-          margin: "2px auto",
         }}
       />
     ))}
@@ -84,42 +75,35 @@ const SkeletonRows = () => (
 )
 
 // ── Main component ────────────────────────────────────────────────────────────
-export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTabProps) => {
+export const OrderBookTab = ({
+  marketId: _,
+  optionGroupId,
+  yesTokenId,
+  noTokenId,
+}: OrderBookTabProps) => {
   const [activeSide, setActiveSide] = useState<TokenSide>("YES")
 
-  const tokenId = activeSide === "YES" ? yesTokenId : noTokenId
+  const activeTokenId = activeSide === "YES" ? yesTokenId : noTokenId
 
-  // fetch bids (BUY orders) for active token
-  const { data: bidsData, isLoading: bidsLoading } = useGetOrderBookQuery({
-    tokenId,
-    type: ORDER_BOOK_TYPE.BUY,
-    limit: 10,
-  })
+  const { bids, asks, isLoading } = useOrderBook(
+    optionGroupId,
+    yesTokenId,
+    noTokenId,
+    activeTokenId,
+  )
 
-  // fetch asks (SELL orders) for active token
-  const { data: asksData, isLoading: asksLoading } = useGetOrderBookQuery({
-    tokenId,
-    type: ORDER_BOOK_TYPE.SELL,
-    limit: 10,
-  })
-
-  const isLoading = bidsLoading || asksLoading
-
-  // transform and sort
-  const bids = (bidsData?.data.data ?? []).map(mapApiEntryToRow).sort((a, b) => b.price - a.price) // highest bid first
-
-  const asks = (asksData?.data.data ?? []).map(mapApiEntryToRow).sort((a, b) => a.price - b.price) // lowest ask first
-
-  // spread = lowest ask - highest bid
   const spread = asks[0] && bids[0] ? asks[0].price - bids[0].price : 0
-
   const maxShares = getMaxShares([...bids, ...asks])
 
+  //  const openOrders = MOCK_ORDERS.filter(
+  //    (o) => o.marketId === _ && (o.status === "pending" || o.status === "partially filled")
+  //  )
+
   return (
-    <div className="ep-section">
+    <div className="">
       {/* ── Header ── */}
-      <div className="ep-section-header">
-        <span className="ep-section-title">Order Book</span>
+      <div className="flex items-center justify-between mb-3.5">
+        <span className="font-base font-bold text-white uppercase tracking-wider">Order Book</span>
         <span className="font-base text-muted-foreground">PRICE · SHARES</span>
       </div>
 
@@ -129,7 +113,7 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
           <button
             key={side}
             onClick={() => setActiveSide(side)}
-            className="py-1.5 px-5 rounded-md font-base font-bold cursor-pointer transition-all "
+            className="py-1.5 px-5 rounded-md font-base font-bold cursor-pointer transition-all duration-100 ease-in-out "
             style={{
               background:
                 activeSide === side ? (side === "YES" ? "#00c853" : "#e53935") : "transparent",
@@ -141,46 +125,42 @@ export const OrderBookTab = ({ marketId: _, yesTokenId, noTokenId }: OrderBookTa
         ))}
       </div>
 
-      {/* ── Column headers ── */}
-      <div
-        className="grid font-base font-bold text-muted-foreground uppercase pb-1.5 px-2 "
-        style={{
-          marginBottom: 4,
-          gridTemplateColumns: "1fr 1fr",
-        }}
-      >
-        <span>Price</span>
-        <span style={{ textAlign: "right" }}>Shares</span>
-      </div>
+      <div className="border border-white/10 rounded-md overflow-hidden">
+        {/* ── Column headers ── */}
+        <div className="grid grid-cols-2 mb-1 font-base text-white/60 font-medium uppercase tracking-widest border-b border-white/6 py-4 px-6 pt-8 ">
+          <span>Price</span>
+          <span className="text-right">Shares</span>
+        </div>
 
-      {/* ── Order rows ── */}
-      {isLoading ? (
-        <SkeletonRows />
-      ) : (
-        <>
-          {/* asks — people SELLING (dimmed, shown above spread) */}
-          {asks.length === 0 ? (
-            <EmptyRows label="No sell orders" />
-          ) : (
-            [...asks]
-              .reverse()
-              .map((row, i) => (
-                <OBRow key={`ask-${i}`} row={row} maxShares={maxShares} isBid={false} />
+        {/* ── Order rows ── */}
+        {isLoading ? (
+          <SkeletonRows />
+        ) : (
+          <>
+            {/* asks — people SELLING (dimmed, shown above spread) */}
+            {asks.length === 0 ? (
+              <EmptyRows label="No sell orders" />
+            ) : (
+              [...asks]
+                .reverse()
+                .map((row) => (
+                  <OBRow key={`ask-${row.id}`} row={row} maxShares={maxShares} isBid={false} />
+                ))
+            )}
+
+            <SpreadLine spread={spread} />
+
+            {/* bids — people BUYING (green, shown below spread) */}
+            {bids.length === 0 ? (
+              <EmptyRows label="No buy orders" />
+            ) : (
+              bids.map((row) => (
+                <OBRow key={`bid-${row.id}`} row={row} maxShares={maxShares} isBid={true} />
               ))
-          )}
-
-          <SpreadLine spread={spread} />
-
-          {/* bids — people BUYING (green, shown below spread) */}
-          {bids.length === 0 ? (
-            <EmptyRows label="No buy orders" />
-          ) : (
-            bids.map((row, i) => (
-              <OBRow key={`bid-${i}`} row={row} maxShares={maxShares} isBid={true} />
-            ))
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }

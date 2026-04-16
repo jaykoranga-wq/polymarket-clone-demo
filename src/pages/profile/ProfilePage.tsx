@@ -10,6 +10,7 @@ import {
   Heart,
   Landmark,
   Mail,
+  Settings,
   Share2,
   Target,
   TrendingUp,
@@ -17,8 +18,10 @@ import {
   Zap,
 } from "lucide-react"
 import { useSelector } from "react-redux"
+import { useNavigate } from "react-router"
 
-import { selectUserData } from "@/features/auth/authSlice"
+import { ROUTES } from "@/constants/routes"
+import { selectIsAuthenticated, selectUserData } from "@/features/auth/authSlice"
 import { formatMarketDate } from "@/libs/formatDate"
 import type { Badge } from "@/mocks/mockPages"
 import { MOCK_PROFILE, MOCK_PROFILE_STATS } from "@/mocks/mockPages"
@@ -71,7 +74,7 @@ const EmojiIcon = ({
 const BigAvatar = ({ name }: { name: string }) => {
   const initials = name.slice(0, 2).toUpperCase()
   return (
-    <div className="w-40 h-40 rounded-lg bg-primary/10 flex items-center justify-center text-7xl  font-extrabold text-white  shrink-0 ">
+    <div className="w-20 h-20 rounded-full md:w-30 md:h-30 lg:w-40 lg:h-40 md:rounded-lg bg-primary/10 flex items-center justify-center  text-3xl md:text-5xl lg:text-6xl border border-white/5 font-extrabold text-white  shrink-0 ">
       {initials}
     </div>
   )
@@ -92,7 +95,7 @@ const StatCard = ({
   trend?: string
   accentColor?: string
 }) => (
-  <div className="bg-white/5  py-4 px-5 flex rounded-lg flex-col gap-1 justify-center min-h-24 border border-white/10">
+  <div className="bg-white/5  py-4 px-5 flex rounded-lg flex-col gap-1 justify-center min-h-24 border border-white/10 hover:translate-y-[-4px] hover:border-primary transition-all duration-200 ease-in-out cursor-pointer">
     <span className="font-base font-bold text-white/45 uppercase tracking-widest">{label}</span>
     <span
       className="font-lg font-black tracking-tight my-1 "
@@ -128,7 +131,7 @@ const BadgeChip = ({ icon, label, color }: { icon: string; label: string; color:
 )
 
 const AccuracySection = ({ winRate, trades }: { winRate: number; trades: number }) => (
-  <div className="bg-white/5 border border-white/10 rounded-md py-4 px-6 flex-2">
+  <div className="bg-white/5 border border-white/10 rounded-lg py-4 px-6 flex-2">
     <div className="flex justify-between flex-col md:flex-row items-start md:items-center gap-4 mb-8">
       <div>
         <h2 className="text-xl font-bold mb-1.5">Trading Accuracy</h2>
@@ -164,7 +167,7 @@ const AccuracySection = ({ winRate, trades }: { winRate: number; trades: number 
 )
 
 const BadgesSection = ({ badges }: { badges: Badge[] }) => (
-  <div className="bg-white/5 border border-white/10 rounded-md py-4 px-6 flex-1 lg:min-w-[380px] min-w-0">
+  <div className="bg-white/5 border border-white/10 rounded-lg py-4 px-6 flex-1 lg:min-w-[380px] min-w-0">
     <div className="flex justify-between items-center mb-6">
       <h2 className="font-sm font-bold uppercase tracking-[0.2em]  shrink-0">Badges Earned</h2>
     </div>
@@ -192,18 +195,26 @@ const ProfilePage = () => {
   const profile = MOCK_PROFILE
   const stats = MOCK_PROFILE_STATS
   const { email } = useSelector(selectUserData)
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+  const navigate = useNavigate()
 
   const shortAddr = profile.address.slice(0, 6) + "..." + profile.address.slice(-4)
 
   return (
     <div className="container font-inter">
-      <div className="mt-7.5 mb-18">
+      <div className=" mt-4 md:mt-6 mb-12 md:mb-18.5">
         {/* ── Header card ── */}
-        <div className="flex  flex-wrap justify-start items-center gap-10 mb-14">
+        <div className="flex  flex-wrap justify-start items-center gap-3 sm:gap-10 mb-14">
           <BigAvatar name={profile.displayName} />
 
           <div className="mt-2">
-            <h1 className="font-2xl font-black mb-4 tracking-tight">{profile.displayName}</h1>
+            <div className=" flex flex-wrap gap-3 mb-4 ">
+              <h1 className="font-2xl font-black  tracking-tight">{profile.displayName} </h1>
+              <div className="block lg:hidden bg-primary/10 border border-primary/70 rounded-md h-fit mt-1 w-fit py-0.5 px-3  ">
+                <span className="font-base text-primary uppercase font-bold">Global Rank</span>
+                <span className="font-base text-primary font-bold"> #{profile.rank}</span>
+              </div>
+            </div>
 
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -221,14 +232,26 @@ const ProfilePage = () => {
                 </div>
               )}
 
-              {/* Share Button Below Email */}
-              <button className="flex items-center gap-2.5 text-black py-2 px-5 bg-primary border border-white/10 rounded-md font-bold font-sm hover:bg-primary/60 w-fit transition-all mt-1">
-                <Share2 size={15} className="text-black [&_svg]:[stroke:2.5px]" /> Share Profile
-              </button>
+              {/* Share + Settings buttons */}
+              <div className="flex items-center gap-2 mt-1">
+                <button className="flex items-center gap-2.5 text-black py-2 px-5 bg-primary border border-white/10 rounded-sm font-bold font-sm hover:bg-primary/60 w-fit transition-all">
+                  <Share2 size={15} className="text-black [&_svg]:[stroke:2.5px]" /> Share Profile
+                </button>
+
+                {isAuthenticated && (
+                  <button
+                    onClick={() => navigate(ROUTES.SETTINGS)}
+                    className="flex items-center gap-2 py-2 px-4 bg-white/5 border border-white/10 rounded-sm font-bold font-sm text-white/70 hover:text-white hover:bg-white/10 w-fit transition-all"
+                  >
+                    <Settings size={15} />
+                    Settings
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="flex bg-primary/10 border border-primary/20 rounded-md py-4 px-6 items-center gap-7 justify-between lg:ml-auto max-h-21 ">
+          <div className="hidden lg:flex bg-primary/10 border border-primary/20 rounded-lg py-4 px-6 items-center gap-7 justify-between lg:ml-auto max-h-21 ">
             <div className="flex flex-col gap-1">
               <span className="font-base text-primary uppercase font-bold">Global Rank</span>
               <span className="font-xl text-primary font-black">#{profile.rank}</span>

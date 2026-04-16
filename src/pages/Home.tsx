@@ -1,4 +1,4 @@
-import { Bookmark, Gift, RefreshCcw } from "lucide-react"
+import { Bookmark, ChevronRight, Gift, RefreshCcw } from "lucide-react"
 import { type FC } from "react"
 import { useSelector } from "react-redux"
 import { Toaster } from "sonner"
@@ -33,11 +33,11 @@ const Home: FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-white selection:bg-primary/30">
+    <div className="bg-background text-white selection:bg-primary/30">
       <Toaster richColors position="top-center" />
       {/* {userLoading && <AuthLoader />} */}
 
-      <main className="container pb-12.5">
+      <main className="container pb-12">
         {mainHeroMarket && <MyCarousel items={carouselItems} renderItem={renderHeroBanner} />}
         <MarketGrid title="NEW MARKETS" markets={newMarkets.slice(0, 4)} groupKey={`new_market`} />
         <MarketGrid
@@ -52,18 +52,18 @@ const Home: FC = () => {
         />
 
         {/* ─── STATIC SECTION: LAST CHANCE TO MAKE YOUR PREDICTIONS ─── */}
-        <section className="py-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className=" font-bold uppercase tracking-[3px] text-white">
+        <section className="pt-4">
+          <div className="flex items-end justify-between mb-4">
+            <h2 className="h2 font-bold uppercase tracking-[2px] text-white">
               LAST CHANCE TO MAKE YOUR PREDICTIONS
             </h2>
-            <span className="font-base font-bold uppercase text-muted-foreground hover:text-primary text-nowrap transition-colors cursor-pointer">
-              View All &gt;
+            <span className="font-base flex items-center gap-1 flex-nowrap font-bold uppercase text-muted-foreground hover:text-primary text-nowrap transition-colors cursor-pointer">
+              View All <ChevronRight className="size-3" />
             </span>
           </div>
 
           {/* Row 1 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ">
             {/* Card 1 — US strikes Iran (multi-option) */}
             <div
               style={{

@@ -35,16 +35,17 @@ const shimmer: React.CSSProperties = {
 
 const OrderRowSkeleton = () => (
   <div
-    style={{
-      display: "grid",
-      gridTemplateColumns: "1fr 80px 80px 80px 80px 80px 100px 110px",
-      gap: 8,
-      padding: "16px",
-      borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-      alignItems: "center",
-    }}
+    className="grid grid-cols-[repeat(8,1fr)] gap-2 p-4 border-b border-b-white/10 items-center"
+    // style={{
+    //   display: "grid",
+    //   gridTemplateColumns: "1fr 80px 80px 80px 80px 80px 100px 110px",
+    //   gap: 8,
+    //   padding: "16px",
+    //   borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
+    //   alignItems: "center",
+    // }}
   >
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+    <div className="flex flex-col gap-1.5 ">
       <div style={{ ...shimmer, height: 14, width: "70%" }} />
       <div style={{ ...shimmer, height: 10, width: "30%" }} />
     </div>
@@ -106,21 +107,22 @@ export const Pagination = ({
 
   return (
     <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 6,
-        padding: "16px",
-        borderTop: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-      }}
+      className="flex items-center justify-center gap-1.5 p-4 border-t border-t-white/10"
+      // style={{
+      //   display: "flex",
+      //   alignItems: "center",
+      //   justifyContent: "center",
+      //   gap: 6,
+      //   padding: "16px",
+      //   borderTop: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
+      // }}
     >
       <button
         style={page === 1 ? btnDisabled : btnBase}
         disabled={page === 1}
         onClick={() => onPage(page - 1)}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <div className="flex items-center gap-1">
           <ChevronLeft size={14} strokeWidth={2.5} />
           <span>Prev</span>
         </div>
@@ -159,7 +161,7 @@ export const Pagination = ({
         disabled={page === totalPages}
         onClick={() => onPage(page + 1)}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <div className="flex items-center gap-1">
           <span>Next</span>
           <ChevronRight size={14} strokeWidth={2.5} />
         </div>
@@ -173,13 +175,10 @@ const SidePill = ({ side }: { side: string }) => {
   const isYes = side.toUpperCase() === POSITION_SIDE.YES
   return (
     <span
+      className="font-base font-semibold py-1 px-2.5 rounded-full"
       style={{
-        fontSize: 11,
-        fontWeight: 800,
-        padding: "4px 10px",
-        borderRadius: 20,
-        background: isYes ? "rgba(0,200,83,0.15)" : "rgba(229,57,53,0.15)",
-        color: isYes ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.RED,
+        background: isYes ? "#18C96433" : "#FF5A5F33",
+        color: isYes ? "#18C964" : "#FF5A5F",
       }}
     >
       {side.toUpperCase()}
@@ -189,13 +188,10 @@ const SidePill = ({ side }: { side: string }) => {
 
 const DirectionPill = ({ direction }: { direction: "Buy" | "Sell" }) => (
   <span
+    className="font-base font-semibold py-1 px-2.5 rounded-full"
     style={{
-      fontSize: 11,
-      fontWeight: 800,
-      padding: "4px 10px",
-      borderRadius: 20,
-      background: direction === "Buy" ? "rgba(0,200,83,0.15)" : "rgba(229,57,53,0.15)",
-      color: direction === "Buy" ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.RED,
+      background: direction === "Buy" ? "#18C96433" : "#FF5A5F33",
+      color: direction === "Buy" ? "#18C964" : "#FF5A5F",
     }}
   >
     {direction}
@@ -203,54 +199,31 @@ const DirectionPill = ({ direction }: { direction: "Buy" | "Sell" }) => (
 )
 
 const CategoryTag = ({ label }: { label: string }) => (
-  <span
-    style={{
-      fontSize: 10,
-      fontWeight: 600,
-      padding: "2px 8px",
-      borderRadius: 6,
-      background: "rgba(255,255,255,0.06)",
-      color: PORTFOLIO_COLORS.TEXT_MUTED,
-      border: "1px solid rgba(255,255,255,0.06)",
-    }}
-  >
+  <span className="font-xs font-semibold py-0.5 px-2 rounded-2sm bg-white/6 text-white/4 border border-white/10 ">
     {label}
   </span>
 )
 
 const EmptyState = ({ label }: { label: string }) => (
-  <div
-    style={{
-      padding: "60px 20px",
-      textAlign: "center",
-      color: PORTFOLIO_COLORS.TEXT_MUTED,
-      fontSize: 13,
-      fontWeight: 500,
-    }}
-  >
-    {label}
-  </div>
+  <div className="py-6 px-5 text-center text-white/60 font-sm font-medium">{label}</div>
 )
 
 const StatusBadge = ({ status }: { status: PortfolioOrder["status"] }) => {
   const map = {
-    [ORDER_STATUS.PENDING]: { bg: "rgba(59,130,246,0.12)", color: "#60a5fa", label: "Pending" },
-    [ORDER_STATUS.PARTIAL]: { bg: "rgba(245,158,11,0.12)", color: "#f59e0b", label: "Partial" },
-    [ORDER_STATUS.FILLED]: { bg: "rgba(0,200,83,0.12)", color: "#00c853", label: "Filled" },
+    [ORDER_STATUS.PENDING]: { bg: "#7B61FF33", color: "#7B61FF", label: "Pending" },
+    [ORDER_STATUS.PARTIAL]: { bg: "#F59E0B33", color: "#F59E0B", label: "Partial" },
+    [ORDER_STATUS.FILLED]: { bg: "#18C96433", color: "#18C964", label: "Filled" },
     [ORDER_STATUS.CANCELLED]: {
-      bg: "rgba(255,255,255,0.06)",
-      color: "rgba(255,255,255,0.3)",
+      bg: "#FF5A5F33",
+      color: "#FF5A5F",
       label: "Cancelled",
     },
   }
   const s = map[status]
   return (
     <span
+      className="font-base font-semibold py-1 px-2.5 rounded-full"
       style={{
-        fontSize: 10,
-        fontWeight: 700,
-        padding: "3px 8px",
-        borderRadius: 6,
         background: s.bg,
         color: s.color,
       }}
@@ -286,20 +259,9 @@ const CancelButton = ({
     return (
       <button
         onClick={() => setConfirm(true)}
-        style={{
-          padding: "5px 10px",
-          borderRadius: 7,
-          fontSize: 11,
-          fontWeight: 700,
-          background: "rgba(229,57,53,0.10)",
-          color: "#e53935",
-          border: "1px solid rgba(229,57,53,0.2)",
-          cursor: "pointer",
-          transition: "background 0.15s",
-          whiteSpace: "nowrap",
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(229,57,53,0.2)")}
-        onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(229,57,53,0.10)")}
+        className="py-2 px-4 flex items-center justify-center  rounded-sm font-base font-bold  cursor-pointer transition-all whitespace-nowrap border border-no/20 text-no  bg-option-no  hover:text-background "
+        onMouseEnter={(e) => (e.currentTarget.style.background = "#e11d48")}
+        onMouseLeave={(e) => (e.currentTarget.style.background = "#411c29")}
       >
         Cancel
       </button>
@@ -307,53 +269,25 @@ const CancelButton = ({
   }
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-      <span style={{ fontSize: 10, color: PORTFOLIO_COLORS.TEXT_MUTED_2 }}>Sure?</span>
+    <div className="flex items-center gap-1 overflow-hidden">
+      <span className="font-xs text-white/60 ">Sure?</span>
       <button
         onClick={handleCancel}
         disabled={isLoading}
+        className="py-1 px-1.5 rounded-sm  justify-center font-base font-bold  border border-yes/20 text-primary hover:text-background bg-option-yes hover:bg-primary flex items-center gap-1"
         style={{
-          padding: "4px 8px",
-          borderRadius: 6,
-          fontSize: 11,
-          fontWeight: 700,
-          background: "#e53935",
-          color: "#fff",
           cursor: isLoading ? "not-allowed" : "pointer",
           opacity: isLoading ? 0.6 : 1,
-          border: "none",
-          display: "flex",
-          alignItems: "center",
-          gap: 4,
         }}
       >
         {isLoading && (
-          <span
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              border: "1.5px solid rgba(255,255,255,0.3)",
-              borderTopColor: "#fff",
-              animation: "ob-spin 0.7s linear infinite",
-              display: "inline-block",
-            }}
-          />
+          <span className="w-2 h-2 rounded-full border border-white/30 border-t-white inline-block animate-spin " />
         )}
         Yes
       </button>
       <button
         onClick={() => setConfirm(false)}
-        style={{
-          padding: "4px 8px",
-          borderRadius: 6,
-          fontSize: 11,
-          fontWeight: 700,
-          background: "rgba(255,255,255,0.06)",
-          color: "rgba(255,255,255,0.5)",
-          cursor: "pointer",
-          border: "none",
-        }}
+        className="py-1 px-1.5 rounded-sm font-base font-bold  border border-no/20 text-no  bg-option-no hover:bg-no hover:text-background cursor-pointer "
       >
         No
       </button>
@@ -364,7 +298,6 @@ const CancelButton = ({
 // ─────────────────────────────────────────────────────────────────────────────
 // ORDERS TAB  (PENDING + PARTIALLY_FILLED, paginated)
 // ─────────────────────────────────────────────────────────────────────────────
-const ORDERS_COL = "1fr 80px 80px 80px 80px 80px 100px 110px"
 
 interface OrdersTabProps {
   search: string
@@ -426,26 +359,14 @@ export const PortfolioOrdersTab = ({ search }: OrdersTabProps) => {
 
       <div>
         {/* column headers */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: ORDERS_COL,
-            gap: 8,
-            padding: "0 16px 12px",
-            borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-          }}
-        >
+        <div className="grid grid-cols-[repeat(8,1fr)] gap-2 py-4 px-6 border-b border-b-white/10 ">
           {["Market", "Outcome", "Order", "Type", "Price", "Shares", "Status", "Action"].map(
             (h, i) => (
               <div
                 key={h}
+                className="font-base font-medium uppercase text-white/60 tracking-widest "
                 style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  color: PORTFOLIO_COLORS.TEXT_MUTED_2,
-                  textAlign: i > 2 ? "right" : ("left" as React.CSSProperties["textAlign"]),
+                  textAlign: i === 0 ? "left" : i === 7 ? "right" : "center",
                 }}
               >
                 {h}
@@ -487,37 +408,19 @@ const OrderRow = ({
 
   return (
     <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: ORDERS_COL,
-        gap: 8,
-        padding: "14px 16px",
-        borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-        alignItems: "center",
-        transition: "background 0.15s",
-      }}
+      className="grid grid-cols-[repeat(8,1fr)] gap-2 py-3.5 px-6 not-last:border-b border-b-white/10 items-center transition-all "
       onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")}
       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
     >
       {/* market */}
       <div style={{ minWidth: 0 }}>
-        <div
-          style={{
-            fontSize: 14,
-            fontWeight: 600,
-            color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            marginBottom: 4,
-          }}
-        >
+        <div className="font-default capitalize font-medium text-white truncate">
           {order.marketTitle}
         </div>
-        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+        <div className="flex gap-1 items-center">
           {order.category && <CategoryTag label={order.category} />}
           {order.status === ORDER_STATUS.PARTIAL && (
-            <span style={{ fontSize: 10, color: PORTFOLIO_COLORS.TEXT_MUTED }}>
+            <span className="" style={{ fontSize: 10, color: PORTFOLIO_COLORS.TEXT_MUTED }}>
               {fillPct}% filled
             </span>
           )}
@@ -525,44 +428,33 @@ const OrderRow = ({
       </div>
 
       {/* outcome (Yes / No) */}
-      <div style={{ display: "flex", justifyContent: "flex-start" }}>
+      <div className="text-center">
         <SidePill side={order.token.title} />
       </div>
 
       {/* order direction (Buy / Sell) */}
-      <div style={{ display: "flex", justifyContent: "flex-start" }}>
+      <div className="text-center">
         <DirectionPill direction={order.direction} />
       </div>
 
       {/* type (Limit / Market) */}
-      <div style={{ fontSize: 13, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
-        {order.orderType}
-      </div>
+      <div className="font-sm text-white/80 text-center">{order.orderType}</div>
 
       {/* price */}
-      <div
-        style={{
-          fontSize: 13,
-          fontWeight: 600,
-          color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-          textAlign: "right",
-        }}
-      >
-        {order.price}¢
-      </div>
+      <div className="font-sm font-medium text-white text-center">{order.price}¢</div>
 
       {/* shares */}
-      <div style={{ fontSize: 13, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
+      <div className="font-sm font-medium text-white text-center">
         {order.shares.toLocaleString()}
       </div>
 
       {/* status */}
-      <div style={{ textAlign: "right" }}>
+      <div className="text-center">
         <StatusBadge status={order.status} />
       </div>
 
       {/* action */}
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+      <div className="flex justify-end">
         {isCancellable ? (
           <CancelButton orderId={order.id} onCancelled={onCancelled} />
         ) : (
@@ -576,22 +468,26 @@ const OrderRow = ({
 // ─────────────────────────────────────────────────────────────────────────────
 // HISTORY TAB  (FILLED + CANCELLED, paginated)
 // ─────────────────────────────────────────────────────────────────────────────
-const HISTORY_COL = "1fr 80px 80px 80px 80px 90px 100px"
+
+//  [ORDER_STATUS.PENDING]: { bg: "#7B61FF33", color: "#7B61FF", label: "Pending" },
+//     [ORDER_STATUS.PARTIAL]: { bg: "#F59E0B33", color: "#F59E0B", label: "Partial" },
+//     [ORDER_STATUS.FILLED]: { bg: "#18C96433", color: "#18C964", label: "Filled" },
+//     [ORDER_STATUS.CANCELLED]: {
+//       bg: "#FF5A5F33",
+//       color: "#FF5A5F",
+//       label: "Cancelled",
 
 const HistoryTypeBadge = ({ type }: { type: HistoryItem["type"] }) => {
   const map = {
-    [HISTORY_TYPE.BUY]: { bg: "rgba(59,130,246,0.12)", color: "#60a5fa", label: "Buy" },
-    [HISTORY_TYPE.SELL]: { bg: "rgba(245,158,11,0.12)", color: "#f59e0b", label: "Sell" },
-    [HISTORY_TYPE.REDEEM]: { bg: "rgba(0,200,83,0.12)", color: "#00c853", label: "Redeem" },
+    [HISTORY_TYPE.BUY]: { bg: "#18C96433", color: "#18C964", label: "Buy" },
+    [HISTORY_TYPE.SELL]: { bg: "#FF5A5F33", color: "#FF5A5F", label: "Sell" },
+    [HISTORY_TYPE.REDEEM]: { bg: "#F59E0B33", color: "#F59E0B", label: "Redeem" },
   }
   const s = map[type]
   return (
     <span
+      className="font-base font-semibold py-1 px-2.5 rounded-full"
       style={{
-        fontSize: 10,
-        fontWeight: 700,
-        padding: "3px 8px",
-        borderRadius: 6,
         background: s.bg,
         color: s.color,
       }}
@@ -642,25 +538,13 @@ export const HistoryTab = ({ search }: HistoryTabProps) => {
   return (
     <div>
       {/* column headers */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: HISTORY_COL,
-          gap: 8,
-          padding: "0 16px 12px",
-          borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-        }}
-      >
+      <div className="grid grid-cols-[repeat(7,1fr)] gap-2 py-4 px-6 border-b border-b-white/10 ">
         {["Market", "Type", "Outcome", "Order Type", "Shares", "Total", "Date"].map((h, i) => (
           <div
             key={h}
+            className="font-base font-medium uppercase text-white/60 tracking-widest"
             style={{
-              fontSize: 10,
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-              color: PORTFOLIO_COLORS.TEXT_MUTED_2,
-              textAlign: i > 2 ? "right" : ("left" as React.CSSProperties["textAlign"]),
+              textAlign: i === 0 ? "left" : i === 6 ? "right" : "center",
             }}
           >
             {h}
@@ -687,73 +571,40 @@ export const HistoryTab = ({ search }: HistoryTabProps) => {
 
 const HistoryRow = ({ item }: { item: HistoryItem }) => (
   <div
-    style={{
-      display: "grid",
-      gridTemplateColumns: HISTORY_COL,
-      gap: 8,
-      padding: "14px 16px",
-      borderBottom: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-      alignItems: "center",
-      transition: "background 0.15s",
-    }}
+    className="grid grid-cols-[repeat(7,1fr)] gap-2 py-3.5 px-6 not-last:border-b border-b-white/10  items-center transition-all  "
     onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")}
     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
   >
     {/* market */}
     <div style={{ minWidth: 0 }}>
-      <div
-        style={{
-          fontSize: 14,
-          fontWeight: 600,
-          color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          marginBottom: 4,
-        }}
-      >
+      <div className="font-default capitalize font-medium text-white truncate ">
         {item.marketTitle}
       </div>
-      <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+      <div className="flex gap-1 items-center">
         {item.category && <CategoryTag label={item.category} />}
       </div>
     </div>
 
     {/* type (Buy / Sell / Redeem) */}
-    <div>
+    <div className="flex justify-center">
       <HistoryTypeBadge type={item.type} />
     </div>
 
     {/* outcome (Yes / No) */}
-    <div style={{ display: "flex", justifyContent: "flex-start" }}>
+    <div className="flex justify-center">
       <SidePill side={item.side} />
     </div>
 
     {/* order type (Limit / Market) */}
-    <div style={{ fontSize: 13, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
-      {item.orderType}
-    </div>
+    <div className="font-sm text-white/80 text-center">{item.orderType}</div>
 
     {/* shares */}
-    <div style={{ fontSize: 13, color: PORTFOLIO_COLORS.TEXT_MUTED, textAlign: "right" }}>
-      {item.shares.toLocaleString()}
-    </div>
+    <div className="font-sm text-white/80 text-center">{item.shares.toLocaleString()}</div>
 
     {/* total */}
-    <div
-      style={{
-        fontSize: 13,
-        fontWeight: 600,
-        color: PORTFOLIO_COLORS.TEXT_PRIMARY,
-        textAlign: "right",
-      }}
-    >
-      ${item.total.toFixed(2)}
-    </div>
+    <div className="font-sm font-medium text-white text-center">${item.total.toFixed(2)}</div>
 
     {/* date */}
-    <div style={{ fontSize: 12, color: PORTFOLIO_COLORS.TEXT_MUTED_2, textAlign: "right" }}>
-      {formatMarketDate(item.settledAt)}
-    </div>
+    <div className="font-sm text-white/80 text-right">{formatMarketDate(item.settledAt)}</div>
   </div>
 )

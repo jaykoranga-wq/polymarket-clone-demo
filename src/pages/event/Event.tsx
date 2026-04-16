@@ -1,5 +1,3 @@
-import "./eventPage.css"
-
 import { CheckCircle, TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
@@ -14,11 +12,18 @@ import { MarketResolvedCard } from "@/components/market/MarketResolvedCard"
 import { PriceChart } from "@/components/market/priceChart/PriceChart"
 import { ShareModal } from "@/components/market/ShareModal"
 import { ActivityTab, MarketRulesTab, OrderBookTab } from "@/components/market/tabs"
+import { TokenBalanceChecker } from "@/components/market/TokenBalanceChecker"
 import { EventPageSkeleton } from "@/components/ui/MarketSkeleton"
-import { useGetMarketByIdQuery } from "@/features/api/markets/marketApi"
+import {
+  useGetMarketByIdQuery,
+  useGetMarketPriceQuery,
+  useGetOracleTimelineQuery,
+} from "@/features/api/markets/marketApi"
 import { useMagic } from "@/features/auth/lib/magic"
 import { selectSelectedMarket } from "@/features/markets/marketSelectors"
-import { usePriceChart } from "@/hooks/charts/usePriceChart"
+import { isMarketResolved } from "@/features/markets/marketStatus"
+import { usePrice } from "@/hooks/socket/usePrice"
+import { usePriceChart } from "@/hooks/socket/usePriceChart"
 import type { TradeOrder, TradePanelOrder } from "@/hooks/trade/TradeTypes"
 import { useTrade } from "@/hooks/trade/useTrade"
 import { formatMarketDate } from "@/libs/formatDate"
@@ -46,21 +51,44 @@ const EventPage = () => {
 
   // ── Primary data source: real API ──────────────────────────────────────────
   const { data: apiMarket, isLoading, isError } = useGetMarketByIdQuery(id ?? "")
+  const { data: apiMarketPrice } = useGetMarketPriceQuery(apiMarket?.optionGroupId ?? "empty")
 
+  // ── Oracle timeline — used to determine dispute eligibility ────────────────
+  const { data: oracleTimeline } = useGetOracleTimelineQuery(id ?? "", { skip: !id })
+  // The latest entry's action tells us the current oracle state
+  const latestOracleAction: number | null = oracleTimeline?.data?.length
+    ? (oracleTimeline.data[oracleTimeline.data.length - 1]?.action ?? null)
+    : null
+
+  // useprice socket
+
+  const { price } = usePrice(apiMarket?.optionGroupId as string)
+
+  // used for yesProbability and no Probability
+  let finalPrice = apiMarketPrice
+  //if the socket price is there , replace the current price with socket price.
+  if (price) {
+    finalPrice = Number(price.price) / 10000
+  }
   // ── Fallback: Redux selectedMarket set when card was clicked ───────────────
   const reduxMarket = useSelector(selectSelectedMarket)
   const market = apiMarket ?? (isError ? reduxMarket : null)
 
   // ── Chart state ────────────────────────────────────────────────────────────
-  const yesProbability = (market?.yesProbability ?? 50) / 100
-  const { tab, history, changeTab, lastPrice, pctChange, isPositive } = usePriceChart({
-    startPrice: yesProbability,
+  const { tab, history, changeTab, lastPrice, pctChange, isPositive, isFetching } = usePriceChart({
+    optionGroupId: market?.optionGroupId ?? "",
   })
 
   // ── Resolution check ───────────────────────────────────────────────────────
-  const isResolved = market?.resolutionTime
-    ? new Date(market.resolutionTime).getTime() <= new Date().getTime()
-    : false
+  // Use the backend status field — RESOLVED (11) or PAIDOUT (12) mean the
+  // market outcome is final. Fall back to time-based check if status is absent
+  // (e.g. mock data or very old API responses).
+  const isResolved =
+    market?.status != null
+      ? isMarketResolved(market.status)
+      : market?.resolutionTime
+        ? new Date(market.resolutionTime).getTime() <= new Date().getTime()
+        : false
 
   // ── Trade handler ──────────────────────────────────────────────────────────
   const handleTrade = (params: TradePanelOrder) => {
@@ -87,7 +115,7 @@ const EventPage = () => {
   }
 
   const saveAsBookmark = () => toast.success("Saved")
-
+  let displayWinningOutcome = null
   useEffect(() => {
     if (tradeError) {
       toast.error(tradeError, {
@@ -102,16 +130,22 @@ const EventPage = () => {
   if (isLoading) return <EventPageSkeleton />
   if (!market)
     return (
-      <div className="flex items-center justify-center h-[60vh] text-[#5a6478] text-[13px] tracking-[0.06em]">
+      <div className="flex items-center justify-center h-[60vh] text-tab-text font-sm tracking-[0.06em]">
         Market not found.
       </div>
     )
 
   const totalVolume = (market.yesVolume ?? 0) + (market.noVolume ?? 0)
 
+  if (apiMarket) {
+    if (apiMarket.winningOutcome !== null) {
+      displayWinningOutcome = apiMarket.winningOutcome === "1" ? "YES" : "NO"
+    }
+  }
+
   return (
     <>
-      <div className="min-h-screen bg-background text-white selection:bg-primary/30 my-7.5 overflow-x-hidden">
+      <div className=" bg-background text-white selection:bg-primary/30 mt-4 md:mt-6 mb-12 md:mb-18.5 overflow-x-hidden">
         <LoginModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         <ShareModal
           open={shareOpen}
@@ -123,7 +157,7 @@ const EventPage = () => {
         <Toaster richColors position="top-center" />
         <div className="container">
           {/* ── Breadcrumb ── */}
-          <div className="flex items-start space-x-2 font-sm  mt-2">
+          <div className="flex items-start space-x-2 font-sm mb-4 mt-2">
             <span className="text-gray-400 capitalize">{market.category}</span>
             <span className=" text-gray-500">›</span>
             <span className="text-white capitalize font-medium">
@@ -156,13 +190,13 @@ const EventPage = () => {
 
             <div className="flex gap-3 pt-0.5 shrink-0">
               <button
-                className="w-9 h-9 rounded-[6px] border border-[#2A2A2A] text-[#CBD5E1] flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-[#e2e8f0] hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
+                className="w-9 h-9 rounded-[6px] border border-white/10 text-tab-text flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-white hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
                 onClick={() => setShareOpen(true)}
               >
                 <IcoShareSm />
               </button>
               <button
-                className="w-9 h-9 rounded-[6px] border border-[#2A2A2A] text-[#CBD5E1] flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-[#e2e8f0] hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
+                className="w-9 h-9 rounded-[6px] border border-white/10 text-tab-text flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-white hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
                 onClick={saveAsBookmark}
               >
                 <IcoBookmarkSm />
@@ -192,7 +226,7 @@ const EventPage = () => {
           <div
             className="grid ep-layout-inner items-start gap-5 max-[1479px]:gap-4"
             style={{
-              gridTemplateColumns: "1fr 340px",
+              gridTemplateColumns: "1fr 430px",
             }}
           >
             {/* ══ LEFT ══ */}
@@ -205,6 +239,8 @@ const EventPage = () => {
                 currentPrice={lastPrice}
                 pctChange={pctChange}
                 isPositive={isPositive}
+                isFetching={isFetching}
+                optionGroupId={market?.optionGroupId ?? ""}
               />
 
               {/* Tab bar */}
@@ -221,7 +257,7 @@ const EventPage = () => {
               </div>
 
               {/* Tab content */}
-              <div className="py-4">
+              <div className="pt-4">
                 {activeTab === "rules" && (
                   <MarketRulesTab
                     description={market.description}
@@ -234,6 +270,7 @@ const EventPage = () => {
                 {activeTab === "orderbook" && (
                   <OrderBookTab
                     marketId={market.id}
+                    optionGroupId={market.optionGroupId ?? ""}
                     yesTokenId={market.yesTokenId as string}
                     noTokenId={market.noTokenId as string}
                   />
@@ -248,20 +285,32 @@ const EventPage = () => {
               <div className="position-static ">
                 {isResolved ? (
                   <MarketResolvedCard
-                    winningOutcome="NO"
+                    winningOutcome={
+                      displayWinningOutcome == null
+                        ? "To be decided"
+                        : (displayWinningOutcome as "YES" | "NO" | "To be decided")
+                    }
                     // winningOutcome={market.winningOutcome as "YES" | "NO"}
                     resolutionTime={market.resolutionTime}
+                    marketId={market.id}
+                    latestOracleAction={latestOracleAction}
                   />
                 ) : (
-                  <TradePanel
-                    yesProbability={market.yesProbability ?? 50}
-                    noProbability={market.noProbability ?? 50}
-                    isCrypto={false}
-                    onLoginRequired={() => setIsLoginOpen(true)}
-                    onDepositRequired={() => magic?.wallet?.showUI()}
-                    onTrade={handleTrade}
-                    approvalState={approvalState}
-                  />
+                  <>
+                    <TokenBalanceChecker
+                      yesTokenOnChainId={market.yesTokenOnChainId ?? null}
+                      noTokenOnChainId={market.noTokenOnChainId ?? null}
+                    />
+                    <TradePanel
+                      yesProbability={finalPrice ?? 50}
+                      noProbability={finalPrice ? 100 - finalPrice : 50}
+                      isCrypto={false}
+                      onLoginRequired={() => setIsLoginOpen(true)}
+                      onDepositRequired={() => magic?.wallet?.showUI()}
+                      onTrade={handleTrade}
+                      approvalState={approvalState}
+                    />
+                  </>
                 )}
               </div>
             </div>
@@ -279,27 +328,31 @@ const EventPage = () => {
             onClick={() => setIsMobileTradeOpen(false)}
           />
           <div
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#11141b] border-t border-white/10 rounded-[20px] z-201 max-h-[90vh] w-auto overflow-y-auto"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#11141b] border-t border-white/10 rounded-[20px] z-201 max-h-[90vh] w-auto overflow-y-auto no-scrollbar max-w-[436px] min-w-[313px]"
             // style={{ animation: "slideUp 0.3s ease-out" }}
           >
             <div className="flex justify-between items-center px-6 pt-5 pb-2.5 ">
-              <span className="font-bold text-lg">Place Bet</span>
+              <span className="font-lg font-bold">Place Bet</span>
               <button
-                className="bg-white/5 border-none text-[#888] w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer"
+                className="border-none text-[#888] w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer"
                 onClick={() => setIsMobileTradeOpen(false)}
               >
                 ✕
               </button>
             </div>
-            <div className="px-2.5 pb-7.5">
+            <div className="px-2.5 pb-5">
               {isResolved ? (
                 <div className="p-4">
-                  <MarketResolvedCard winningOutcome="NO" resolutionTime={market.resolutionTime} />
+                  <MarketResolvedCard
+                    winningOutcome={`NO`}
+                    resolutionTime={market.resolutionTime}
+                    latestOracleAction={latestOracleAction}
+                  />
                 </div>
               ) : (
                 <TradePanel
-                  yesProbability={market.yesProbability}
-                  noProbability={market.noProbability}
+                  yesProbability={finalPrice ?? 50}
+                  noProbability={finalPrice ? 1 - finalPrice : 50}
                   isCrypto={false}
                   onLoginRequired={() => setIsLoginOpen(true)}
                   onDepositRequired={() => magic?.wallet?.showUI()}

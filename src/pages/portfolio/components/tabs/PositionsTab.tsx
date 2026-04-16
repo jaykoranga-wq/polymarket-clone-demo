@@ -1,13 +1,16 @@
 // src/pages/portfolio/components/tabs/PositionsTab.tsx
 
 import { useState } from "react"
+import { useSelector } from "react-redux"
 
 import {
   type ApiPortfolioPosition,
   useGetPortfolioPositionsQuery,
 } from "@/features/api/portfolio/portfolioApi"
+import { selectIsAuthChecking } from "@/features/auth/authSlice"
 import { useRedeem } from "@/hooks/useRedeem"
-import { MOCK_POSITIONS, type Position } from "@/mocks/mockPortfolio"
+import { ADDRESSES } from "@/libs/contracts"
+import { type Position } from "@/mocks/mockPortfolio"
 
 import { PORTFOLIO_COLORS, POSITION_SIDE } from "../../portfolioConstants"
 import { Pagination } from "./OrdersAndHistoryTabs"
@@ -20,33 +23,36 @@ const COL = "1fr 80px 80px 80px 80px 110px 150px"
 
 // ── Map API portfolio position → Position ─────────────────────────────────────
 const mapApiPosition = (p: ApiPortfolioPosition): Position => {
-  const side = p.token.name.toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO
-  const shares = Number(p.sharesOwned) / 100
-  const avgPrice = Number(p.avgPrice) / 10000 // raw → cents
-  const invested = Number(p.totalInvested) / 1_000_000 // micro-USDC → USDC
-  const value = Number(p.currentValue) / 1_000_000
-
+  const side = (p.token?.name ?? "").toLowerCase() === "yes" ? POSITION_SIDE.YES : POSITION_SIDE.NO
+  const shares = Number(p.sharesOwned ?? 0) / 1000000
+  const avgPrice = Number(p.avgPrice ?? 0) / 1000000
+  const invested = Number(p.totalInvested ?? 0) / 10000000000 //dividing by 10^8 because
+  const value = Number(p.currentValue ?? 0) / 10000000000
+  const marketId = p.market?.id ?? `unknown-market-${Math.random()}`
+  const tokenId = p.token?.id ?? `unknown-token-${Math.random()}`
   return {
-    id: `${p.market.id}-${p.token.id}`,
-    marketId: p.market.id,
-    marketTitle: p.market.title,
+    id: `${marketId}-${tokenId}`,
+    marketId: p.market?.id ?? "",
+    marketTitle: p.market?.title ?? "Unknown Market",
     category: "",
     side,
     shares,
     avgPrice,
-    nowPrice: avgPrice, // live price not in API; use avg as placeholder
+    nowPrice: avgPrice,
     invested,
     value,
-    conditionId: "",
-    yesTokenId: "",
-    noTokenId: "",
-    collateralToken: "",
-    isResolved: p.resolved,
-    winningOutcome: p.winningOutcome as Position["winningOutcome"],
+    conditionId:
+      p.market.conditionId ?? "0x0000000000000000000000000000000000000000000000000000000000000000",
+    TokenId:
+      p.token.tokenId ?? "0x0000000000000000000000000000000000000000000000000000000000000000",
+
+    collateralToken: ADDRESSES.USDC,
+    isResolved: p.resolved ?? false,
+    winningOutcome: p.winningOutcome === "1" ? "YES" : p.winningOutcome === "0" ? "NO" : null,
     isRedeemed: false,
   }
 }
-
+// console.log(mapApiPositio)
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const canRedeem = (pos: Position): boolean =>
   pos.isResolved && pos.winningOutcome === pos.side && !pos.isRedeemed
@@ -68,11 +74,8 @@ const ColHeader = ({ children, align = "left" }: { children: React.ReactNode; al
 
 const CategoryTag = ({ label, highlight }: { label: string; highlight?: boolean }) => (
   <span
+    className="font-xs font-semibold py-0.5 px-2 rounded-2sm "
     style={{
-      fontSize: 10,
-      fontWeight: 600,
-      padding: "2px 8px",
-      borderRadius: 6,
       background: highlight ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.06)",
       color: highlight ? "#f87171" : PORTFOLIO_COLORS.TEXT_MUTED,
       border: highlight ? "1px solid rgba(239,68,68,0.2)" : "1px solid rgba(255,255,255,0.06)",
@@ -270,9 +273,8 @@ const PositionRow = ({
 
   return (
     <div
-      className="grid gap-2 py-4 px-6 bordeer-b border-b-white/10  items-center transition-all cursor-pointer"
+      className="grid grid-cols-[repeat(7,1fr)] gap-2 py-4 px-6 bordeer-b border-b-white/10  items-center transition-all cursor-pointer"
       style={{
-        gridTemplateColumns: "repeat(7, 1fr)",
         background: canRedeem(position) ? "rgba(0,200,83,0.03)" : "transparent",
       }}
       onMouseEnter={(e) =>
@@ -369,17 +371,7 @@ const PositionRow = ({
 
 // ── Empty state ───────────────────────────────────────────────────────────────
 const EmptyState = ({ label }: { label: string }) => (
-  <div
-    style={{
-      padding: "60px 20px",
-      textAlign: "center",
-      color: PORTFOLIO_COLORS.TEXT_MUTED,
-      fontSize: 13,
-      fontWeight: 500,
-    }}
-  >
-    {label}
-  </div>
+  <div className="py-6 px-5 text-center text-white/60 font-sm font-medium">{label}</div>
 )
 
 // ── PositionsTab ──────────────────────────────────────────────────────────────
@@ -391,19 +383,33 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
   const [page, setPage] = useState(1)
   const skip = (page - 1) * PAGE_SIZE
 
-  const { data, isLoading } = useGetPortfolioPositionsQuery({ limit: PAGE_SIZE, skip })
+  // Wait for auth check to finish before firing — prevents the query from
+  // running with no token on page load, which would cache an empty/401 response
+  // and leave positions blank until the user switches tabs and back.
+  const isAuthChecking = useSelector(selectIsAuthChecking)
+
+  const { data, isLoading: queryLoading } = useGetPortfolioPositionsQuery(
+    { limit: PAGE_SIZE, skip },
+    { skip: isAuthChecking },
+  )
+
+  const isLoading = isAuthChecking || queryLoading
 
   const apiPositions = (data?.data.data ?? []).map(mapApiPosition)
   const totalApiCount = data?.data.count ?? 0
-  const totalPages = Math.max(Math.ceil((totalApiCount + MOCK_POSITIONS.length) / PAGE_SIZE), 1)
+  const totalPages = Math.max(Math.ceil(totalApiCount / PAGE_SIZE), 1)
 
-  // mock positions only appear on first page; API positions paginate normally
-  const mockOnPage = page === 1 ? MOCK_POSITIONS : []
-  const combined = [...apiPositions, ...mockOnPage].filter((p) =>
-    p.marketTitle.toLowerCase().includes(search.toLowerCase()),
+  const combined = [...apiPositions].filter((p) =>
+    (p.marketTitle ?? "").toLowerCase().includes(search.toLowerCase()),
   )
 
-  const { redeem, redeemingId, isRedeeming } = useRedeem()
+  const { redeem, redeemingId, isRedeeming, redeemedIds } = useRedeem()
+
+  // Overlay optimistic redeemed state from in-session hook tracking
+  const positionsWithRedeemed = combined.map((p) => ({
+    ...p,
+    isRedeemed: p.isRedeemed || redeemedIds.has(p.id),
+  }))
 
   if (isLoading) return <PositionsSkeleton />
 
@@ -415,12 +421,7 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
       `}</style>
 
       {/* column headers */}
-      <div
-        className="grid gap-4 py-4 px-6 border-b border-b-white/10 items-center "
-        style={{
-          gridTemplateColumns: "repeat(7, 1fr)",
-        }}
-      >
+      <div className="grid grid-cols-[repeat(7,1fr)] gap-4 py-4 px-6 border-b border-b-white/10 items-center ">
         <ColHeader>Market</ColHeader>
         <ColHeader align="center">Side</ColHeader>
         <ColHeader align="center">Shares</ColHeader>
@@ -430,10 +431,10 @@ export const PositionsTab = ({ search }: PositionsTabProps) => {
         <ColHeader align="right">Value</ColHeader>
       </div>
 
-      {combined.length === 0 ? (
+      {positionsWithRedeemed.length === 0 ? (
         <EmptyState label="No positions found." />
       ) : (
-        combined.map((pos) => (
+        positionsWithRedeemed.map((pos) => (
           <PositionRow
             key={pos.id}
             position={pos}

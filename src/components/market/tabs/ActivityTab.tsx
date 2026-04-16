@@ -13,7 +13,7 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
   const items = MOCK_ACTIVITY
 
   return (
-    <div className="mb-4">
+    <div>
       <div className="flex items-center justify-between mb-3.5">
         {/* <span className="font-base font-bold text-white uppercase ">Recent Activity</span> */}
         <span className="font-sm text-primary">{items.length} trades</span>
@@ -21,14 +21,9 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
 
       {/* Scrollable table container */}
       <div className="overflow-x-auto no-scrollbar -mx-1   border border-white/10 bg-linear-to-b from-white/5 to-white/2 rounded-md">
-        <div className="min-w-sm">
+        <div className="min-w-[590px]">
           {/* Column headers */}
-          <div
-            className="grid font-base text-white/60 font-medium uppercase tracking-widest py-4 px-6 pt-8 border-b border-white/6 mb-1 "
-            style={{
-              gridTemplateColumns: "repeat(5, 1fr)",
-            }}
-          >
+          <div className="grid grid-cols-[repeat(5,1fr)] font-base text-white/60 font-medium uppercase tracking-widest py-4 px-6  border-b border-white/6 mb-1 ">
             <span>User</span>
             <span className="text-center">Action</span>
             <span className="text-center">Outcome</span>
@@ -41,31 +36,35 @@ export const ActivityTab = ({ marketId: _ }: ActivityTabProps) => {
             {items.map((item) => (
               <div
                 key={item.id}
-                className="grid items-center border-b border-b-white/4 py-2.5 transition-colors hover:bg-white/2  px-6"
-                style={{
-                  gridTemplateColumns: "repeat(5, 1fr)",
-                }}
+                className="grid grid-cols-[repeat(5,1fr)] items-center not-last:border-b border-b-white/4 py-2.5 transition-colors hover:bg-white/2  px-6"
               >
                 {/* User + time */}
                 <div className="flex flex-col min-w-0">
-                  <span className="font-default font-medium text-white">{item.user}</span>
+                  <span className="font-default capitalize font-medium text-white truncate">
+                    {item.user}
+                  </span>
                   <span className="font-base text-white/40">
                     {formatMarketDate(item.timestamp)}
                   </span>
                 </div>
 
                 {/* Action */}
-                <span
-                  className="font-sm font-medium text-center"
-                  style={{ color: item.action === "Buy" ? "#18C964" : "#FF5A5F95" }}
-                >
-                  {item.action}
-                </span>
+                <div className="flex justify-center">
+                  <span
+                    className="font-base font-semibold py-1 px-2.5 rounded-full"
+                    style={{
+                      background: item.action === "Buy" ? "#18C96433" : "#FF5A5F33",
+                      color: item.action === "Buy" ? "#18C964" : "#FF5A5F",
+                    }}
+                  >
+                    {item.action}
+                  </span>
+                </div>
 
                 {/* Outcome badge */}
                 <div className="flex justify-center">
                   <span
-                    className="font-base font-semibold px-1.5 py-0.5 rounded-full"
+                    className="font-base font-semibold py-1 px-2.5 rounded-full"
                     style={{
                       background: item.outcome === "Yes" ? "#18C96433" : "#FF5A5F33",
                       color: item.outcome === "Yes" ? "#18C964" : "#FF5A5F",

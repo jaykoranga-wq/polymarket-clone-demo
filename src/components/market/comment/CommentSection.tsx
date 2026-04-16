@@ -1,5 +1,3 @@
-import "./commentSection.css"
-
 import { useState } from "react"
 
 import type { Comment } from "@/mocks/mockComments"
@@ -39,14 +37,25 @@ function getAvatarColor(author: string): string {
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
-const Avatar = ({ author, size = 32 }: { author: string; size?: number }) => (
+const Avatar = ({
+  author,
+  className,
+  size,
+  style,
+}: {
+  author: string
+  className?: string
+  size?: number
+  style?: React.CSSProperties
+}) => (
   <div
-    className="rounded-sm flex items-center justify-center text-white font-bold shrink-0"
+    className={`rounded-md flex items-center justify-center text-white font-bold shrink-0 ${className || ""}`}
     style={{
       width: size,
       height: size,
       background: getAvatarColor(author),
-      fontSize: size * 0.35,
+      fontSize: size ? size * 0.35 : undefined,
+      ...style,
     }}
   >
     {getInitials(author)}
@@ -99,8 +108,15 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
   }
 
   return (
-    <div className={`flex gap-2.5 py-4  ${depth > 0 ? " pt-3 mt-1" : ""}`}>
-      <Avatar author={comment.author} size={depth > 0 ? 28 : 34} />
+    <div className={`flex gap-2.5 py-4 last:pb-0 ${depth > 0 ? " pt-3 mt-1" : ""}`}>
+      <Avatar
+        author={comment.author}
+        className={
+          depth > 0
+            ? "w-8 h-8 text-[11.2px]"
+            : "w-8 h-8 text-[11.2px] md:w-[46px] md:h-[46px] md:text-[16.1px]"
+        }
+      />
 
       <div className="flex-1 flex flex-col gap-1.5 ">
         {/* Header */}
@@ -117,7 +133,7 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
           <LikeBtn count={likes} liked={liked} onToggle={handleLike} />
           {depth === 0 && (
             <button
-              className="font-base font-semibold text-muted-foreground transition-all"
+              className="font-base font-semibold text-muted-foreground transition-all cursor-pointer"
               onClick={() => setShowReply((p) => !p)}
             >
               Reply
@@ -129,15 +145,15 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
         {showReply && (
           <div className="flex flex-col gap-2 mt-2">
             <input
-              className="width-full bg-slate border rounded-[6px] border-white/8 py-2.5 px-3.5 font-sm text-tab-text outline-none transition-all placeholder:text-muted-foreground focus:border-white/18 focus:bg-white/6"
+              className="width-full bg-slate border rounded-[6px] border-white/8 py-2.5 px-3.5 font-sm text-tab-text outline-none transition-all placeholder:text-tab-text focus:border-white/18 focus:bg-white/6"
               placeholder="Write a reply..."
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               autoFocus
             />
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 mt-2">
               <button
-                className="py-1.5 px-3.5  font-base font-semibold text-white rounded-md transition-all"
+                className="py-1.5 px-3.5  font-base font-semibold text-white rounded-sm transition-all cursor-pointer"
                 onClick={() => {
                   setShowReply(false)
                   setReplyText("")
@@ -146,7 +162,7 @@ const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number 
                 Cancel
               </button>
               <button
-                className="py-1.5 px-3.5 bg-primary font-base font-bold text-white rounded-md transition-all"
+                className="py-1.5 px-3.5 bg-primary font-base font-bold text-black hover:bg-primary/90s rounded-sm transition-all cursor-pointer"
                 disabled={!replyText.trim()}
                 onClick={() => {
                   setShowReply(false)
@@ -228,14 +244,14 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
   }
 
   return (
-    <div className="flex flex-col gap-5 mb-4">
+    <div className="flex flex-col gap-5 ">
       {/* Header */}
       <div className="flex items-center">
         <div className=" flex gap-1 bg-white/4 rounded-md p-1  ">
           {(["top", "new"] as const).map((s) => (
             <button
               key={s}
-              className={`py-1 px-3.5 font-base font-semibold  rounded-[6px] transition-all duration-200 ease-in-out capitalize${sortBy === s ? " bg-primary text-black" : ""}`}
+              className={`py-1 px-3.5 font-base font-semibold  rounded-2sm transition-all duration-200 ease-in-out capitalize${sortBy === s ? " bg-primary text-black" : ""}`}
               onClick={() => setSortBy(s)}
             >
               {s === "top" ? "Top" : "New"}
@@ -249,22 +265,22 @@ export const CommentSection = ({ marketId: _marketId }: CommentSectionProps) => 
         {/* <Avatar author="You" size={41} /> */}
         <div className="flex flex-col flex-1 gap-2">
           <input
-            className="width-full bg-slate border min-h-18  rounded-[6px] border-white/8 py-2.5 px-3.5 font-sm text-white outline-none transition-all placeholder:text-tab-text focus:border-white/18 focus:bg-white/6 "
+            className="width-full bg-slate border  rounded-2sm border-white/8 py-2.5 px-3.5 font-sm text-white outline-none transition-all placeholder:text-tab-text focus:border-white/18 focus:bg-white/6 "
             placeholder="Enter comment"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handlePost()}
           />
           {text.trim() && (
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 mt-2">
               <button
-                className="py-1.5 px-3.5 font-base font-semi-bold text-white rounded-md transition-all hover:bg-white/6"
+                className="py-1.5 px-3.5 font-base font-semi-bold text-white rounded-sm transition-all hover:bg-white/6 cursor-pointer"
                 onClick={() => setText("")}
               >
                 Cancel
               </button>
               <button
-                className="py-1.5 px-4 font-base font-semibold bg-primary text-white rounded-md transition-all "
+                className="py-1.5 px-4 font-base font-semibold bg-primary hover:bg-primary/90 text-black rounded-sm transition-all cursor-pointer"
                 onClick={handlePost}
               >
                 Post
