@@ -17,16 +17,16 @@ const NAV_ITEMS: { id: Tab; label: string; icon: React.ElementType }[] = [
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
 const Avatar = ({ src }: { src?: string }) => (
-  <div className="relative w-16 h-16 shrink-0">
+  <div className="relative w-25 h-25 shrink-0">
     {src ? (
-      <img src={src} alt="avatar" className="w-16 h-16 rounded-full object-cover" />
+      <img src={src} alt="avatar" className="w-25 h-25 rounded-full object-cover" />
     ) : (
-      <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-white/40 text-2xl font-bold border border-white/10">
-        <User size={28} />
+      <div className="w-25 h-25 rounded-full bg-white/10 flex items-center justify-center text-white/40 text-2xl font-bold border border-white/10">
+        <User size={100} />
       </div>
     )}
     {/* Green checkmark badge */}
-    <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center border-2 border-[#0a0c10]">
+    <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center border-2 border-background">
       <Check size={10} strokeWidth={3} className="text-black" />
     </span>
   </div>
@@ -114,7 +114,7 @@ const ProfileSection = () => {
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-white mb-6">Profile Settings</h2>
+      <h2 className="font-lg font-semibold text-white mb-4">Profile Settings</h2>
 
       {/* Avatar */}
       <div className="mb-6">
@@ -220,25 +220,25 @@ const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>("profile")
 
   return (
-    <div className="container font-inter py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Settings</h1>
-        <p className="text-sm text-white/45 mt-1">
+    <div className="container  py-8">
+      <div className="mb-7.5">
+        <h1 className="font-xxl font-bold text-white">Settings</h1>
+        <p className="font-default mt-1 text-white/60 ">
           Manage your public presence and account security on the platform.
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col md:flex-row gap-5">
         {/* ── Sidebar ── */}
-        <aside className="w-full md:w-44 shrink-0 flex flex-row md:flex-col gap-1">
+        <aside className="w-full md:w-62.5 shrink-0 flex flex-row md:flex-col gap-1">
           {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-md text-sm font-medium transition-colors w-full text-left ${
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-md font-sm font-medium transition-colors w-full text-left ${
                 activeTab === id
                   ? "bg-primary text-black font-bold"
-                  : "text-white/60 hover:bg-white/5 hover:text-white"
+                  : "text-white hover:bg-white/5 hover:text-white"
               }`}
             >
               <Icon size={15} />
@@ -248,7 +248,7 @@ const SettingsPage = () => {
         </aside>
 
         {/* ── Content panel ── */}
-        <div className="flex-1 bg-[#111418] border border-white/8 rounded-xl px-6 py-6 max-w-xl">
+        <div className="flex-1 max-w-4xl">
           {activeTab === "profile" && <ProfileSection />}
           {activeTab === "account" && (
             <div>

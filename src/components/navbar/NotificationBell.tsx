@@ -62,16 +62,12 @@ const UnreadDot = () => (
 )
 
 const EmptyState = () => (
-  <div className="flex flex-col item-center justify-center py-10 px-5 gap-2.5">
+  <div className="flex flex-col items-center justify-center py-6 px-5 gap-2.5">
     <div className="w-10 h-10 rounded-full bg-white/6 flex items-center justify-center">
-      <Bell size={18} color="rgba(255,255,255,0.2)" />
+      <Bell size={18} color="rgba(255,255,255,0.6)" />
     </div>
-    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", margin: 0, fontWeight: 500 }}>
-      No notifications
-    </p>
-    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.15)", margin: 0 }}>
-      You're all caught up!
-    </p>
+    <p className="text-sm font-semibold text-white/60">No notifications</p>
+    <p className="text-xs text-white/30">You're all caught up!</p>
   </div>
 )
 
