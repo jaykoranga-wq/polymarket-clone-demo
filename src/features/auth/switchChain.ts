@@ -1,3 +1,5 @@
+import { NETWORK } from "@/libs/contracts"
+
 export const switchToAmoy = async () => {
   try {
     await window?.ethereum?.request({
@@ -13,7 +15,7 @@ export const switchToAmoy = async () => {
             chainId: "0x13882",
             chainName: "Polygon Amoy Testnet",
             nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
-            rpcUrls: ["https://rpc-amoy.polygon.technology"],
+            rpcUrls: [NETWORK.rpcUrl],
             blockExplorerUrls: ["https://amoy.polygonscan.com"],
           },
         ],

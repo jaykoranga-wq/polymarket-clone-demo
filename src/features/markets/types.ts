@@ -54,6 +54,9 @@ export interface Market {
   // ── Lifecycle status (mirrors MARKET_STATUS in marketStatus.ts) ──────────
   status?: number
 
+  // ── Bookmark ───────────────────────────────────────────────────────────────
+  isBookmarked?: boolean
+
   // ── Optional display / mock-only extras ────────────────────────────────────
   isTrending?: boolean
   frequency?: MarketFrequency
@@ -73,4 +76,5 @@ export interface MarketsState {
   selectedCategoryId: string
   selectedCategoryName: string
   selectedMarket: Market | null
+  bookmarkedIds: string[]
 }

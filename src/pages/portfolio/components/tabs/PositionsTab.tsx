@@ -30,6 +30,7 @@ const mapApiPosition = (p: ApiPortfolioPosition): Position => {
   const value = Number(p.currentValue ?? 0) / 10000000000
   const marketId = p.market?.id ?? `unknown-market-${Math.random()}`
   const tokenId = p.token?.id ?? `unknown-token-${Math.random()}`
+  const isRedeemedTrue = Number(p.redeemAmount) > 0
   return {
     id: `${marketId}-${tokenId}`,
     marketId: p.market?.id ?? "",
@@ -49,7 +50,7 @@ const mapApiPosition = (p: ApiPortfolioPosition): Position => {
     collateralToken: ADDRESSES.USDC,
     isResolved: p.resolved ?? false,
     winningOutcome: p.winningOutcome === "1" ? "YES" : p.winningOutcome === "0" ? "NO" : null,
-    isRedeemed: false,
+    isRedeemed: isRedeemedTrue,
   }
 }
 // console.log(mapApiPositio)

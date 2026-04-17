@@ -33,6 +33,19 @@ interface PriceHistoryResponse {
   data: PriceHistoryRaw[]
 }
 
+interface toggleBookmarkResponse {
+  statusCode: number
+  status: boolean
+  message: string
+  type: string
+  data: {
+    isBookmarked: boolean
+  }
+}
+interface toggleBookmarkRequest {
+  marketId: string
+}
+
 const mapApiMarketToMarket = (m: ApiMarketListResponse["data"]["data"][number]): Market => {
   const tokens = m.optionGroups?.[0]?.tokens ?? []
   const yesToken = tokens.find((t) => t.title === "Yes")
@@ -60,6 +73,7 @@ const mapApiMarketToMarket = (m: ApiMarketListResponse["data"]["data"][number]):
     noTokenOnChainId: noToken?.tokenId ?? null,
     oracleIdentifier: m.oracleIdentifier,
     status: m.status,
+    isBookmarked: m.isBookmarked ?? false,
     frequency: "Event",
   } satisfies Market
 }
@@ -113,6 +127,7 @@ const marketApi = secondApi.injectEndpoints({
           oracleIdentifier: m.oracleIdentifier,
           winningOutcome: m.winningOutcome,
           status: m.status,
+          isBookmarked: m.isBookmarked ?? false,
           yesTokenId: yesToken?.id ?? null,
           noTokenId: noToken?.id ?? null,
           yesTokenOnChainId: yesToken?.tokenId ?? null,
@@ -155,6 +170,23 @@ const marketApi = secondApi.injectEndpoints({
       transformResponse: (res: ApiMarketListResponse): Market[] =>
         res.data.data.map(mapApiMarketToMarket),
 
+      providesTags: ["Markets"],
+    }),
+
+    // ─────────────────────────────────────────────
+    // GET BOOKMARKED MARKETS
+    // ─────────────────────────────────────────────
+    getBookmarkedMarkets: builder.query<Market[], void>({
+      query: () => ({
+        url: "/v1/user/marketplace",
+        params: {
+          bookmarkedOnly: true,
+          sortKey: "createdAt",
+          sortDirection: "DESC",
+        },
+      }),
+      transformResponse: (res: ApiMarketListResponse): Market[] =>
+        res.data.data.map(mapApiMarketToMarket),
       providesTags: ["Markets"],
     }),
 
@@ -207,6 +239,19 @@ const marketApi = secondApi.injectEndpoints({
         }))
       },
     }),
+
+    // bookmark toggle API
+
+    toggleBookmark: builder.mutation<{ isBookmarked: boolean }, toggleBookmarkRequest>({
+      query: (body) => ({
+        url: "/v1/user/marketplace/bookmark",
+        method: "POST",
+        body,
+      }),
+      transformResponse: (response: toggleBookmarkResponse) => ({
+        isBookmarked: response.data.isBookmarked,
+      }),
+    }),
   }),
 })
 
@@ -218,4 +263,6 @@ export const {
   useGetOracleTimelineQuery,
   useGetMarketPriceQuery,
   useGetPriceHistoryQuery,
+  useGetBookmarkedMarketsQuery,
+  useToggleBookmarkMutation,
 } = marketApi

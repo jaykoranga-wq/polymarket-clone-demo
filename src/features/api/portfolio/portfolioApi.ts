@@ -22,6 +22,7 @@ export interface ApiPortfolioPosition {
   currentValue: string
   resolved: boolean
   winningOutcome: string | null
+  redeemAmount: string
 }
 
 export interface GetPortfolioPositionsResponse {
