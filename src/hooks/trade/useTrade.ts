@@ -10,7 +10,7 @@ import { reserveAmount } from "@/features/auth/authSlice"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
 import { useMagic } from "@/features/auth/lib/magic"
 import { addOrder } from "@/features/orders/orderSlice"
-import { ADDRESSES, ERC20_ABI } from "@/libs/contracts"
+import { ADDRESSES, ERC20_ABI, NETWORK } from "@/libs/contracts"
 
 import type { TradeOrder } from "./TradeTypes"
 
@@ -110,7 +110,7 @@ export const useTrade = () => {
               chainId: "0x13882",
               chainName: "Polygon Amoy Testnet",
               nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
-              rpcUrls: ["https://rpc-amoy.polygon.technology"],
+              rpcUrls: [NETWORK.rpcUrl],
               blockExplorerUrls: ["https://amoy.polygonscan.com"],
             },
           ] as unknown[],

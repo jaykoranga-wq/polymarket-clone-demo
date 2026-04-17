@@ -1,7 +1,7 @@
 export const NETWORK = {
   chainId: 80002,
   name: "Polygon Amoy",
-  rpcUrl: "https://rpc-amoy.polygon.technology",
+  rpcUrl: import.meta.env.VITE_RPC_URL as string,
 }
 
 export const ADDRESSES = {

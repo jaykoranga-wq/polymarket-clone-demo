@@ -48,6 +48,7 @@ export interface ApiOrder {
   type: number // 1 = BUY, 2 = SELL
   status: number // 1 = pending, 2 = filled, 3 = cancelled, 4 = partial
   createdAt: string // ISO
+
   market: {
     id: string
     title: string

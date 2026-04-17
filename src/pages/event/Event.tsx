@@ -4,6 +4,7 @@ import { useSelector } from "react-redux"
 import { useParams } from "react-router"
 import { toast, Toaster } from "sonner"
 
+import { useAppSelector } from "@/app/hooks"
 import { LoginModal } from "@/components/auth/LoginModal"
 import { IcoBookmarkSm, IcoClockSm, IcoShareSm, IcoVolSm } from "@/components/custom/EventPageIcons"
 import TradePanel from "@/components/event/tradePanel/TradePanel"
@@ -18,7 +19,9 @@ import {
   useGetMarketByIdQuery,
   useGetMarketPriceQuery,
   useGetOracleTimelineQuery,
+  useToggleBookmarkMutation,
 } from "@/features/api/markets/marketApi"
+import { selectIsAuthenticated } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
 import { selectSelectedMarket } from "@/features/markets/marketSelectors"
 import { isMarketResolved } from "@/features/markets/marketStatus"
@@ -46,12 +49,14 @@ const EventPage = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
   const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false)
+  const isAuthenticated = useAppSelector(selectIsAuthenticated)
 
   const { executeTrade, tradeError, approvalState } = useTrade()
 
   // ── Primary data source: real API ──────────────────────────────────────────
   const { data: apiMarket, isLoading, isError } = useGetMarketByIdQuery(id ?? "")
   const { data: apiMarketPrice } = useGetMarketPriceQuery(apiMarket?.optionGroupId ?? "empty")
+  const [toggleBookmark] = useToggleBookmarkMutation()
 
   // ── Oracle timeline — used to determine dispute eligibility ────────────────
   const { data: oracleTimeline } = useGetOracleTimelineQuery(id ?? "", { skip: !id })
@@ -114,7 +119,16 @@ const EventPage = () => {
     } satisfies TradeOrder)
   }
 
-  const saveAsBookmark = () => toast.success("Saved")
+  const saveAsBookmark = () => {
+    try {
+      const a = toggleBookmark({ marketId: market?.id ?? "" }).unwrap
+      toast.success("Saved")
+      console.log("market toggled with favourite:", a)
+    } catch {
+      toast.error("not able to save the market!! ")
+    }
+    toast.success("Saved the market to favourite ")
+  }
   let displayWinningOutcome = null
   useEffect(() => {
     if (tradeError) {
@@ -195,12 +209,14 @@ const EventPage = () => {
               >
                 <IcoShareSm />
               </button>
-              <button
-                className="w-9 h-9 rounded-[6px] border border-white/10 text-tab-text flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-white hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
-                onClick={saveAsBookmark}
-              >
-                <IcoBookmarkSm />
-              </button>
+              {isAuthenticated && (
+                <button
+                  className="w-9 h-9 rounded-[6px] border border-white/10 text-tab-text flex items-center justify-center cursor-pointer transition-all duration-150 hover:text-white hover:bg-[#21262f] [&_svg]:w-5 [&_svg]:h-5"
+                  onClick={saveAsBookmark}
+                >
+                  <IcoBookmarkSm />
+                </button>
+              )}
             </div>
           </div>
 

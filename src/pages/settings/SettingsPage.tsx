@@ -1,4 +1,4 @@
-import { Bell, Check, Copy, User, Wallet } from "lucide-react"
+import { Bell, Check, Copy, Shield, Trash2, User, Wallet } from "lucide-react"
 import { useState } from "react"
 import { useSelector } from "react-redux"
 
@@ -215,6 +215,101 @@ const ProfileSection = () => {
   )
 }
 
+// ── Account section ───────────────────────────────────────────────────────────
+const AccountSection = () => {
+  const [twoFAEnabled, setTwoFAEnabled] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
+  return (
+    <div>
+      <h2 className="text-lg font-bold text-white mb-6">Account Settings</h2>
+
+      {/* ── 2FA ── */}
+      <div className="flex flex-col gap-4 mb-8">
+        <div className="flex items-start justify-between gap-4 p-4 rounded-xl bg-white/3 border border-white/8">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+              <Shield size={15} className="text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">Two-Factor Authentication</p>
+              <p className="text-xs text-white/40 mt-0.5 leading-relaxed">
+                Add an extra layer of security to your account by requiring a verification code at
+                login.
+              </p>
+              {twoFAEnabled && (
+                <span className="inline-flex items-center gap-1 mt-1.5 text-xs font-semibold text-primary">
+                  <Check size={11} strokeWidth={3} /> Enabled
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Toggle */}
+          <button
+            role="switch"
+            aria-checked={twoFAEnabled}
+            onClick={() => setTwoFAEnabled((v) => !v)}
+            className={`relative shrink-0 w-11 h-6 rounded-full border transition-colors duration-200 focus:outline-none ${
+              twoFAEnabled ? "bg-primary border-primary" : "bg-white/8 border-white/15"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                twoFAEnabled ? "translate-x-5" : "translate-x-0"
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* ── Danger zone ── */}
+      <div className="border border-red-500/20 rounded-xl p-4">
+        <p className="text-xs font-bold text-red-400/70 uppercase tracking-widest mb-3">
+          Danger Zone
+        </p>
+
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-white">Delete Account</p>
+            <p className="text-xs text-white/40 mt-0.5 leading-relaxed">
+              Permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+          </div>
+
+          {!showDeleteConfirm ? (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-red-500/40 text-red-400 text-xs font-semibold hover:bg-red-500/10 transition-colors"
+            >
+              <Trash2 size={12} />
+              Delete
+            </button>
+          ) : (
+            <div className="shrink-0 flex gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-3 py-1.5 rounded-md border border-white/15 text-white/50 text-xs font-semibold hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: wire delete account API
+                  setShowDeleteConfirm(false)
+                }}
+                className="px-3 py-1.5 rounded-md bg-red-500/15 border border-red-500/50 text-red-400 text-xs font-bold hover:bg-red-500/25 transition-colors"
+              >
+                Confirm
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>("profile")
@@ -250,12 +345,7 @@ const SettingsPage = () => {
         {/* ── Content panel ── */}
         <div className="flex-1 bg-[#111418] border border-white/8 rounded-xl px-6 py-6 max-w-xl">
           {activeTab === "profile" && <ProfileSection />}
-          {activeTab === "account" && (
-            <div>
-              <h2 className="text-lg font-bold text-white mb-4">Account Settings</h2>
-              <p className="text-sm text-white/40">Account settings coming soon.</p>
-            </div>
-          )}
+          {activeTab === "account" && <AccountSection />}
           {activeTab === "notifications" && (
             <div>
               <h2 className="text-lg font-bold text-white mb-4">Notification Settings</h2>

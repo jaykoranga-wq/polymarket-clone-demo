@@ -1,5 +1,6 @@
 import { TrendingUp } from "lucide-react"
 import { useState } from "react"
+import { useSelector } from "react-redux"
 import { useNavigate } from "react-router"
 
 import { useAppSelector } from "@/app/hooks"
@@ -50,6 +51,7 @@ const TradePanel = ({
   const availableAmount = useAppSelector(selectAvailableAmount)
   const balance = availableAmount ?? "0"
   const buttonState = !isAuthenticated ? "login" : BigInt(balance) <= 0n ? "deposit" : "trade"
+  const cashAmount = useSelector(selectAvailableAmount)
 
   // ── Core state ──────────────────────────────────────────────────────────────
   const [action, setAction] = useState<Action>("Buy")
@@ -268,14 +270,15 @@ const TradePanel = ({
             Balance: <strong>{formatCash(balance)}</strong>
           </div>
         )} */}
-        <div className=" flex items-center  justify-between mb-5 ">
-          <span className="font-base font-bold uppercase text-white">Amount</span>
-          <span className=" font-sm text-white">
-            Balance: 12000
-            {/* ${mockBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })} */}
-          </span>
-        </div>
-
+        {isAuthenticated && (
+          <div className=" flex items-center  justify-between mb-5 ">
+            <span className="font-base font-bold uppercase text-white">Amount</span>
+            <span className=" font-sm text-white">
+              Balance:{formatCash(cashAmount)}
+              {/* ${mockBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })} */}
+            </span>
+          </div>
+        )}
         {/* ── YES / NO outcome buttons ── */}
 
         <div className="flex justify-between gap-2 items-center mb-3">

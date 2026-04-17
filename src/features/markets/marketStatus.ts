@@ -14,11 +14,13 @@ export const MARKET_STATUS = {
   SPLIT_CONFIRMED: 7, // PositionSplit event received; tokenIds + volumes stored
   TOKEN_REGISTER_SUBMITTED: 8, // registerToken() tx submitted
   // --- Terminal statuses ---
-  ACTIVE: 9, // registerToken mined — market is live
-  FAILED: 10, // irrecoverable failure during creation
-  RESOLVED: 11,
-  PAIDOUT: 12,
-  CANCELLED: 13,
+  PLACING_YES_LIQUIDITY_ORDERS: 9,
+  PLACING_NO_LIQUIDITY_ORDERS: 10,
+  ACTIVE: 11, // registerToken mined — market is live
+  FAILED: 12, // irrecoverable failure during creation
+  RESOLVED: 13,
+  PAIDOUT: 14,
+  CANCELLED: 15,
 } as const
 
 export type MarketStatus = (typeof MARKET_STATUS)[keyof typeof MARKET_STATUS]
@@ -54,6 +56,8 @@ export const MARKET_STATUS_LABEL: Record<MarketStatus, string> = {
   [MARKET_STATUS.SPLIT_SUBMITTED]: "Creating",
   [MARKET_STATUS.SPLIT_CONFIRMED]: "Creating",
   [MARKET_STATUS.TOKEN_REGISTER_SUBMITTED]: "Creating",
+  [MARKET_STATUS.PLACING_NO_LIQUIDITY_ORDERS]: "creating",
+  [MARKET_STATUS.PLACING_YES_LIQUIDITY_ORDERS]: "creating",
   [MARKET_STATUS.ACTIVE]: "Active",
   [MARKET_STATUS.FAILED]: "Failed",
   [MARKET_STATUS.RESOLVED]: "Resolved",

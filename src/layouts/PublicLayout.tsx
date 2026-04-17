@@ -17,7 +17,7 @@ import { useGetNotificationsQuery } from "@/features/api/notifications/notificat
 import { checkAuth } from "@/features/auth/authChecks"
 import { selectDeviceToken, setDeviceToken } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
-import { setMarkets } from "@/features/markets/marketSlice"
+import { setBookmarkedIds, setMarkets } from "@/features/markets/marketSlice"
 import { NOTIFICATION_TYPES } from "@/features/notifications/notificationConstants"
 import { addNotification, setNotifications } from "@/features/notifications/notificationSlice"
 import { useWalletBalance } from "@/hooks/useWalletBalance"
@@ -53,6 +53,7 @@ export function PublicLayout() {
     }
     if (markets) {
       dispatch(setMarkets([...markets, ...MOCK_MARKETS]))
+      dispatch(setBookmarkedIds(markets.filter((m) => m.isBookmarked).map((m) => m.id)))
     } else {
       dispatch(setMarkets(MOCK_MARKETS))
     }

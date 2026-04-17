@@ -19,8 +19,8 @@ import type { Position } from "@/mocks/mockPortfolio"
 
 // indexSets: which positions to redeem
 // 1 = YES (binary 01), 2 = NO (binary 10), [1,2] = both
-const INDEX_SET_YES = 1n
-const INDEX_SET_NO = 2n
+const INDEX_SET_YES = 0n
+const INDEX_SET_NO = 1n
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type RedeemState = "idle" | "waiting-signature" | "redeeming" | "done" | "error"
