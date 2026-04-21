@@ -206,6 +206,217 @@
 .rounded-2md {
   border-radius: 10px;
 }
+/* ─── Toast Animations ─── */
+@keyframes toast-slide-in-right {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+@keyframes toast-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes toast-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ─── Toast Entry Animation ─── */
+[data-sonner-toast] {
+  /* Allow Sonner's internal animations to handle positioning */
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out !important;
+}
+
+/* ─── Ensure multiple toasts are visible (not collapsed) ─── */
+[data-sonner-toast][data-expanded="true"],
+[data-sonner-toast][data-front="true"] {
+  opacity: 1 !important;
+}
+
+[data-sonner-toast][data-expanded="false"][data-front="false"] > * {
+  opacity: 1 !important;
+}
+
+/* ─── Toast Exit Animation ─── */
+[data-sonner-toast][data-removed="true"] {
+  animation:
+    toast-slide-out-right 0.3s ease-in forwards,
+    toast-fade-out 0.2s ease-in forwards;
+  transition: none !important;
+}
+
+/* ─── Custom Toast Styling ─── */
+.app-toast-notification {
+  background: rgba(30, 35, 43, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 360px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.app-toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.app-toast-icon-svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5;
+}
+
+.app-toast-title {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.app-toast-description {
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+.app-toast-close {
+  background: transparent;
+  border: 1px solid currentColor;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.app-toast-close:hover {
+  opacity: 1;
+}
+
+/* custom toast theme */
+
+/* ─── Success Toast (Green) ─── */
+[data-sonner-toast][data-rich-colors="true"][data-type="success"] {
+  background: rgba(22, 47, 45, 0.95);
+  border-color: rgba(16, 210, 96, 0.55);
+  color: #10d260;
+}
+[data-sonner-toast][data-rich-colors="true"][data-type="success"] [data-close-button],
+[data-sonner-toast][data-rich-colors="true"][data-type="success"] [data-icon] svg {
+  color: #10d260;
+}
+[data-sonner-toast][data-rich-colors="true"][data-type="success"] [data-description] {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ─── Error Toast (Red) ─── */
+[data-sonner-toast][data-rich-colors="true"][data-type="error"] {
+  background: rgba(65, 28, 41, 0.95);
+  border-color: rgba(234, 57, 67, 0.55);
+  color: #ff6b6b;
+}
+[data-sonner-toast][data-rich-colors="true"][data-type="error"] [data-close-button],
+[data-sonner-toast][data-rich-colors="true"][data-type="error"] [data-icon] svg {
+  color: #ff6b6b;
+}
+[data-sonner-toast][data-rich-colors="true"][data-type="error"] [data-description] {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ─── Info Toast (Grey) ─── */
+[data-sonner-toast][data-rich-colors="true"][data-type="info"] {
+  background: rgba(32, 41, 51, 0.95);
+  border-color: rgba(148, 163, 184, 0.55);
+  color: #cbd5e1;
+}
+[data-sonner-toast][data-rich-colors="true"][data-type="info"] [data-close-button],
+[data-sonner-toast][data-rich-colors="true"][data-type="info"] [data-icon] svg {
+  color: #cbd5e1;
+}
+[data-sonner-toast][data-rich-colors="true"][data-type="info"] [data-description] {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ─── Warning Toast (Yellow) ─── */
+[data-sonner-toast][data-rich-colors="true"][data-type="warning"] {
+  background: rgba(64, 48, 20, 0.95);
+  border-color: rgba(245, 158, 11, 0.55);
+  color: #fbbf24;
+}
+[data-sonner-toast][data-rich-colors="true"][data-type="warning"] [data-close-button],
+[data-sonner-toast][data-rich-colors="true"][data-type="warning"] [data-icon] svg {
+  color: #fbbf24;
+}
+[data-sonner-toast][data-rich-colors="true"][data-type="warning"] [data-description] {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ─── Default/Normal/Action Toast (Neutral Grey) ─── */
+[data-sonner-toast][data-rich-colors="true"][data-type="default"],
+[data-sonner-toast][data-rich-colors="true"][data-type="normal"],
+[data-sonner-toast][data-rich-colors="true"][data-type="action"] {
+  background: rgba(30, 35, 43, 0.95);
+  border-color: rgba(100, 116, 139, 0.55);
+  color: #d1d5db;
+}
+[data-sonner-toast][data-rich-colors="true"][data-type="default"] [data-close-button],
+[data-sonner-toast][data-rich-colors="true"][data-type="normal"] [data-close-button],
+[data-sonner-toast][data-rich-colors="true"][data-type="action"] [data-close-button],
+[data-sonner-toast][data-rich-colors="true"][data-type="default"] [data-icon] svg,
+[data-sonner-toast][data-rich-colors="true"][data-type="normal"] [data-icon] svg,
+[data-sonner-toast][data-rich-colors="true"][data-type="action"] [data-icon] svg {
+  color: #d1d5db;
+}
+[data-sonner-toast][data-rich-colors="true"][data-type="default"] [data-description],
+[data-sonner-toast][data-rich-colors="true"][data-type="normal"] [data-description],
+[data-sonner-toast][data-rich-colors="true"][data-type="action"] [data-description] {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+[data-sonner-toast][data-rich-colors="true"][data-styled="true"] [data-button] {
+  border-radius: 6px;
+}
+
+[data-sonner-toast][data-rich-colors="true"] [data-close-button] {
+  background: transparent;
+  border-color: currentColor;
+}
+
+[data-sonner-toast][data-rich-colors="true"] [data-icon] {
+  min-width: 20px;
+}
 
 .rounded-xxl {
   border-radius: 20px;

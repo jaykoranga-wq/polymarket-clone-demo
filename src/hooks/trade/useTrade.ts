@@ -267,7 +267,11 @@ export const useTrade = () => {
       toast.success("Order placed successfully", {
         duration: 3000,
         position: "top-right",
-        style: { fontSize: "12px", padding: "8px 12px", maxWidth: "320px" },
+        style: {
+          fontSize: "12px",
+          padding: "8px 12px",
+          maxWidth: "320px",
+        },
       })
 
       // ── Redux: derive display price & shares ─────────────────────────────

@@ -1,6 +1,6 @@
 // src/components/navbar/NotificationBell.tsx
 
-import { Bell, ChevronRight, Trash2, X } from "lucide-react"
+import { Bell, CheckCheck, ChevronRight, Trash2, X } from "lucide-react"
 import { useCallback, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router"
@@ -164,7 +164,7 @@ const DropdownHeader = ({
               e.currentTarget.style.color = "rgba(255,255,255,0.5)"
             }}
           >
-            Mark all read
+            <CheckCheck size={12} />
           </button>
         )}
 
@@ -339,7 +339,7 @@ export const NotificationBell = ({ onToggle }: NotificationBellProps) => {
                 {/* End of list */}
                 {!isFetchingMore && !hasMore && notifications.length > 0 && (
                   <p className="text-center text-xs text-white/20 py-3 select-none">
-                    No more notifications
+                    You've reached the end
                   </p>
                 )}
               </>

@@ -2,7 +2,7 @@ import { CheckCircle, TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import { useParams } from "react-router"
-import { toast, Toaster } from "sonner"
+import { toast } from "sonner"
 
 import { useAppSelector } from "@/app/hooks"
 import { LoginModal } from "@/components/auth/LoginModal"
@@ -15,6 +15,7 @@ import { ShareModal } from "@/components/market/ShareModal"
 import { ActivityTab, MarketRulesTab, OrderBookTab } from "@/components/market/tabs"
 import { TokenBalanceChecker } from "@/components/market/TokenBalanceChecker"
 import { EventPageSkeleton } from "@/components/ui/MarketSkeleton"
+import { ToastProvider } from "@/components/ui/ToastProvider"
 import {
   useGetMarketByIdQuery,
   useGetMarketPriceQuery,
@@ -168,21 +169,21 @@ const EventPage = () => {
           probability={market.yesProbability ?? 50}
           outcome="Yes"
         />
-        <Toaster richColors position="top-center" />
+        <ToastProvider />
         <div className="container">
           {/* ── Breadcrumb ── */}
           <div className="flex items-start space-x-2 font-sm mb-4 mt-2">
             <span className="text-gray-400 capitalize">{market.category}</span>
             <span className=" text-gray-500">›</span>
             <span className="text-white capitalize font-medium">
-              {market.title.length > 50 ? market.title : market.title}
+              {market.title.length > 50 ? market.title : market.title}s
             </span>
           </div>
 
           {/* ── Title + icon buttons ── */}
           <div className="flex justify-between gap-5 items-end  pt-1 mb-7.5 max-lg:flex-col max-lg:items-start max-lg:py-2.5 max-lg:gap-4">
             <div className="flex flex-col items-start gap-3.5">
-              <h1 className="font-2xl max-lg:text-[28px] font-black leading-tight capitalize text-white m-0">
+              <h1 className="font-2xl font-black leading-tight capitalize text-white m-0">
                 {market.title}
               </h1>
 
@@ -358,7 +359,7 @@ const EventPage = () => {
             </div>
             <div className="px-2.5 pb-5">
               {isResolved ? (
-                <div className="p-4">
+                <div className="">
                   <MarketResolvedCard
                     winningOutcome={`NO`}
                     resolutionTime={market.resolutionTime}

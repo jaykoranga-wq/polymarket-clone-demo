@@ -63,10 +63,7 @@ export const MarketResolvedCard = ({
       <div className="px-5  text-center">
         <div className="font-default font-bold uppercase text-primary/70 mb-2.5">Outcome</div>
 
-        <div
-          className="inline-block py-2 px-3.5 font-default tracking-wider"
-          style={{ color: color }}
-        >
+        <div className="inline-block py-2 px-3.5 tracking-wider" style={{ color: color }}>
           {winningOutcome}
         </div>
       </div>

@@ -1,6 +1,6 @@
 // src/pages/notifications/NotificationsPage.tsx
 
-import { Bell, Filter, Trash2, X } from "lucide-react"
+import { Bell, CheckCheck, Filter, Trash2, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
@@ -56,11 +56,11 @@ type Filter = "all" | "unread"
 
 const FilterTabs = ({
   active,
-  unreadCount,
+  // unreadCount,
   onChange,
 }: {
   active: Filter
-  unreadCount: number
+  // unreadCount: number
   onChange: (f: Filter) => void
 }) => (
   <div className="flex gap-2 p-1 rounded-2md max-w-fit border border-white/10 m-0 bg-white/5">
@@ -76,15 +76,14 @@ const FilterTabs = ({
           }`}
       >
         {f}
-        {f === "unread" && unreadCount > 0 && (
+        {/* {f === "unread" && unreadCount > 0 && (
           <span
-            className={`ml-1.5 text-xs font-bold transition-colors ${
-              active === f ? "text-black/80" : "text-primary"
-            }`}
+            className={`ml-1.5 text-xs font-bold transition-colors ${active === f ? "text-black/80" : "text-primary"
+              }`}
           >
             ({unreadCount})
           </span>
-        )}
+        )} */}
       </button>
     ))}
   </div>
@@ -286,7 +285,7 @@ export default function NotificationsPage() {
             </button>
 
             {isFilterOpen && (
-              <div className="absolute right-0 top-full mt-3 z-10  bg-slate backdrop-blur-xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] min-w-[240px] animate-in fade-in slide-in-from-top-2 duration-200 overflow-y-scroll no-scrollbar ">
+              <div className="absolute right-0 top-full mt-3 z-10  bg-slate backdrop-blur-xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] min-w-[240px] animate-in fade-in slide-in-from-top-2 duration-200  overflow-y-scroll no-scrollbar ">
                 <div className="text-sm font-bold text-primary/80 border-b border-b-white/10 mb-0.5   py-3.5 px-3">
                   Filter by type
                 </div>
@@ -318,7 +317,11 @@ export default function NotificationsPage() {
 
         {/* ── Toolbar ── */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-          <FilterTabs active={filter} unreadCount={unreadCount} onChange={setFilter} />
+          <FilterTabs
+            active={filter}
+            //  unreadCount={unreadCount}
+            onChange={setFilter}
+          />
 
           <div className="flex gap-2">
             {unreadCount > 0 && (
@@ -327,9 +330,10 @@ export default function NotificationsPage() {
                   void markNotificationsRead()
                   dispatch(markAllRead())
                 }}
-                className="text-xs font-semibold px-3 py-1.5 rounded-md text-white/50 hover:text-white hover:bg-white/6 transition-all border border-white/8"
+                className="flex items-center gap-1.5 font-sm font-semibold px-3 py-1.5 bg-white/5 rounded-md text-white/60 hover:text-white hover:bg-white/6 transition-all border border-white/8"
               >
-                Mark all read
+                <CheckCheck size={12} />
+                <span className="max-sm:hidden">Mark all read</span>
               </button>
             )}
             {notifications.length > 0 && (
@@ -338,10 +342,10 @@ export default function NotificationsPage() {
                   void deleteNotifications()
                   dispatch(clearAll())
                 }}
-                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md text-white/40 hover:text-red-400 hover:bg-red-500/8 transition-all border border-white/8"
+                className="flex items-center gap-1.5 bg-white/5 font-sm font-semibold px-3 py-1.5 rounded-md text-white/60 hover:text-red-400 hover:bg-red-500/8 transition-all border border-white/8"
               >
                 <Trash2 size={12} />
-                Clear all
+                <span className="max-sm:hidden">Clear all</span>
               </button>
             )}
           </div>

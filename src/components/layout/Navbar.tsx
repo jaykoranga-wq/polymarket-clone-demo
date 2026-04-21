@@ -11,7 +11,7 @@ import {
   Medal,
   // Moon,
   Search,
-  // Settings,
+  Settings,
   Sparkles,
   Wallet,
   X,
@@ -856,6 +856,17 @@ export const Navbar: FC = () => {
                             onClick={() => {
                               dispatch(clearActiveDropdown())
                               navigate(`/rewards/${user.publicAddress}`)
+                            }}
+                          />
+                        </div>
+                        <Divider />
+                        <div className="py-2">
+                          <MenuItem
+                            icon={<Settings size={20} className="text-primary" />}
+                            label="Settings"
+                            onClick={() => {
+                              dispatch(clearActiveDropdown())
+                              navigate(ROUTES.SETTINGS)
                             }}
                           />
                         </div>
