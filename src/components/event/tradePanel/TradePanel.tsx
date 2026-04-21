@@ -201,7 +201,7 @@ const TradePanel = ({
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="border border-white/10  bg-linear-to-b from-white/5 to-white/2  font-inter rounded-2xl max-w-[436px] min-w-[313px] overflow-hidden ">
+    <div className="border shrink-0 border-white/10  bg-linear-to-b from-white/5 to-white/2  font-inter rounded-2xl max-w-[436px] min-w-[313px] overflow-hidden ">
       {/* ── Top: Place Bet + Buy/Sell + Order Type ── */}
       <div className="flex items-end justify-between p-6 pt-4.5 pb-5 gap-2">
         <div className="flex flex-col gap-2.5">
@@ -440,10 +440,9 @@ const TradePanel = ({
 
             <div className="flex items-center justify-between mb-2.5 gap-4">
               <span className="  font-semibold text-white">Limit Price</span>
-              <div className="flex items-center gap-2.5 py-3 px-2 rounded-md w-45/100 justify-between bg-white/5 border border-white/10">
+              <div className="flex items-center gap-2.5 py-3 px-2 rounded-md w-[160px] justify-between bg-white/5 border border-white/10">
                 <button
-                  className="w-7.5 h-7.5 rounded-2sm  text-black  font-black flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono  bg-primary border border-white/10 hover:bg-primary/90
-"
+                  className="size-7.5 shrink-0 rounded-2sm text-black font-black flex items-center justify-center cursor-pointer transition-all duration-120 font-mono bg-primary border border-white/10 hover:bg-primary/90"
                   onClick={() => updateLimit(limitCents - 1)}
                 >
                   −
@@ -455,7 +454,7 @@ const TradePanel = ({
                       inputMode="decimal"
                       value={limitInput}
                       style={{ width: `${limitInput.length || 1}ch` }}
-                      className="font-mono font-md font-bold text-white bg-transparent focus:outline-none text-right"
+                      className="font-mono font-default font-bold text-white bg-transparent focus:outline-none text-right"
                       onChange={(e) => {
                         const raw = e.target.value
                         if (!/^\d{0,2}(\.\d{0,2})?$/.test(raw)) return
@@ -469,7 +468,7 @@ const TradePanel = ({
                   </div>
                 </div>
                 <button
-                  className="w-7.5 h-7.5 rounded-2sm text-black  flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
+                  className="size-7.5 shrink-0 rounded-2sm text-black flex items-center justify-center cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
                   onClick={() => updateLimit(limitCents + 1)}
                 >
                   +
@@ -479,7 +478,7 @@ const TradePanel = ({
 
             <div className="flex items-center justify-between mb-2.5 gap-4">
               <span className="  font-semibold text-white">Shares</span>
-              <div className="flex w-45/100 items-center bg-white/5 border border-white/10 rounded-md py-3 px-2 ">
+              <div className="flex w-[160px] items-center bg-white/5 border border-white/10 rounded-md py-3 px-2 ">
                 <input
                   type="text"
                   inputMode="numeric"
@@ -589,9 +588,9 @@ const TradePanel = ({
 
             <div className="flex items-center justify-between mb-2.5 gap-4">
               <span className=" font-semibold text-white">Limit Price</span>
-              <div className="flex items-center gap-2.5 py-3 px-2 rounded-md justify-between w-45/100 bg-white/5 border border-white/10">
+              <div className="flex items-center gap-2.5 py-3 px-2 rounded-md justify-between w-[160px] bg-white/5 border border-white/10">
                 <button
-                  className="w-6 h-6 rounded-2sm text-black font-default flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
+                  className="size-7.5 shrink-0 rounded-2sm text-black font-default flex items-center justify-center cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
                   onClick={() => updateLimit(limitCents - 1)}
                 >
                   −
@@ -617,7 +616,7 @@ const TradePanel = ({
                   </div>
                 </div>
                 <button
-                  className="w-6 h-6 rounded-2sm text-black font-default flex items-center justify-center  cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
+                  className="size-7.5 shrink-0 rounded-2sm text-black font-default flex items-center justify-center cursor-pointer transition-all duration-120 font-mono sm bg-primary border border-white/10 hover:bg-primary/90"
                   onClick={() => updateLimit(limitCents + 1)}
                 >
                   +
@@ -627,7 +626,7 @@ const TradePanel = ({
 
             <div className="flex items-center justify-between mb-2.5 gap-4">
               <span className="font-semibold text-white">Shares</span>
-              <div className="flex w-45/100 items-center bg-white/5 border border-white/10 rounded-md py-3 px-4 mb-0">
+              <div className="flex w-[160px] items-center bg-white/5 border border-white/10 rounded-md py-3 px-4 mb-0">
                 <input
                   type="text"
                   inputMode="numeric"

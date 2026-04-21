@@ -82,8 +82,8 @@ export const Pagination = ({
     fontSize: 12,
     fontWeight: 600,
     border: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-    background: PORTFOLIO_COLORS.SURFACE,
-    color: PORTFOLIO_COLORS.TEXT_MUTED,
+    background: "#ffffff05",
+    color: "#ffffff90",
     cursor: "pointer",
     transition: "all 0.15s",
   }
@@ -94,8 +94,8 @@ export const Pagination = ({
   }
   const pageNumStyle = (active: boolean): React.CSSProperties => ({
     ...btnBase,
-    background: active ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.SURFACE,
-    color: active ? "#000" : PORTFOLIO_COLORS.TEXT_MUTED,
+    background: active ? PORTFOLIO_COLORS.GREEN : "#ffffff05",
+    color: active ? "#000" : "#ffffff90",
     borderColor: active ? PORTFOLIO_COLORS.GREEN : PORTFOLIO_COLORS.CARD_BORDER,
     fontWeight: active ? 700 : 600,
   })
@@ -106,17 +106,7 @@ export const Pagination = ({
   const pageNums = Array.from({ length: end - start + 1 }, (_, i) => start + i)
 
   return (
-    <div
-      className="flex items-center justify-center gap-1.5 p-4 border-t border-t-white/10"
-      // style={{
-      //   display: "flex",
-      //   alignItems: "center",
-      //   justifyContent: "center",
-      //   gap: 6,
-      //   padding: "16px",
-      //   borderTop: `1px solid ${PORTFOLIO_COLORS.CARD_BORDER}`,
-      // }}
-    >
+    <div className="flex items-center justify-start gap-1.5 p-4 border-t border-t-white/10">
       <button
         style={page === 1 ? btnDisabled : btnBase}
         disabled={page === 1}

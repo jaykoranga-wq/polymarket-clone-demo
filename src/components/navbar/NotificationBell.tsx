@@ -39,10 +39,10 @@ const timeAgo = (iso: string): string => {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-const formatBadgeCount = (count: number): string =>
-  count > NOTIFICATION_LIMITS.MAX_BADGE_COUNT
-    ? `${NOTIFICATION_LIMITS.MAX_BADGE_COUNT}+`
-    : String(count)
+// const formatBadgeCount = (count: number): string =>
+//   count > NOTIFICATION_LIMITS.MAX_BADGE_COUNT
+//     ? `${NOTIFICATION_LIMITS.MAX_BADGE_COUNT}+`
+//     : String(count)
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 const TypeIcon = ({ type }: { type: Notification["type"] }) => {
@@ -292,8 +292,8 @@ export const NotificationBell = ({ onToggle }: NotificationBellProps) => {
 
         {/* Unread badge */}
         {unreadCount > 0 && (
-          <div className="absolute top-0.5 right-0.5 min-w-4 h-4 rounded-md bg-[#e53935] text-white text-[9px] font-extrabold flex items-center justify-center border border-black">
-            {formatBadgeCount(unreadCount)}
+          <div className="absolute top-2 right-2.5 min-w-2 h-2 rounded-md bg-[#e53935] text-white text-[9px] font-extrabold flex items-center justify-center border border-black">
+            {/* {formatBadgeCount(unreadCount)} */}
           </div>
         )}
       </button>
