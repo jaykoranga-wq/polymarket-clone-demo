@@ -176,7 +176,7 @@ const EventPage = () => {
             <span className="text-gray-400 capitalize">{market.category}</span>
             <span className=" text-gray-500">›</span>
             <span className="text-white capitalize font-medium">
-              {market.title.length > 50 ? market.title : market.title}s
+              {market.title.length > 50 ? market.title : market.title}
             </span>
           </div>
 
