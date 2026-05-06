@@ -9,6 +9,7 @@
  * from any component without coupling to component internals.
  */
 
+import { getAddress } from "ethers"
 import { toast } from "sonner"
 
 import type { AppDispatch } from "@/app/store"
@@ -166,8 +167,9 @@ export async function handleMetaMaskLogin({
     const accounts = (await window.ethereum.request({
       method: "eth_requestAccounts",
     })) as unknown as string[]
-    const publicAddress = accounts[0]
-
+    let publicAddress = accounts[0]
+    publicAddress = getAddress(publicAddress as string)
+    console.log("public address:", publicAddress)
     // Step 2: get nonce + temp token from backend
     dispatch(setTempToken({ token: null }))
     const {

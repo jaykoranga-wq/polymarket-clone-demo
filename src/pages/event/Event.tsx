@@ -296,6 +296,13 @@ const EventPage = () => {
             </div>
             {/* ══ END LEFT ══ */}
 
+            {
+              <TokenBalanceChecker
+                yesTokenOnChainId={market.yesTokenOnChainId ?? null}
+                noTokenOnChainId={market.noTokenOnChainId ?? null}
+              />
+            }
+
             {/* ══ RIGHT ══ */}
             <div className="max-lg:hidden">
               <div className="position-static ">
@@ -313,10 +320,6 @@ const EventPage = () => {
                   />
                 ) : (
                   <>
-                    <TokenBalanceChecker
-                      yesTokenOnChainId={market.yesTokenOnChainId ?? null}
-                      noTokenOnChainId={market.noTokenOnChainId ?? null}
-                    />
                     <TradePanel
                       yesProbability={finalPrice ?? 50}
                       noProbability={finalPrice ? 100 - finalPrice : 50}
