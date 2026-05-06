@@ -4,6 +4,7 @@
 import { BadgeCheck, ChevronDown, Clock } from "lucide-react"
 import { useState } from "react"
 
+import { useDropdown } from "@/hooks/ui/useDropdown"
 import { type LeaderboardEntry, MOCK_BIGGEST_WINS, MOCK_LEADERBOARD } from "@/mocks/mockPages"
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -23,6 +24,9 @@ const C = {
 
 const TIME_FILTERS = ["All Time", "This Month", "This Week"] as const
 type TimeFilter = (typeof TIME_FILTERS)[number]
+
+const CATEGORIES = ["Categories", "Crypto", "Politics"] as const
+type Category = (typeof CATEGORIES)[number]
 
 // ── Rank medal ────────────────────────────────────────────────────────────────
 const RankDisplay = ({ rank }: { rank: number }) => {
@@ -300,6 +304,8 @@ const BiggestWinsPanel = () => (
 // ── Main Page ─────────────────────────────────────────────────────────────────
 const LeaderboardPage = () => {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("All Time")
+  const [category, setCategory] = useState<Category>("Categories")
+  const { isOpen, toggle, ref, close } = useDropdown("leaderboard-category")
 
   // TODO: const { data: entries = [] } = useGetLeaderboardQuery({ period: timeFilter })
   const entries = MOCK_LEADERBOARD
@@ -322,10 +328,44 @@ const LeaderboardPage = () => {
 
           {/* filters */}
           <div className="flex items-center  gap-3.5">
-            {/* category dropdown placeholder */}
-            <div className="flex items-center gap-3 p-2.5 pr-1.5  bg-white/5 border border-white/10 rounded-2md text-white/90 font-base font-medium justify-between cursor-pointer min-w-42 ">
-              <span>Category</span>
-              <ChevronDown size={14} strokeWidth={2.5} className="opacity-50" />
+            {/* category dropdown */}
+            <div className="relative" ref={ref}>
+              <div
+                onClick={toggle}
+                className="flex items-center gap-3 p-2.5 pr-1.5 bg-white/5 border border-white/10 rounded-2md text-white/90 font-base font-medium justify-between cursor-pointer min-w-42 "
+              >
+                <span>{category}</span>
+                <ChevronDown
+                  size={14}
+                  strokeWidth={2.5}
+                  className={`opacity-50 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                />
+              </div>
+
+              {isOpen && (
+                <div
+                  className="absolute top-full left-0 right-0 mt-1.5 py-1 z-50 rounded-lg border border-white/10 shadow-2xl overflow-hidden"
+                  style={{ background: "#12161d" }}
+                >
+                  {CATEGORIES.map((cat) => {
+                    const isActive = category === cat
+                    return (
+                      <div
+                        key={cat}
+                        onClick={() => {
+                          setCategory(cat)
+                          close()
+                        }}
+                        className={`px-3 py-2.5 text-white font-base font-medium cursor-pointer transition-colors duration-150
+                          ${isActive ? "bg-primary text-black" : "hover:bg-primary hover:text-black"}
+                        `}
+                      >
+                        {cat}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
 
             {/* separator */}

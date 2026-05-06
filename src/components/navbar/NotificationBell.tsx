@@ -1,6 +1,6 @@
 // src/components/navbar/NotificationBell.tsx
 
-import { Bell, ChevronRight, Trash2, X } from "lucide-react"
+import { Bell, CheckCheck, ChevronRight, Trash2, X } from "lucide-react"
 import { useCallback, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router"
@@ -39,10 +39,10 @@ const timeAgo = (iso: string): string => {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-const formatBadgeCount = (count: number): string =>
-  count > NOTIFICATION_LIMITS.MAX_BADGE_COUNT
-    ? `${NOTIFICATION_LIMITS.MAX_BADGE_COUNT}+`
-    : String(count)
+// const formatBadgeCount = (count: number): string =>
+//   count > NOTIFICATION_LIMITS.MAX_BADGE_COUNT
+//     ? `${NOTIFICATION_LIMITS.MAX_BADGE_COUNT}+`
+//     : String(count)
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 const TypeIcon = ({ type }: { type: Notification["type"] }) => {
@@ -62,16 +62,12 @@ const UnreadDot = () => (
 )
 
 const EmptyState = () => (
-  <div className="flex flex-col item-center justify-center py-10 px-5 gap-2.5">
+  <div className="flex flex-col items-center justify-center py-6 px-5 gap-2.5">
     <div className="w-10 h-10 rounded-full bg-white/6 flex items-center justify-center">
-      <Bell size={18} color="rgba(255,255,255,0.2)" />
+      <Bell size={18} color="rgba(255,255,255,0.6)" />
     </div>
-    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", margin: 0, fontWeight: 500 }}>
-      No notifications
-    </p>
-    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.15)", margin: 0 }}>
-      You're all caught up!
-    </p>
+    <p className="text-sm font-semibold text-white/60">No notifications</p>
+    <p className="text-xs text-white/30">You're all caught up!</p>
   </div>
 )
 
@@ -168,7 +164,7 @@ const DropdownHeader = ({
               e.currentTarget.style.color = "rgba(255,255,255,0.5)"
             }}
           >
-            Mark all read
+            <CheckCheck size={12} />
           </button>
         )}
 
@@ -296,8 +292,8 @@ export const NotificationBell = ({ onToggle }: NotificationBellProps) => {
 
         {/* Unread badge */}
         {unreadCount > 0 && (
-          <div className="absolute top-0.5 right-0.5 min-w-4 h-4 rounded-md bg-[#e53935] text-white text-[9px] font-extrabold flex items-center justify-center border border-black">
-            {formatBadgeCount(unreadCount)}
+          <div className="absolute top-2 right-2.5 min-w-2 h-2 rounded-md bg-[#e53935] text-white text-[9px] font-extrabold flex items-center justify-center border border-black">
+            {/* {formatBadgeCount(unreadCount)} */}
           </div>
         )}
       </button>
@@ -343,7 +339,7 @@ export const NotificationBell = ({ onToggle }: NotificationBellProps) => {
                 {/* End of list */}
                 {!isFetchingMore && !hasMore && notifications.length > 0 && (
                   <p className="text-center text-xs text-white/20 py-3 select-none">
-                    No more notifications
+                    You've reached the end
                   </p>
                 )}
               </>

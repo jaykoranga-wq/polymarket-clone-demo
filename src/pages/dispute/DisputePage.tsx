@@ -1,8 +1,8 @@
 import { AlertTriangle, ArrowLeft, Clock, Copy, Gavel, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router"
-import { Toaster } from "sonner"
 
+import { ToastProvider } from "@/components/ui/ToastProvider"
 import { useGetMarketByIdQuery, useGetOracleTimelineQuery } from "@/features/api/markets/marketApi"
 import { extractDisputeData } from "@/features/markets/disputeHelpers"
 import { useDisputeTransactions } from "@/hooks/dispute/useDisputeTransactions"
@@ -194,7 +194,7 @@ The backend will automatically detect the AnswerDisputed event and update the da
 
   return (
     <div className="container mt-4 md:mt-6 mb-14 md:mb-20 ">
-      <Toaster richColors position="top-center" />
+      <ToastProvider />
 
       {/* Back button */}
       <button

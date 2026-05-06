@@ -292,7 +292,7 @@ const PositionRow = ({
       {/* market title + tags */}
       <div style={{ minWidth: 0 }}>
         <div
-          className="font-default font-medium text-white mb-1.5  truncate whitespace-nowrap"
+          className="font-default font-medium capitalize text-white mb-1.5  truncate whitespace-nowrap"
           // style={{
           //   fontSize: 14,
           //   fontWeight: 600,

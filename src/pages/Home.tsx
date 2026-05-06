@@ -1,12 +1,12 @@
 import { Bookmark, ChevronRight, Gift, RefreshCcw } from "lucide-react"
 import { type FC } from "react"
 import { useSelector } from "react-redux"
-import { Toaster } from "sonner"
 
 import { IcoAI } from "@/components/custom/IcoAI"
 import { MyCarousel } from "@/components/custom/MyCarousel"
 import { HeroBanner } from "@/components/layout/HeroBanner"
 import { MarketGrid } from "@/components/market/MarketGrid"
+import { ToastProvider } from "@/components/ui/ToastProvider"
 import { selectAllMarkets, selectNewMarkets } from "@/features/markets/marketSelectors"
 import type { Market } from "@/features/markets/types"
 import { MOCK_MARKETS } from "@/mocks/mockData"
@@ -34,7 +34,7 @@ const Home: FC = () => {
 
   return (
     <div className="bg-background text-white selection:bg-primary/30">
-      <Toaster richColors position="top-center" />
+      <ToastProvider />
       {/* {userLoading && <AuthLoader />} */}
 
       <main className="container pb-12">
