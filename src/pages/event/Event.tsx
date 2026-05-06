@@ -297,12 +297,14 @@ const EventPage = () => {
             </div>
             {/* ══ END LEFT ══ */}
 
-            {
+            {import.meta.env.DEV ? (
               <TokenBalanceChecker
                 yesTokenOnChainId={market.yesTokenOnChainId ?? null}
                 noTokenOnChainId={market.noTokenOnChainId ?? null}
               />
-            }
+            ) : (
+              <></>
+            )}
 
             {/* ══ RIGHT ══ */}
             <div className="max-lg:hidden">
