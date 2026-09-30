@@ -15,7 +15,6 @@ import { ShareModal } from "@/components/market/ShareModal"
 import { ActivityTab, MarketRulesTab, OrderBookTab } from "@/components/market/tabs"
 import { TokenBalanceChecker } from "@/components/market/TokenBalanceChecker"
 import { EventPageSkeleton } from "@/components/ui/MarketSkeleton"
-import { ToastProvider } from "@/components/ui/ToastProvider"
 import {
   useGetMarketByIdQuery,
   useGetMarketPriceQuery,
@@ -54,9 +53,10 @@ const EventPage = () => {
 
   const { executeTrade, tradeError, approvalState } = useTrade()
 
-  // ── Primary data source: real API ──────────────────────────────────────────
   const { data: apiMarket, isLoading, isError } = useGetMarketByIdQuery(id ?? "")
-  const { data: apiMarketPrice } = useGetMarketPriceQuery(apiMarket?.optionGroupId ?? "empty")
+  const { data: apiMarketPrice } = useGetMarketPriceQuery(apiMarket?.optionGroupId ?? "", {
+    skip: !apiMarket?.optionGroupId,
+  })
   const [toggleBookmark] = useToggleBookmarkMutation()
 
   // ── Oracle timeline — used to determine dispute eligibility ────────────────
@@ -153,8 +153,10 @@ const EventPage = () => {
   const totalVolume = (market.yesVolume ?? 0) + (market.noVolume ?? 0)
 
   if (apiMarket) {
-    if (apiMarket.winningOutcome !== null) {
-      displayWinningOutcome = apiMarket.winningOutcome === "1" ? "YES" : "NO"
+    if (apiMarket.winningOutcome != null) {
+      const outStr = String(apiMarket.winningOutcome).toUpperCase()
+      if (outStr === "1" || outStr === "YES") displayWinningOutcome = "YES"
+      else if (outStr === "0" || outStr === "NO") displayWinningOutcome = "NO"
     }
   }
 
@@ -169,7 +171,6 @@ const EventPage = () => {
           probability={market.yesProbability ?? 50}
           outcome="Yes"
         />
-        <ToastProvider />
         <div className="container">
           {/* ── Breadcrumb ── */}
           <div className="flex items-start space-x-2 font-sm mb-4 mt-2">
@@ -366,7 +367,11 @@ const EventPage = () => {
               {isResolved ? (
                 <div className="">
                   <MarketResolvedCard
-                    winningOutcome={`NO`}
+                    winningOutcome={
+                      displayWinningOutcome == null
+                        ? "To be decided"
+                        : (displayWinningOutcome as "YES" | "NO" | "To be decided")
+                    }
                     resolutionTime={market.resolutionTime}
                     latestOracleAction={latestOracleAction}
                   />

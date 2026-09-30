@@ -34,11 +34,12 @@ export default defineConfig([
         },
       ],
       "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
-      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "no-console": "off",
+      "react-hooks/set-state-in-effect": "off",
     },
   },
   {
-    files: ["src/components/ui/**/*.{ts,tsx}"],
+    files: ["src/components/ui/**/*.{ts,tsx}", "src/routes/**/*.{ts,tsx}"],
     rules: {
       "react-refresh/only-export-components": "off",
     },

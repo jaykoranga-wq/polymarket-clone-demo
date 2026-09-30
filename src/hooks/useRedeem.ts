@@ -7,6 +7,7 @@ import { toast } from "sonner"
 
 import type { RootState } from "@/app/store"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
+import { getActiveInjectedProvider } from "@/features/auth/lib/injectedProvider"
 import { useMagic } from "@/features/auth/lib/magic"
 import { ADDRESSES } from "@/libs/contracts"
 import { CTF_REDEEM_ABI } from "@/libs/contracts"
@@ -42,8 +43,9 @@ export const useRedeem = () => {
     let provider: ethers.BrowserProvider
 
     if (loginMethod === LOGIN_METHODS.MetaMask) {
-      if (!window.ethereum) throw new Error("MetaMask not found")
-      provider = new ethers.BrowserProvider(window.ethereum as ethers.Eip1193Provider)
+      const p = getActiveInjectedProvider()
+      if (!p) throw new Error("Browser wallet not found")
+      provider = new ethers.BrowserProvider(p)
     } else {
       if (!magic?.rpcProvider) throw new Error("Magic not ready")
       provider = new ethers.BrowserProvider(magic.rpcProvider as ethers.Eip1193Provider)
