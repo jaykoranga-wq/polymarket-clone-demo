@@ -8,9 +8,11 @@ import type { RootState } from "@/app/store"
 import { useCreateOrderMutation } from "@/features/api/orders/orderApi"
 import { reserveAmount } from "@/features/auth/authSlice"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
+import { getActiveInjectedProvider } from "@/features/auth/lib/injectedProvider"
 import { useMagic } from "@/features/auth/lib/magic"
+import { switchToAmoy } from "@/features/auth/switchChain"
 import { addOrder } from "@/features/orders/orderSlice"
-import { ADDRESSES, ERC20_ABI, NETWORK } from "@/libs/contracts"
+import { ADDRESSES, ERC20_ABI } from "@/libs/contracts"
 
 import type { TradeOrder } from "./TradeTypes"
 
@@ -67,87 +69,107 @@ export const useTrade = () => {
   >("idle")
 
   const [createOrder] = useCreateOrderMutation()
-
   // ── Step 1: get signer ────────────────────────────────────────────────────
+
   const getSigner = async (): Promise<ethers.JsonRpcSigner> => {
     let provider: ethers.BrowserProvider
 
     if (loginMethod === LOGIN_METHODS.MetaMask) {
-      if (!window.ethereum) throw new Error("MetaMask not found")
-      await switchToAmoy()
-      provider = new ethers.BrowserProvider(window.ethereum as ethers.Eip1193Provider)
+      const p = getActiveInjectedProvider()
+      if (!p) throw new Error("Browser wallet not found")
+      await switchToAmoy(p)
+      provider = new ethers.BrowserProvider(p)
     } else {
       if (!magic?.rpcProvider) throw new Error("Magic not ready")
       provider = new ethers.BrowserProvider(magic.rpcProvider as ethers.Eip1193Provider)
     }
 
-    return provider.getSigner()
+    return new ethers.JsonRpcSigner(provider, address!)
   }
 
   // ── Step 1b: read on-chain nonce ──────────────────────────────────────────
-  const getNonce = async (signer: ethers.JsonRpcSigner): Promise<bigint> => {
+  const getNonce = async (): Promise<bigint> => {
+    const rpcUrl = import.meta.env.VITE_RPC_URL || "https://polygon-amoy-bor-rpc.publicnode.com"
+    const publicProvider = new ethers.JsonRpcProvider(rpcUrl)
     const exchange = new ethers.Contract(
       ADDRESSES.CTFExchange,
       EXCHANGE_ABI,
-      signer,
+      publicProvider,
     ) as unknown as ExchangeContract
     return exchange.nonces(address!)
   }
 
-  // ── Switch MetaMask to Polygon Amoy ───────────────────────────────────────
-  const switchToAmoy = async () => {
-    try {
-      await window?.ethereum?.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x13882" }] as unknown[],
-      })
-    } catch (err: unknown) {
-      if ((err as { code: number }).code === 4902) {
-        await window?.ethereum?.request({
-          method: "wallet_addEthereumChain",
-          params: [
-            {
-              chainId: "0x13882",
-              chainName: "Polygon Amoy Testnet",
-              nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
-              rpcUrls: [NETWORK.rpcUrl],
-              blockExplorerUrls: ["https://amoy.polygonscan.com"],
-            },
-          ] as unknown[],
-        })
-      }
-    }
+  // ── Step 1c: Get dynamic gas overrides to satisfy Amoy minimums ──────────
+  const getGasOverrides = async () => {
+    const rpcUrl = import.meta.env.VITE_RPC_URL || "https://polygon-amoy-bor-rpc.publicnode.com"
+    const publicProvider = new ethers.JsonRpcProvider(rpcUrl)
+    const feeData = await publicProvider.getFeeData()
+    const minPriorityFee = 30_000_000_000n
+    const minFee = 40_000_000_000n
+
+    const maxPriorityFeePerGas =
+      feeData.maxPriorityFeePerGas && feeData.maxPriorityFeePerGas > minPriorityFee
+        ? feeData.maxPriorityFeePerGas
+        : minPriorityFee
+
+    const maxFeePerGas =
+      feeData.maxFeePerGas && feeData.maxFeePerGas > minFee ? feeData.maxFeePerGas : minFee
+
+    return { maxPriorityFeePerGas, maxFeePerGas }
   }
 
   // ── Step 2: approve USDC spending ────────────────────────────────────────
   const approveUSDC = async (signer: ethers.JsonRpcSigner, amount: bigint) => {
-    const usdc = new ethers.Contract(ADDRESSES.USDC, ERC20_ABI, signer) as unknown as USDCContract
-    const allowance = await usdc.allowance(address!, ADDRESSES.CTFExchange)
+    const rpcUrl = import.meta.env.VITE_RPC_URL || "https://polygon-amoy-bor-rpc.publicnode.com"
+    const publicProvider = new ethers.JsonRpcProvider(rpcUrl)
+    const usdcPublic = new ethers.Contract(
+      ADDRESSES.USDC,
+      ERC20_ABI,
+      publicProvider,
+    ) as unknown as USDCContract
+
+    const allowance = await usdcPublic.allowance(address!, ADDRESSES.CTFExchange)
     if (allowance >= amount && amount > 0n) {
       return
     }
-    const tx = await usdc.approve(ADDRESSES.CTFExchange, ethers.MaxUint256)
+
+    const overrides = await getGasOverrides()
+    const usdc = new ethers.Contract(ADDRESSES.USDC, ERC20_ABI, signer)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tx = await (usdc as any).approve(ADDRESSES.CTFExchange, ethers.MaxUint256, overrides)
     await tx.wait()
   }
 
   // ── Step 3: approve CTF token transfers ──────────────────────────────────
   const approveCTF = async (signer: ethers.JsonRpcSigner) => {
-    const ctf = new ethers.Contract(
+    const rpcUrl = import.meta.env.VITE_RPC_URL || "https://polygon-amoy-bor-rpc.publicnode.com"
+    const publicProvider = new ethers.JsonRpcProvider(rpcUrl)
+    const ctfPublic = new ethers.Contract(
       ADDRESSES.ConditionalTokens,
       CTF_ABI,
-      signer,
+      publicProvider,
     ) as unknown as CTFContract
-    const approved = await ctf.isApprovedForAll(address!, ADDRESSES.CTFExchange)
+
+    const approved = await ctfPublic.isApprovedForAll(address!, ADDRESSES.CTFExchange)
     if (approved) {
       return
     }
-    const tx = await ctf.setApprovalForAll(ADDRESSES.CTFExchange, true)
+
+    const overrides = await getGasOverrides()
+    const ctf = new ethers.Contract(ADDRESSES.ConditionalTokens, CTF_ABI, signer)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tx = await (ctf as any).setApprovalForAll(ADDRESSES.CTFExchange, true, overrides)
     await tx.wait()
   }
 
   // ── Step 4: sign order (EIP-712) ──────────────────────────────────────────
   const signOrder = async (signer: ethers.JsonRpcSigner, order: TradeOrder) => {
     const tokenId = order.outcome === "Yes" ? order.yesTokenOnChainId : order.noTokenOnChainId
+    if (!tokenId) {
+      throw new Error(
+        "This market isn't live on-chain yet — its outcome tokens haven't been minted.",
+      )
+    }
 
     const domain = {
       name: "PolymarketCTFExchange",
@@ -191,7 +213,7 @@ export const useTrade = () => {
     const usdc = (tokens * price) / 1_000_000n // matches backend formula exactly
 
     const isBuy = order.action === "Buy"
-    const nonce = await getNonce(signer)
+    const nonce = await getNonce()
 
     const orderStruct = {
       salt: BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) + BigInt(Date.now()),
@@ -328,6 +350,12 @@ export const useTrade = () => {
           message = "Wallet not ready. Please try again."
         } else if (err.message.includes("insufficient funds")) {
           message = "Insufficient funds for gas fees."
+        } else if (
+          err.message.includes("Unexpected error") ||
+          err.message.includes("eth_accounts") ||
+          err.message.includes("UNKNOWN_ERROR")
+        ) {
+          message = "Wallet connection unstable. Please try again."
         } else if (err.message) {
           message = err.message
         }

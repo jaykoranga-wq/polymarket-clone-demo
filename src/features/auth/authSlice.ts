@@ -17,6 +17,7 @@ const initialState: AuthState = {
   token: null,
   cashLoading: false,
   deviceToken: null,
+  walletRefreshTrigger: false,
 }
 
 const authSlice = createSlice({
@@ -65,6 +66,7 @@ const authSlice = createSlice({
 
     loadingFalse(state) {
       state.loading = false
+      state.isAuthChecking = false
     },
     setTempToken(state, action: PayloadAction<{ token: string | null }>) {
       state.token = action.payload.token
@@ -111,6 +113,9 @@ const authSlice = createSlice({
     setDeviceToken: (state, action: PayloadAction<string>) => {
       state.deviceToken = action.payload
     },
+    triggerWalletRefresh: (state) => {
+      state.walletRefreshTrigger = !state.walletRefreshTrigger
+    },
   },
 })
 
@@ -127,6 +132,7 @@ export const {
   releaseAmount,
   recalculateAvailable,
   setDeviceToken,
+  triggerWalletRefresh,
 } = authSlice.actions
 
 export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated
@@ -139,5 +145,7 @@ export const selectLoginMethod = (state: { auth: AuthState }) => state.auth.logi
 export const selectAvailableAmount = (state: { auth: AuthState }) => state.auth.availableAmount
 export const selectReservedAmount = (state: { auth: AuthState }) => state.auth.reservedAmount
 export const selectDeviceToken = (state: { auth: AuthState }) => state.auth.deviceToken
+export const selectWalletRefreshTrigger = (state: { auth: AuthState }) =>
+  state.auth.walletRefreshTrigger
 
 export default authSlice.reducer

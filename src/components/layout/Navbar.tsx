@@ -26,6 +26,7 @@ import { LoginModal } from "@/components/auth/LoginModal"
 import { Button } from "@/components/ui/button"
 import { ROUTES } from "@/constants/routes"
 import { useLogoutMutation } from "@/features/api/auth/authApi"
+import { secondApi } from "@/features/api/secondApi"
 import {
   loadingFalse,
   loadingTrue,
@@ -352,6 +353,7 @@ export const Navbar: FC = () => {
   const { email, publicAddress } = useSelector(selectUserData)
   const portfolioAmount = useSelector(selectPortfolioAmount)
   const cashAmount = useSelector(selectAvailableAmount)
+  const cashLoading = useAppSelector((state) => state.auth.cashLoading)
   const user = useAppSelector(selectUserData)
   const isAuthChecking = useAppSelector(selectIsAuthChecking)
   const loginMethod = useAppSelector(selectLoginMethod)
@@ -440,15 +442,16 @@ export const Navbar: FC = () => {
       if (user.loginMethod === LOGIN_METHODS.MetaMask) {
         await logoutToBackend().unwrap()
         setMetaMaskLoggedOut()
-        localStorage.removeItem("auth_token")
-        localStorage.removeItem("auth_method")
-        localStorage.removeItem("auth_address")
       }
       dispatch(setNotifications([]))
     } catch (err) {
       console.error("Logout error:", err)
     } finally {
       localStorage.removeItem("isSignedIn")
+      localStorage.removeItem("auth_token")
+      localStorage.removeItem("auth_method")
+      localStorage.removeItem("auth_address")
+      dispatch(secondApi.util.resetApiState())
       dispatch(logout())
       dispatch(loadingFalse())
       navigate(ROUTES.HOME)
@@ -528,15 +531,23 @@ export const Navbar: FC = () => {
                   <span className="text-secondary font-xs uppercase tracking-wide leading-none mb-1">
                     Portfolio
                   </span>
-                  <span className="text-primary text-sm font-bold">
-                    {formatPortfolio(portfolioAmount)}
-                  </span>
+                  {cashLoading ? (
+                    <div className="w-[60px] h-5 bg-gray-600/50 animate-pulse rounded" />
+                  ) : (
+                    <span className="text-primary text-sm font-bold">
+                      {formatPortfolio(portfolioAmount)}
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <span className="text-secondary font-xs uppercase tracking-wide leading-none mb-1">
                     Cash
                   </span>
-                  <span className="text-primary text-sm font-bold">{formatCash(cashAmount)}</span>
+                  {cashLoading ? (
+                    <div className="w-[60px] h-5 bg-gray-600/50 animate-pulse rounded" />
+                  ) : (
+                    <span className="text-primary text-sm font-bold">{formatCash(cashAmount)}</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -739,17 +750,25 @@ export const Navbar: FC = () => {
                       <span className="text-secondary uppercase tracking-wide leading-none">
                         Portfolio
                       </span>
-                      <span className="text-primary font-sm font-bold">
-                        {formatPortfolio(portfolioAmount)}
-                      </span>
+                      {cashLoading ? (
+                        <div className="w-[60px] h-5 bg-gray-600/50 animate-pulse rounded mt-[2px]" />
+                      ) : (
+                        <span className="text-primary font-sm font-bold">
+                          {formatPortfolio(portfolioAmount)}
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-col ">
                       <span className="text-secondary uppercase tracking-wide leading-none ">
                         Cash
                       </span>
-                      <span className="text-primary font-sm font-bold">
-                        {formatCash(cashAmount)}
-                      </span>
+                      {cashLoading ? (
+                        <div className="w-[60px] h-5 bg-gray-600/50 animate-pulse rounded mt-[2px]" />
+                      ) : (
+                        <span className="text-primary font-sm font-bold">
+                          {formatCash(cashAmount)}
+                        </span>
+                      )}
                     </div>
                   </div>
 

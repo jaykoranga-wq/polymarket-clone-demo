@@ -14,4 +14,5 @@ export interface AuthState {
   cashLoading: boolean
   isAuthChecking: boolean
   deviceToken: string | null
+  walletRefreshTrigger: boolean
 }

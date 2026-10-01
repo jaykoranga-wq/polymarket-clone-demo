@@ -1,14 +1,19 @@
+import type { EIP1193Provider } from "@/hooks/useEIP6963"
 import { NETWORK } from "@/libs/contracts"
 
-export const switchToAmoy = async () => {
+export const switchToAmoy = async (provider?: EIP1193Provider) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const p = provider || (typeof window !== "undefined" ? (window as any).ethereum : null)
+  if (!p) return
+
   try {
-    await window?.ethereum?.request({
+    await p.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x13882" }],
     })
   } catch (err: unknown) {
     if ((err as { code: number }).code === 4902) {
-      await window?.ethereum?.request({
+      await p.request({
         method: "wallet_addEthereumChain",
         params: [
           {

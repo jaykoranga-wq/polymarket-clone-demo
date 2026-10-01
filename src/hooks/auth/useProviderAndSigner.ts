@@ -3,6 +3,7 @@ import { useSelector } from "react-redux"
 
 import type { RootState } from "@/app/store"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
+import { getActiveInjectedProvider } from "@/features/auth/lib/injectedProvider"
 import { useMagic } from "@/features/auth/lib/magic"
 import { switchToAmoy } from "@/features/auth/switchChain"
 
@@ -23,12 +24,13 @@ export const useProviderAndSigner = () => {
     let signer: ethers.JsonRpcSigner
 
     if (loginMethod === LOGIN_METHODS.MetaMask) {
-      if (!window.ethereum) throw new Error("MetaMask not found. Please install the extension.")
+      const p = getActiveInjectedProvider()
+      if (!p) throw new Error("Browser wallet not found. Please install an extension.")
 
       // Ensure we are on Polygon Amoy for Wallet users
-      await switchToAmoy()
+      await switchToAmoy(p)
 
-      provider = new ethers.BrowserProvider(window.ethereum as ethers.Eip1193Provider)
+      provider = new ethers.BrowserProvider(p)
       signer = await provider.getSigner()
       return { provider, signer, method: "wallet" }
     } else if (loginMethod === LOGIN_METHODS.Email || loginMethod === LOGIN_METHODS.Google) {

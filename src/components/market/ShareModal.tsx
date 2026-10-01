@@ -100,7 +100,6 @@ export const ShareModal = ({ open, onClose, title, probability, outcome }: Share
 
   // reset copied state when modal closes
   useEffect(() => {
-    // eslint-disable-next-line
     if (!open) setCopied(false)
   }, [open])
 
