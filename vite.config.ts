@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
   server: {
@@ -20,9 +20,16 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom"],
-          redux: ["@reduxjs/toolkit", "react-redux"],
+        manualChunks(id) {
+          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/")) {
+            return "vendor"
+          }
+          if (
+            id.includes("node_modules/@reduxjs/toolkit/") ||
+            id.includes("node_modules/react-redux/")
+          ) {
+            return "redux"
+          }
         },
       },
     },

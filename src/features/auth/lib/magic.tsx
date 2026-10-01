@@ -25,7 +25,7 @@ const MagicProvider = ({ children }: { children: ReactNode }) => {
         },
         extensions: [new OAuthExtension()], // 👈 ADD THIS
       })
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setMagic(magicInstance as Magic)
     }
   }, [])

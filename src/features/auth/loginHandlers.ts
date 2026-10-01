@@ -67,9 +67,13 @@ export async function handleEmailLogin({
     const userInfo = await magic.user.getInfo()
     const magicToken = await magic.user.getIdToken()
 
-    const resultBackend = await loginToBackend({ didToken: magicToken, deviceToken }).then(
-      (r) => r.data,
-    )
+    // RTK Query's unwrap() automatically throws if the request fails (like 400 Bad Request)
+    // We pass "none" as a fallback because the backend strictly requires a string.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const resultBackend = await (loginToBackend as any)({
+      didToken: magicToken,
+      deviceToken: deviceToken || "none",
+    }).unwrap()
 
     dispatch(
       login({
@@ -118,6 +122,7 @@ export async function handleGoogleLogin({
     // Page navigates away — nothing past this line runs
   } catch (err: unknown) {
     const e = err as { code?: number; message?: string }
+    dispatch(loadingFalse())
     if (e?.code === -32603 || e?.message?.includes("User denied")) {
       onError()
       return
@@ -132,7 +137,11 @@ export async function handleGoogleLogin({
 // MetaMask wallet login (challenge-response signature flow)
 // ---------------------------------------------------------------------------
 
-export async function handleMetaMaskLogin({
+import { setActiveInjectedProvider } from "@/features/auth/lib/injectedProvider"
+import type { EIP6963ProviderDetail } from "@/hooks/useEIP6963"
+
+export async function handleInjectedLogin({
+  wallet,
   dispatch,
   loginWallet,
   verifyWallet,
@@ -140,6 +149,7 @@ export async function handleMetaMaskLogin({
   onError,
   deviceToken,
 }: {
+  wallet: EIP6963ProviderDetail
   dispatch: AppDispatch
   loginWallet: LoginWalletFn
   verifyWallet: VerifyWalletFn
@@ -147,24 +157,15 @@ export async function handleMetaMaskLogin({
   onError: () => void
   deviceToken: string | null | undefined
 }): Promise<void> {
-  if (!window.ethereum) {
-    toast.error("MetaMask not installed!", {
-      description: "Please install the MetaMask browser extension to continue.",
-      action: {
-        label: "Install",
-        onClick: () => window.open("https://metamask.io/download/", "_blank"),
-      },
-    })
-    return
-  }
+  const provider = wallet.provider
 
   dispatch(loadingTrue())
 
   try {
     // switching the chain to amoy
-    await switchToAmoy()
+    await switchToAmoy(provider)
     // Step 1: get wallet address
-    const accounts = (await window.ethereum.request({
+    const accounts = (await provider.request({
       method: "eth_requestAccounts",
     })) as unknown as string[]
     let publicAddress = accounts[0]
@@ -178,32 +179,36 @@ export async function handleMetaMaskLogin({
     dispatch(setTempToken({ token: tempToken }))
 
     // Step 3: ask MetaMask to sign the nonce
-    const signature = (await window.ethereum.request({
+    const signature = (await provider.request({
       method: "personal_sign",
       params: [nonce, publicAddress as string],
     })) as unknown as string
 
     // Step 4: verify signature with backend
     // Only include deviceToken in the payload when it is available
-    const result = await verifyWallet({
+    // Only include deviceToken in the payload when it is available, or fallback to "none"
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await (verifyWallet as any)({
       signature,
-      ...(deviceToken ? { deviceToken } : {}),
-    }).then((r) => r.data)
+      deviceToken: deviceToken || "none",
+    }).unwrap()
 
     // Step 5: store session
     clearMetaMaskLoggedOut()
+    setActiveInjectedProvider(provider)
     dispatch(
       login({
         email: null,
         publicAddress,
         loading: false,
-        loginMethod: LOGIN_METHODS.MetaMask,
+        loginMethod: LOGIN_METHODS.MetaMask, // Keeping this enum value for backwards compat
         token: result.data.token,
       }),
     )
     localStorage.setItem("auth_token", result.data.token)
     localStorage.setItem("auth_method", LOGIN_METHODS.MetaMask)
     localStorage.setItem("auth_address", publicAddress as string)
+    localStorage.setItem("auth_rdns", wallet.info.rdns)
     localStorage.setItem("isSignedIn", "true")
 
     onSuccess()
@@ -214,8 +219,8 @@ export async function handleMetaMaskLogin({
       onError()
       return
     }
-    console.error("MetaMask login failed:", err)
-    toast.error("MetaMask login failed", { description: `${err}` })
+    console.error("Injected login failed:", err)
+    toast.error("Injected login failed", { description: `${err}` })
     onError()
   } finally {
     dispatch(loadingFalse())

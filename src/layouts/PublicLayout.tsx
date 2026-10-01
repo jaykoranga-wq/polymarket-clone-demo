@@ -7,6 +7,7 @@ import type { RootState } from "@/app/store"
 import { UsernameModal } from "@/components/auth/UsernameModal"
 import { Footer } from "@/components/layout/footer/Footer"
 import { Navbar } from "@/components/layout/Navbar"
+import { ToastProvider } from "@/components/ui/ToastProvider"
 import {
   useLoginMutation,
   useProfileQuery,
@@ -15,13 +16,12 @@ import {
 import { useGetMarketsQuery } from "@/features/api/markets/marketApi"
 import { useGetNotificationsQuery } from "@/features/api/notifications/notificationApi"
 import { checkAuth } from "@/features/auth/authChecks"
-import { selectDeviceToken, setDeviceToken } from "@/features/auth/authSlice"
+import { setDeviceToken } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
 import { setBookmarkedIds, setMarkets } from "@/features/markets/marketSlice"
 import { NOTIFICATION_TYPES } from "@/features/notifications/notificationConstants"
-import { addNotification, setNotifications } from "@/features/notifications/notificationSlice"
+import { addNotification } from "@/features/notifications/notificationSlice"
 import { useWalletBalance } from "@/hooks/useWalletBalance"
-import { MOCK_MARKETS } from "@/mocks/mockData"
 import { listenToMessages, requestFCMToken } from "@/services/firebase/fcm"
 
 export function PublicLayout() {
@@ -37,50 +37,47 @@ export function PublicLayout() {
   // Get token explicitly to prevent premature API execution before authentication completes
   const token = useSelector((state: RootState) => state.auth.token)
   const email = useSelector((state: RootState) => state.auth.email)
-  const deviceToken = useSelector(selectDeviceToken)
-
+  // Removed unused deviceToken and apiNotifications
   const { data: profile } = useProfileQuery(undefined, { skip: !token })
+  useGetNotificationsQuery(undefined, { skip: !token })
 
-  const { data: apiNotifications } = useGetNotificationsQuery(undefined, { skip: !token })
-
-  // Runs once when magic initialises (any page, any refresh).
-  // Restores auth state: Google redirect → Magic session → MetaMask → unauthenticated.
-  // dispatch and loginToBackend are stable refs — safe to omit from deps.
   useEffect(() => {
-    if (magic) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      void checkAuth(magic, dispatch, loginToBackend as any, deviceToken)
-    }
     if (markets) {
-      dispatch(setMarkets([...markets, ...MOCK_MARKETS]))
-      dispatch(setBookmarkedIds(markets.filter((m) => m.isBookmarked).map((m) => m.id)))
-    } else {
-      dispatch(setMarkets(MOCK_MARKETS))
+      dispatch(setMarkets(markets))
+      const bookmarked = markets.filter((m) => m.isBookmarked).map((m) => m.id)
+      dispatch(setBookmarkedIds(bookmarked))
     }
-
-    if (apiNotifications && apiNotifications.length != 0) {
-      dispatch(setNotifications(apiNotifications))
-    }
-
-    return () => {
-      dispatch(setNotifications([]))
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [magic, dispatch, markets, apiNotifications])
-
-  // FCM: request token + listen for foreground messages
+  }, [markets, dispatch])
+  // 1. Auth check & FCM Setup
   useEffect(() => {
-    const setupFCM = async () => {
-      const token = await requestFCMToken()
-      if (token) {
-        dispatch(setDeviceToken(token))
-        console.log("token from fcm :", token)
+    let isMounted = true
+
+    const init = async () => {
+      // Step A: Request FCM token first so we can send it during login
+      const fcmToken = await requestFCMToken()
+      if (fcmToken && isMounted) {
+        dispatch(setDeviceToken(fcmToken))
+        console.log("token from fcm :", fcmToken)
+      }
+
+      // Step B: Now check auth, passing the token if we have it
+      if (magic && isMounted) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        void checkAuth(magic, dispatch, loginToBackend as any, fcmToken)
       }
     }
 
+    init()
+
     listenToMessages((payload) => {
-      const title = payload.notification?.title ?? "New notification"
-      const body = payload.notification?.body ?? ""
+      console.log("FCM Payload received: ", payload)
+      const title = payload.notification?.title ?? payload.data?.title ?? "New notification"
+      const body =
+        payload.notification?.body ??
+        payload.data?.body ??
+        payload.data?.message ??
+        payload.data?.description ??
+        ""
       const redirectUrl = payload.data?.redirectUrl
       // Backend sends numeric type as a string in FCM data; 2 = fill, default = system
       const typeNum = Number(payload.data?.type ?? 3)
@@ -89,10 +86,10 @@ export function PublicLayout() {
       // 1. Push into the bell / notification list immediately
       dispatch(addNotification({ type, title, message: body, timestamp: new Date().toISOString() }))
 
-      // 2. Show a foreground toast — clicking "View →" navigates to the redirect URL
-      toast(title, {
+      // 2. Show a foreground toast
+      const toastOpts = {
         description: body,
-        duration: 3000,
+        duration: 4000,
         ...(redirectUrl
           ? {
               action: {
@@ -104,14 +101,23 @@ export function PublicLayout() {
               },
             }
           : {}),
-      })
+      }
+
+      if (typeNum === 2) {
+        toast.success(title, toastOpts)
+      } else {
+        toast.info(title, toastOpts)
+      }
     })
 
-    setupFCM()
-  }, [dispatch, navigate])
+    return () => {
+      isMounted = false
+    }
+  }, [magic, dispatch, navigate, loginToBackend])
 
   return (
     <div className=" bg-background">
+      <ToastProvider />
       <main>
         {
           <UsernameModal

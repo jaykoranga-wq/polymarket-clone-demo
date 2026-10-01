@@ -8,13 +8,14 @@ import {
   useLoginWalletMutation,
   useVerifyWalletMutation,
 } from "@/features/api/auth/authApi"
-import { selectDeviceToken } from "@/features/auth/authSlice"
+import { loadingFalse, selectDeviceToken } from "@/features/auth/authSlice"
 import { useMagic } from "@/features/auth/lib/magic"
 import {
   handleEmailLogin,
   handleGoogleLogin,
-  handleMetaMaskLogin,
+  handleInjectedLogin,
 } from "@/features/auth/loginHandlers"
+import { useEIP6963 } from "@/hooks/useEIP6963"
 
 interface LoginModalProps {
   open: boolean
@@ -24,10 +25,9 @@ interface LoginModalProps {
 const States = {
   Email: "email",
   Google: "google",
-  MetaMask: "metamask",
 } as const
 
-type States = (typeof States)[keyof typeof States]
+type States = (typeof States)[keyof typeof States] | string
 
 export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   const [email, setEmail] = useState("")
@@ -38,20 +38,27 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   const [loginWallet] = useLoginWalletMutation()
   const [verifyWallet] = useVerifyWalletMutation()
   const deviceToken = useAppSelector(selectDeviceToken)
+  const discoveredWallets = useEIP6963()
+
+  const handleClose = () => {
+    setLoading(null)
+    dispatch(loadingFalse())
+    onClose()
+  }
 
   if (!open) return null
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-      onClick={onClose}
+      onClick={handleClose}
     >
       <div
         className="relative w-full max-w-md bg-black border border-white/10 rounded-2xl p-6 shadow-[0px_4px_100px_rgba(255,255,255,0.1)] animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 text-white/40 hover:text-white/80 text-xl leading-none"
         >
           ✕
@@ -148,36 +155,45 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
-        {/* MetaMask */}
-        <Button
-          onClick={() => {
-            setLoading(States.MetaMask)
-            handleMetaMaskLogin({
-              dispatch,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              loginWallet: loginWallet as any,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              verifyWallet: verifyWallet as any,
-              deviceToken: deviceToken as string,
-              onSuccess: () => {
-                setLoading(null)
-                onClose()
-              },
-              onError: () => setLoading(null),
-            })
-          }}
-          disabled={!!loading}
-          className="w-full bg-slate hover:bg-primary hover:text-black border border-progress-bar text-white font-semibold py-3 rounded-2sm flex items-center justify-center gap-3"
-        >
-          {loading === "metamask" ? (
-            "Connecting..."
-          ) : (
-            <>
-              <span className="text-xl">🦊</span>
-              Connect MetaMask
-            </>
+        {/* Dynamic Wallets */}
+        <div className="flex flex-col gap-3">
+          {discoveredWallets.length === 0 && (
+            <p className="font-xs text-white/40 text-center">No browser wallets detected.</p>
           )}
-        </Button>
+          {discoveredWallets.map((wallet) => (
+            <Button
+              key={wallet.info.uuid}
+              onClick={() => {
+                setLoading(wallet.info.uuid)
+                handleInjectedLogin({
+                  wallet,
+                  dispatch,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  loginWallet: loginWallet as any,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  verifyWallet: verifyWallet as any,
+                  deviceToken: deviceToken as string,
+                  onSuccess: () => {
+                    setLoading(null)
+                    onClose()
+                  },
+                  onError: () => setLoading(null),
+                })
+              }}
+              disabled={!!loading}
+              className="w-full bg-slate hover:bg-primary hover:text-black border border-progress-bar text-white font-semibold py-3 rounded-2sm flex items-center justify-center gap-3"
+            >
+              {loading === wallet.info.uuid ? (
+                "Connecting..."
+              ) : (
+                <>
+                  <img src={wallet.info.icon} alt={wallet.info.name} className="w-6 h-6" />
+                  Connect {wallet.info.name}
+                </>
+              )}
+            </Button>
+          ))}
+        </div>
 
         <p className="font-xs sm:font-sm text-white/30 text-center mt-5">Terms • Privacy</p>
       </div>

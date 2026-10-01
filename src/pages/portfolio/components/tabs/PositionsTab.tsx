@@ -49,7 +49,16 @@ const mapApiPosition = (p: ApiPortfolioPosition): Position => {
 
     collateralToken: ADDRESSES.USDC,
     isResolved: p.resolved ?? false,
-    winningOutcome: p.winningOutcome === "1" ? "YES" : p.winningOutcome === "0" ? "NO" : null,
+    winningOutcome: (() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const outcome = p.winningOutcome ?? (p.market as any)?.winningOutcome
+      if (outcome != null) {
+        const str = String(outcome).toUpperCase()
+        if (str === "1" || str === "YES") return "YES"
+        if (str === "0" || str === "NO") return "NO"
+      }
+      return null
+    })(),
     isRedeemed: isRedeemedTrue,
   }
 }

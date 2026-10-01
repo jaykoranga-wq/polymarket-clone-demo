@@ -1,12 +1,10 @@
 import { ethers } from "ethers"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
 import type { RootState } from "@/app/store"
 import { useGetLockedBalanceQuery } from "@/features/api/auth/authApi"
 import { reserveAmount, setCashAmount, setCashLoading } from "@/features/auth/authSlice"
-import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
-import { useMagic } from "@/features/auth/lib/magic"
 
 // ← paste your USDC contract address from Magic wallet here
 const USDC_ADDRESS = "0xb157f0dD6859722AfE1A5b4D983b94db1468b15A"
@@ -17,54 +15,58 @@ const USDC_ABI = [
 ]
 
 export const useWalletBalance = () => {
-  const { magic } = useMagic()
   const dispatch = useDispatch()
-  const loginMethod = useSelector((s: RootState) => s.auth.loginMethod)
   const address = useSelector((s: RootState) => s.auth.publicAddress)
   const token = useSelector((s: RootState) => s.auth.token)
-  const { data: lockedData } = useGetLockedBalanceQuery(undefined, {
+  const walletRefreshTrigger = useSelector((s: RootState) => s.auth.walletRefreshTrigger)
+  const {
+    data: lockedData,
+    refetch: refetchLocked,
+    isFetching: isLockedFetching,
+  } = useGetLockedBalanceQuery(undefined, {
     skip: !token,
   })
 
+  const [isOnChainLoading, setIsOnChainLoading] = useState(false)
+
+  // 1. Refetch backend on trigger
   useEffect(() => {
-    if (!address) return
-    let lockedAmountBigint: bigint = 0n
-    if (lockedData) {
-      // lockedAmount comes from backend in micro-USDC (same units as on-chain)
-      lockedAmountBigint = BigInt(lockedData.data.lockedAmount)
+    if (token) {
+      refetchLocked()
     }
+  }, [walletRefreshTrigger, refetchLocked, token])
+
+  // 2. Sync locked data to Redux
+  useEffect(() => {
+    if (lockedData) {
+      dispatch(reserveAmount(lockedData?.data?.lockedAmount?.toString() || "0"))
+    }
+  }, [lockedData, dispatch])
+
+  // 3. Fetch on-chain balance
+  useEffect(() => {
+    if (!address || !token) return
     const fetchBalance = async () => {
-      dispatch(setCashLoading(true))
+      setIsOnChainLoading(true)
       try {
-        let provider: ethers.BrowserProvider
-
-        if (loginMethod === LOGIN_METHODS.MetaMask) {
-          if (!window.ethereum) throw new Error("MetaMask not found")
-          provider = new ethers.BrowserProvider(window.ethereum as ethers.Eip1193Provider)
-        } else {
-          if (!magic?.rpcProvider) throw new Error("Magic provider not ready")
-          provider = new ethers.BrowserProvider(magic.rpcProvider as ethers.Eip1193Provider)
-        }
-
-        // ← USDC is an ERC-20 contract, not native token
+        const rpcUrl = import.meta.env.VITE_RPC_URL || "https://polygon-amoy-bor-rpc.publicnode.com"
+        const provider = new ethers.JsonRpcProvider(rpcUrl)
         const usdc = new ethers.Contract(USDC_ADDRESS, USDC_ABI, provider)
-        // USDC has 6 decimals — hardcoded to avoid a second contract call
         const raw: bigint = await usdc.getFunction("balanceOf")(address)
-
-        // raw is already a bigint from ethers (micro-USDC, 6 decimals)
-        // store as string to keep Redux state serializable
         dispatch(setCashAmount({ cashAmount: raw.toString() }))
-
-        // Lock the backend-reported reserved balance in redux
-        dispatch(reserveAmount(lockedAmountBigint.toString()))
       } catch (err) {
         console.error("Balance fetch failed:", err)
         dispatch(setCashAmount({ cashAmount: "0" }))
       } finally {
-        dispatch(setCashLoading(false))
+        setIsOnChainLoading(false)
       }
     }
 
     fetchBalance()
-  }, [address, lockedData, dispatch, loginMethod, magic?.rpcProvider])
+  }, [address, token, dispatch, walletRefreshTrigger])
+
+  // 4. Sync global loading state
+  useEffect(() => {
+    dispatch(setCashLoading(isOnChainLoading || isLockedFetching))
+  }, [isOnChainLoading, isLockedFetching, dispatch])
 }

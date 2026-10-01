@@ -10,6 +10,7 @@ import { toast } from "sonner"
 
 import type { RootState } from "@/app/store"
 import { LOGIN_METHODS } from "@/features/auth/authTypes/loginMethodsTypes"
+import { getActiveInjectedProvider } from "@/features/auth/lib/injectedProvider"
 import { useMagic } from "@/features/auth/lib/magic"
 import { ADDRESSES, ERC20_ABI } from "@/libs/contracts"
 
@@ -518,9 +519,10 @@ export const WithdrawModal = ({ open, onClose, availableBalance }: WithdrawModal
 
   // ── MetaMask withdraw — calls usdc.transfer() on-chain ────────────────────
   const handleMetaMaskWithdraw = async (toAddress: string, amount: number) => {
-    if (!window.ethereum) throw new Error("MetaMask not found")
+    const p = getActiveInjectedProvider()
+    if (!p) throw new Error("Browser wallet not found")
 
-    const provider = new ethers.BrowserProvider(window.ethereum as ethers.Eip1193Provider)
+    const provider = new ethers.BrowserProvider(p)
     const signer = await provider.getSigner()
     const usdc = new ethers.Contract(ADDRESSES.USDC, ERC20_ABI, signer) as unknown as USDCContract
     const amountUnits = BigInt(Math.round(amount * Math.pow(10, USDC_DECIMALS)))

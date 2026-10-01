@@ -14,7 +14,7 @@
 import { toast } from "sonner"
 
 import type { AppDispatch } from "@/app/store"
-import { loadingFalse, loadingTrue, login } from "@/features/auth/authSlice"
+import { loadingFalse, loadingTrue, login, triggerWalletRefresh } from "@/features/auth/authSlice"
 import { LOGIN_METHODS, type LoginMethod } from "@/features/auth/authTypes/loginMethodsTypes"
 import type { Magic } from "@/features/auth/lib/magic"
 import { wasMetaMaskLoggedOut } from "@/routes/utils"
@@ -57,10 +57,11 @@ export async function checkGoogleRedirect(
     if (!result) return false
 
     const magicToken = result.magic.idToken
-    resultFromBackend = await loginToBackend({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resultFromBackend = await (loginToBackend as any)({
       didToken: magicToken,
-      ...(deviceToken ? { deviceToken } : {}),
-    }).then((r) => r.data)
+      deviceToken: deviceToken || "none",
+    }).unwrap()
 
     const meta = result.magic.userMetadata
     const publicAddress =
@@ -80,6 +81,7 @@ export async function checkGoogleRedirect(
     localStorage.setItem("auth_token", resultFromBackend.data.token)
     localStorage.setItem("auth_method", LOGIN_METHODS.Google)
     localStorage.setItem("auth_address", publicAddress as string)
+    dispatch(triggerWalletRefresh())
     return true
   } catch {
     // getRedirectResult throws when page load is NOT from a Google OAuth redirect — expected.
@@ -113,10 +115,11 @@ export async function checkMagicSession(
 
     const userInfo = await magic?.user.getInfo()
     const magicToken = await magic?.user.getIdToken()
-    const resultFromBackend = await loginToBackend({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const resultFromBackend = await (loginToBackend as any)({
       didToken: (magicToken as string) ?? null,
-      ...(deviceToken ? { deviceToken } : {}),
-    }).then((r) => r.data)
+      deviceToken: deviceToken || "none",
+    }).unwrap()
 
     dispatch(
       login({
@@ -128,6 +131,7 @@ export async function checkMagicSession(
       }),
     )
     localStorage.setItem("isSignedIn", "true")
+    dispatch(triggerWalletRefresh())
     return true
   } catch (err) {
     console.error("Magic session check failed:", err)
@@ -137,9 +141,34 @@ export async function checkMagicSession(
   }
 }
 
-// ---------------------------------------------------------------------------
-// 3. MetaMask silent check (no popup)
-// ---------------------------------------------------------------------------
+import { setActiveInjectedProvider } from "@/features/auth/lib/injectedProvider"
+import type { EIP1193Provider } from "@/hooks/useEIP6963"
+
+// Helper to reliably discover the specific EIP-6963 wallet we previously used
+const discoverWalletByRdns = async (targetRdns: string): Promise<EIP1193Provider | null> => {
+  return new Promise((resolve) => {
+    let found = false
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onAnnounce = (event: any) => {
+      const providerDetail = event.detail
+      if (providerDetail.info.rdns === targetRdns) {
+        found = true
+        window.removeEventListener("eip6963:announceProvider", onAnnounce)
+        resolve(providerDetail.provider)
+      }
+    }
+    window.addEventListener("eip6963:announceProvider", onAnnounce)
+    window.dispatchEvent(new Event("eip6963:requestProvider"))
+
+    // Timeout if the wallet doesn't respond quickly
+    setTimeout(() => {
+      if (!found) {
+        window.removeEventListener("eip6963:announceProvider", onAnnounce)
+        resolve(null)
+      }
+    }, 500)
+  })
+}
 
 /**
  * Reads the token/address from localStorage, validates it against the backend,
@@ -152,10 +181,32 @@ export async function checkMetaMask(dispatch: AppDispatch): Promise<boolean> {
     const token = localStorage.getItem("auth_token")
     const method = localStorage.getItem("auth_method")
     const publicAddress = localStorage.getItem("auth_address")
+    const authRdns = localStorage.getItem("auth_rdns")
 
-    if (!window.ethereum || wasMetaMaskLoggedOut() || !token) return false
+    if (wasMetaMaskLoggedOut() || !token || !publicAddress || !authRdns) return false
 
-    // Validate the stored token with the backend before trusting it.
+    // Step 1: Discover wallets (EIP-6963) & Match persisted identity
+    const provider = await discoverWalletByRdns(authRdns)
+    if (!provider) {
+      console.warn("Previously connected wallet not found.")
+      throw new Error("Wallet not found")
+    }
+
+    // Step 2: Select Provider
+    setActiveInjectedProvider(provider)
+
+    // Step 3: Call eth_accounts and Verify Account Match
+    const accounts = (await provider.request({ method: "eth_accounts" })) as string[]
+    if (
+      !accounts ||
+      accounts.length === 0 ||
+      accounts[0]?.toLowerCase() !== publicAddress.toLowerCase()
+    ) {
+      console.warn("Wallet is disconnected or active account changed.")
+      throw new Error("Account mismatch")
+    }
+
+    // Step 4: Validate the stored token with the backend before trusting it.
     const res = await fetch(`${import.meta.env.VITE_API_BASE_URL_SECOND}/v1/user/profile`, {
       headers: {
         Authorization: token,
@@ -164,11 +215,7 @@ export async function checkMetaMask(dispatch: AppDispatch): Promise<boolean> {
     })
 
     if (!res.ok) {
-      localStorage.removeItem("auth_token")
-      localStorage.removeItem("auth_method")
-      localStorage.removeItem("auth_address")
-      localStorage.removeItem("isSignedIn")
-      return false
+      throw new Error("Backend validation failed")
     }
 
     dispatch(
@@ -181,9 +228,17 @@ export async function checkMetaMask(dispatch: AppDispatch): Promise<boolean> {
       }),
     )
     localStorage.setItem("isSignedIn", "true")
+    dispatch(triggerWalletRefresh())
     return true
   } catch (err) {
     console.error("MetaMask session check failed:", err)
+    // Clear storage to force a clean re-login state
+    localStorage.removeItem("auth_token")
+    localStorage.removeItem("auth_method")
+    localStorage.removeItem("auth_address")
+    localStorage.removeItem("auth_rdns")
+    localStorage.removeItem("isSignedIn")
+    setActiveInjectedProvider(null)
     return false
   }
 }
